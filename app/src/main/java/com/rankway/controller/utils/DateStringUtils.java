@@ -1,0 +1,36 @@
+package com.rankway.controller.utils;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class DateStringUtils {
+
+
+    public static String getDateString() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+        Date date = new Date(System.currentTimeMillis());
+        String format = simpleDateFormat.format(date);
+        return format;
+    }
+
+
+    /**
+     * 获取当前的时间
+     * @return
+     */
+    public static String getCurrentTime(){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Date date = new Date(System.currentTimeMillis());
+        String format = simpleDateFormat.format(date);
+        return format;
+    }
+
+    // formatType格式为yyyy-MM-dd HH:mm:ss//yyyy年MM月dd日 HH时mm分ss秒
+    // data Date类型的时间
+    public static String dateToString(Date data) {
+        String formatType="yyyy/MM/dd HH:mm:ss";
+        return new SimpleDateFormat(formatType).format(data);
+    }
+
+
+}

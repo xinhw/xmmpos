@@ -1,0 +1,860 @@
+package com.rankway.controller.webapi;
+
+import android.util.Log;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
+import com.rankway.controller.utils.Base64Util;
+import com.rankway.controller.utils.HttpUtil;
+
+import org.apache.commons.codec.digest.DigestUtils;
+
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+
+/**
+ * <pre>
+ *   author : Xin Hongwei
+ *   e-mail : xinhw@wxsemicon.com
+ *   time  : 2022/12/10
+ *   desc  :
+ *   version: 1.0
+ * </pre>
+ */
+public class payWebapi {
+    private final String TAG = "payWebapi";
+
+    private String secret = "6D119911B0B34BE894AB1A0C82518281";
+    private String clientId = "1234567887654321";
+
+    private String serverIP = "119.3.3.227";
+    private int portNo = 8801;
+
+    private String cposno;
+    private String cusercode;
+
+    final String CONTENT_TYPE_JSON = "application/json";
+    final String CONTENT_TYPE_URLENCODED = "application/x-www-form-urlencoded";
+
+    private int errCode;
+    private String errMsg;
+
+    public static payWebapi getInstance(){
+        return SingletonHoler.sInstance;
+    }
+
+    public static class SingletonHoler{
+        private static final payWebapi sInstance = new payWebapi();
+    }
+
+    public payWebapi(){
+
+    }
+
+    /***
+     * 获取AccessTOKEN
+     * @return
+     */
+    public String accessToken() {
+        Log.d(TAG,"accessToken");
+
+        String accessToken = "9e9a3635b1caff8d0ae6512e8d5e303d";
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url =  serverPort + "/api/Token?key=DF754DDD43F843E9BC8B0FAD6E58BB76&secret=6D119911B0B34BE894AB1A0C82518281";
+        Log.d(TAG,"url="+url);
+
+        HttpUtil httpUtil = new HttpUtil();
+        String ret = httpUtil.httpGet(url);
+        Log.d(TAG,"ret:"+ret);
+        if(null!=ret) {
+            HashMap retMap = (HashMap) fromJsonString(ret, HashMap.class);
+            accessToken = (String) retMap.get("AccessToken");
+            return accessToken;
+        }else{
+            errCode = httpUtil.getResponseCode();
+            errMsg = "获取accessToken失败，网络有问题";
+        }
+
+        return accessToken;
+    }
+
+    /***
+     * 根据POS机号查询最大流水号
+     * @param posno     POS机号
+     * @return
+     */
+    public posAudit getPosAuditNo(String posno){
+        Log.d(TAG,"getPosAuditNo");
+
+        String accessToken = accessToken();
+        Log.d(TAG,"accessToken:"+accessToken);
+
+        String jsonData = String.format("posno=%s",posno);
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + "/api/pos?AccessToken=" + accessToken;
+        Log.d(TAG,"url="+url);
+
+        HttpUtil httpUtil = new HttpUtil();
+        String ret = httpUtil.httpPost(url,CONTENT_TYPE_URLENCODED,jsonData);
+        Log.d(TAG,"ret:"+ret);
+
+        errCode = httpUtil.getResponseCode();
+        if(null==ret){
+            errMsg = "平台返回信息为空";
+            return null;
+        }
+
+        HashMap respParam = (HashMap) fromJsonString(ret, HashMap.class);
+        if(null==respParam){
+            Log.d(TAG,"respParam is null");
+            errMsg = "后台返回信息格式出错";
+            return null;
+        }
+
+        try {
+            errCode = (int)Double.parseDouble(String.valueOf(respParam.get("errcode")));
+            errMsg = String.valueOf(respParam.get("errmsg"));
+        }catch (Exception e) {
+            errCode = 101;
+            errMsg = e.getMessage();
+        }
+        if (errCode != 0) return null;
+
+        //  {"Result":{"PosNo":"30001","PosName":"艾雷斯POS1","PosCno":425},"errcode":0,"errmsg":"ok"}
+        HashMap retMap = (HashMap) fromJsonString(String.valueOf(respParam.get("Result")), HashMap.class);
+        Log.d(TAG,"retMap"+retMap);
+
+        posAudit obj = new posAudit();
+        //  POS机名称
+        String posName = String.valueOf(retMap.get("PosName"));
+        Log.d(TAG,"posName"+posName);
+        obj.setPosName(posName);
+
+        //  最大流水号+1
+        String poscno = String.valueOf(retMap.get("PosCno"));
+        Log.d(TAG,"poscno:"+poscno);
+
+        Double d = Double.parseDouble(poscno);
+        int auditNo = d.intValue();
+        Log.d(TAG,"auditNo:"+auditNo);
+        obj.setPosCno(auditNo);
+
+//        String str = JSON.toJSONString(retMap);
+//        Log.d(TAG,"retMap:"+ str);
+//        return str;
+
+        obj.setPosNo(posno);
+        return obj;
+    }
+
+    /***
+     * 根据工号（WorkNo）查询信息
+     * @param workNo        工号
+     * @return
+     */
+    public cardInfo getPersonInfoByWorkNo(String workNo){
+        Log.d(TAG,"getPersonInfoByWorkNo");
+
+        String accessToken = accessToken();
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + String.format("/api/personinfo/%s?accessToken=",workNo) + accessToken;
+        Log.d(TAG,"URL:"+url);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpGet(url);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return null;
+            }
+
+            //  {"Result":{"gremain":0.00,"WorkNo":"V1752010","Status":2,"Name":"李柏林","Cellphone":null,"CardNo":50022},"errcode":0,"errmsg":"ok"}
+            HashMap responseBody = (HashMap) fromJsonString(ret, HashMap.class);
+            if(null==responseBody){
+                Log.d(TAG,"respParam is null");
+                errMsg = "后台返回信息格式出错";
+                return null;
+            }
+
+            errCode = (int)Double.parseDouble(String.valueOf(responseBody.get("errcode")));
+            errMsg = String.valueOf(responseBody.get("errmsg"));
+            if (errCode != 0) return null;
+
+            //  {"gremain":0.00,"WorkNo":"V1752010","Status":2,"Name":"李柏林","Cellphone":null,"CardNo":50022}
+            HashMap retMap = (HashMap) fromJsonString(String.valueOf(responseBody.get("Result")), HashMap.class);
+//            String str = JSON.toJSONString(retMap);
+
+            cardInfo obj = new cardInfo();
+
+            //  gremain
+            String str = String.valueOf(retMap.get("gremain"));
+            Log.d(TAG,"gremain:"+str);
+
+            Double d = Double.parseDouble(str);
+            obj.setGremain(d.floatValue());
+
+            //  WorkNo
+            obj.setGno(workNo);
+
+            //  Status
+            str = String.valueOf(retMap.get("Status"));
+            Log.d(TAG,"Status:"+str);
+
+            d = Double.parseDouble(str);
+            obj.setStatusid(d.intValue());
+
+            //  Name
+            str = String.valueOf(retMap.get("Name"));
+            Log.d(TAG,"Name"+str);
+            obj.setName(str);
+
+            //  Cellphone
+            //  CardNo
+            str = String.valueOf(retMap.get("CardNo"));
+            Log.d(TAG,"CardNo:"+str);
+
+            d = Double.parseDouble(str);
+            obj.setCardno(d.intValue());
+
+            return obj;
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+        }
+
+        return null;
+    }
+
+    /***
+     * 通过卡唯一号查询个人信息
+     * @param cardsno       卡唯一号
+     * @return
+     */
+    public cardInfo getCardPersonInfo(String cardsno) {
+        Log.d(TAG,"getCardPersonInfo");
+
+        String accessToken = accessToken();
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + "/api/personinfo?accessToken=" + accessToken;
+        Log.d(TAG,"URL:"+url);
+
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("cardno", cardsno);
+
+        String reqParamsSet = Base64Util.EncodeString(toJsonString(requestMap));
+        Log.d(TAG,"Base64编码前："+toJsonString(requestMap));
+        Log.d(TAG,"Base64编码后："+reqParamsSet);
+
+        Long timestamp = new Date().getTime();
+
+        String data = secret + clientId + reqParamsSet + timestamp;
+        String mac = DigestUtils.md5Hex(data);
+
+        Log.d(TAG,String.format("计算mac字符串:{%s}，mac:{%s}", data, mac));
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        String reqTime = format.format(new Date(timestamp));
+
+        Map body = new HashMap();
+        body.put("clientID", clientId);
+        body.put("reqTime", reqTime);
+        body.put("reqParamsSet", reqParamsSet);
+        body.put("mac", mac);
+
+        String jsonData = JSON.toJSONString(body);
+        Log.d(TAG,"jsonData:"+jsonData);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpPost(url,CONTENT_TYPE_JSON,jsonData);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return null;
+            }
+
+            // {"Result":{"cardno":0,"gremain":0.0},"errcode":0,"errmsg":"ok"}
+            HashMap responseBody = (HashMap) fromJsonString(ret, HashMap.class);
+            if(null==responseBody){
+                errMsg = "后台返回信息格式出错";
+                return null;
+            }
+
+            errCode = (int)Double.parseDouble(String.valueOf(responseBody.get("errcode")));
+            errMsg = String.valueOf(responseBody.get("errmsg"));
+            if (errCode != 0) return null;
+
+            //  {"cardno":0,"gremain":0.0}
+            HashMap retMap = (HashMap) fromJsonString(String.valueOf(responseBody.get("Result")), HashMap.class);
+
+            cardInfo obj = new cardInfo();
+
+            //  cardno
+            String str = String.valueOf(retMap.get("cardno"));
+            Log.d(TAG,"cardno:"+str);
+
+            Double d = Double.parseDouble(str);
+            obj.setCardno(d.intValue());
+
+            //  gremain
+            str = String.valueOf(retMap.get("gremain"));
+            Log.d(TAG,"gremain:"+str);
+
+            d = Double.parseDouble(str);
+            obj.setGremain(d.floatValue());
+
+            return obj;
+
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+        }
+
+        return null;
+    }
+
+    /***
+     * 根据二维码信息查询个人信息
+     * @param systemId
+     * @param qrType
+     * @param userId
+     * @return
+     */
+    public cardInfo getQrPersonInfo(int systemId,int qrType,String userId) {
+        Log.d(TAG,"getQrPersonInfo");
+
+        String accessToken = accessToken();
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + "/api/qr/personinfo?accessToken=" + accessToken;
+        Log.d(TAG,"url:"+url);
+
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("systemid", systemId);
+        requestMap.put("qrtype", qrType);
+        requestMap.put("userid", userId);
+
+        String reqParamsSet = Base64Util.EncodeString(toJsonString(requestMap));
+        Log.d(TAG,"Base64编码前："+toJsonString(requestMap));
+        Log.d(TAG,"Base64编码后："+reqParamsSet);
+
+        Long timestamp = new Date().getTime();
+
+        String data = secret + clientId + reqParamsSet + timestamp;
+        String mac = DigestUtils.md5Hex(data);
+
+        Log.d(TAG,String.format("计算mac字符串:{%s}，mac:{%s}", data, mac));
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        String reqTime = format.format(new Date(timestamp));
+
+        Map body = new HashMap();
+        body.put("clientID", clientId);
+        body.put("reqTime", reqTime);
+        body.put("reqParamsSet", reqParamsSet);
+        body.put("mac", mac);
+
+        String jsonData = JSON.toJSONString(body);
+        Log.d(TAG,"jsonData:"+jsonData);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpPost(url,CONTENT_TYPE_JSON,jsonData);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return null;
+            }
+
+            HashMap responseBody = (HashMap) fromJsonString(ret, HashMap.class);
+            if(null==responseBody){
+                errMsg = "后台返回信息格式出错";
+                return null;
+            }
+
+            String respParamSet = (String) responseBody.get("respParamSet");
+            if(null==respParamSet){
+                errMsg = "后台返回信息respParamSet格式出错";
+                return null;
+            }
+
+            // {"Result":{"gremain":567.39,"WorkNo":"00002203","Status":2,"Name":"杨欢","Cellphone":null,"CardNo":30943},
+            // "errcode":0,"errmsg":"ok"}
+            String responseParam = Base64Util.Decode2String(respParamSet);
+            if(null==respParamSet){
+                errMsg = "后台返回信息Base64解码出错";
+                return null;
+            }
+
+            HashMap respParam = (HashMap) fromJsonString(responseParam, HashMap.class);
+            Log.d(TAG,"responseParam:"+responseParam);
+
+            //  {"Result":{"gremain":567.39,"WorkNo":"00002203","Status":2,"Name":"杨欢","Cellphone":null,"CardNo":30943},
+            //  "errcode":0,"errmsg":"ok"}
+            errCode = (int)Double.parseDouble(String.valueOf(respParam.get("errcode")));
+            errMsg = String.valueOf(respParam.get("errmsg"));
+            if(errCode!=0) return null;
+
+            // log.info("对respParamSet中的Result进行JSON转换,内容:{}", String.valueOf(respParam.get("Result")));
+            HashMap retMap = (HashMap) fromJsonString(String.valueOf(respParam.get("Result")), HashMap.class);
+
+            //  {"gremain":567.39,"WorkNo":"00002203","Status":2,"Name":"杨欢","Cellphone":null,"CardNo":30943}
+            cardInfo obj = new cardInfo();
+
+            //  gremain
+            String str = String.valueOf(retMap.get("gremain"));
+            Log.d(TAG,"gremain:"+str);
+
+            Double d = Double.parseDouble(str);
+            obj.setGremain(d.floatValue());
+
+            //  WorkNo
+            str = String.valueOf(retMap.get("WorkNo"));
+            Log.d(TAG,"WorkNo:"+str);
+            obj.setGno(str);
+
+            //  Status
+            str = String.valueOf(retMap.get("Status"));
+            Log.d(TAG,"Status:"+str);
+
+            d = Double.parseDouble(str);
+            obj.setStatusid(d.intValue());
+
+            //  Name
+            str = String.valueOf(retMap.get("Name"));
+            Log.d(TAG,"Name"+str);
+            obj.setName(str);
+
+            //  Cellphone
+            //  CardNo
+            str = String.valueOf(retMap.get("CardNo"));
+            Log.d(TAG,"CardNo:"+str);
+
+            d = Double.parseDouble(str);
+            obj.setCardno(d.intValue());
+
+            return obj;
+
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+        }
+
+        return null;
+    }
+
+    /***
+     * 根据卡号查询交易记录
+     * @param cardsno
+     * @return
+     */
+    public String cardPayRecords(String cardsno){
+        Log.d(TAG,"cardPayRecords");
+
+        String accessToken = accessToken();
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + String.format("/api/payrecords/%s/?accessToken=%s",cardsno,accessToken);
+        Log.d(TAG,"url:"+url);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpGet(url);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return null;
+            }
+
+            HashMap respParam = (HashMap) fromJsonString(ret, HashMap.class);
+            if(null==respParam){
+                errMsg = "后台返回信息格式出错";
+                return null;
+            }
+
+            errCode = (int)Double.parseDouble(String.valueOf(respParam.get("errcode")));
+            errMsg = String.valueOf(respParam.get("errmsg"));
+            if (errCode != 0) return null;
+
+            String s = respParam.get("count").toString();
+            Log.d(TAG,"返回记录数："+s);
+
+            /***
+             * └amount	    交易金额
+             * └remain	    余额
+             * └transtype	交易类型
+             * └canteenname	餐厅（设备）名称
+             * └transtime	交易时间
+             */
+            String str = JSONObject.toJSONString(respParam.get("records"));
+            Log.d(TAG,"RESULT:"+ str);
+            return str;
+
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+        }
+
+        return null;
+    }
+
+    /***
+     * 根据二维码信息查询历史交易记录
+     * @param systemId      二维码中的SystemId
+     * @param qrType        二维码中的类型
+     * @param userId        二维码中的UserId
+     * @return
+     */
+    public String qrPayRecords(int systemId,int qrType,String userId){
+        Log.d(TAG,"qrPayRecords");
+
+        String accessToken = accessToken();
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + "/api/qr/V2/payrecords?accessToken=" + accessToken;
+        Log.d(TAG,"url:"+url);
+
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("systemid", systemId);
+        requestMap.put("qrtype", qrType);
+        requestMap.put("userid", userId);
+        requestMap.put("transtype", 2);
+
+        String reqParamsSet = Base64Util.EncodeString(toJsonString(requestMap));
+        Log.d(TAG,"Base64编码前："+toJsonString(requestMap));
+        Log.d(TAG,"Base64编码后："+reqParamsSet);
+
+        Long timestamp = new Date().getTime();
+
+        String data = secret + clientId + reqParamsSet + timestamp;
+        String mac = DigestUtils.md5Hex(data);
+
+        Log.d(TAG,String.format("计算mac字符串:{%s}，mac:{%s}", data, mac));
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        String reqTime = format.format(new Date(timestamp));
+
+        Map body = new HashMap();
+        body.put("clientID", clientId);
+        body.put("reqTime", reqTime);
+        body.put("reqParamsSet", reqParamsSet);
+        body.put("mac", mac);
+
+        String jsonData = JSON.toJSONString(body);
+        Log.d(TAG,"jsonData:"+jsonData);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpPost(url,CONTENT_TYPE_JSON,jsonData);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return null;
+            }
+
+            HashMap responseBody = (HashMap) fromJsonString(ret, HashMap.class);
+            if(null==responseBody){
+                errMsg = "后台返回信息格式出错";
+                return null;
+            }
+
+            String respParamSet = (String) responseBody.get("respParamSet");
+            if(null==respParamSet){
+                errMsg = "后台返回信息respParamSet格式出错";
+                return null;
+            }
+
+            String responseParam = Base64Util.Decode2String(respParamSet);
+            if(null==respParamSet){
+                Log.d(TAG,"responseParam is null");
+                errMsg = "后台返回信息Base64解码出错";
+                return null;
+            }
+
+            HashMap respParam = (HashMap) fromJsonString(responseParam, HashMap.class);
+            Log.d(TAG,"respParam:"+responseParam);
+
+            errCode = (int)Double.parseDouble(String.valueOf(respParam.get("errcode")));
+            errMsg = String.valueOf(respParam.get("errmsg"));
+            if (errCode != 0) return null;
+
+            // {"Result":[{"PosNo":"68001","Cno":"5324    ","CanteenName":"文新医务室","Amount":29.8,"Remain":567.39,"TransType":0,"TransTime":"2022-12-16T14:55:54"},{"PosNo":"22001","Cno":"879655  ","CanteenName":"文新1楼超市","Amount":21.0,"Remain":597.19,"TransType":0,"TransTime":"2022-12-16T11:52:36"},{"PosNo":"21003","Cno":"122196  ","CanteenName":"文新1F咖啡吧","Amount":49.0,"Remain":618.19,"TransType":0,"TransTime":"2022-12-14T12:44:13"},{"PosNo":"28004","Cno":"34451   ","CanteenName":"上报大食堂(梅龙镇)","Amount":17.0,"Remain":667.19,"TransType":0,"TransTime":"2022-12-13T11:14:48"},{"PosNo":"28004","Cno":"33797   ","CanteenName":"上报大食堂(梅龙镇)","Amount":28.0,"Remain":684.19,"TransType":0,"TransTime":"2022-12-12T11:42:25"},{"PosNo":"28002","Cno":"11756   ","CanteenName":"上报大食堂(梅龙镇)","Amount":17.0,"Remain":712.19,"TransType":0,"TransTime":"2022-12-09T11:35:04"},{"PosNo":"28004","Cno":"30732   ","CanteenName":"上报大食堂(梅龙镇)","Amount":22.0,"Remain":729.19,"TransType":0,"TransTime":"2022-12-06T11:23:27"},{"PosNo":"28001","Cno":"6186    ","CanteenName":"上报大食堂(梅龙镇)","Amount":60.0,"Remain":751.19,"TransType":0,"TransTime":"2022-12-05T17:43:01"},{"PosNo":"88888","Cno":"581188  ","CanteenName":"文新后台管理","Amount":800.0,"Remain":811.19,"TransType":1,"TransTime":"2022-11-30T15:02:47"},{"PosNo":"21003","Cno":"120151  ","CanteenName":"文新1F咖啡吧","Amount":102.0,"Remain":11.19,"TransType":0,"TransTime":"2022-11-25T15:41:59"},{"PosNo":"28006","Cno":"8129    ","CanteenName":"上报大食堂(梅龙镇)","Amount":17.0,"Remain":113.19,"TransType":0,"TransTime":"2022-11-24T11:17:46"},{"PosNo":"28005","Cno":"8379    ","CanteenName":"上报大食堂(梅龙镇)","Amount":120.0,"Remain":130.19,"TransType":0,"TransTime":"2022-11-23T15:55:14"},{"PosNo":"28005","Cno":"8378    ","CanteenName":"上报大食堂(梅龙镇)","Amount":35.0,"Remain":250.19,"TransType":0,"TransTime":"2022-11-23T15:13:48"},{"PosNo":"68001","Cno":"4767    ","CanteenName":"文新医务室","Amount":29.8,"Remain":285.19,"TransType":0,"TransTime":"2022-11-22T15:00:48"},{"PosNo":"28005","Cno":"7766    ","CanteenName":"上报大食堂(梅龙镇)","Amount":30.0,"Remain":314.99,"TransType":0,"TransTime":"2022-11-22T10:59:40"},{"PosNo":"28005","Cno":"7763    ","CanteenName":"上报大食堂(梅龙镇)","Amount":6.0,"Remain":344.99,"TransType":0,"TransTime":"2022-11-22T10:45:30"},{"PosNo":"50007","Cno":"10268   ","CanteenName":"盒马分组","Amount":1100.0,"Remain":350.99,"TransType":0,"TransTime":"2022-11-21T14:02:35"},{"PosNo":"22001","Cno":"867517  ","CanteenName":"文新1楼超市","Amount":10.5,"Remain":1450.99,"TransType":0,"TransTime":"2022-11-15T13:52:22"},{"PosNo":"28004","Cno":"19661   ","CanteenName":"上报大食堂(梅龙镇)","Amount":2.0,"Remain":1461.49,"TransType":0,"TransTime":"2022-11-15T08:57:45"},{"PosNo":"28004","Cno":"19081   ","CanteenName":"上报大食堂(梅龙镇)","Amount":30.0,"Remain":1463.49,"TransType":0,"TransTime":"2022-11-14T11:33:45"}],"errcode":0,"errmsg":"ok"}
+            String str = JSONObject.toJSONString(respParam.get("Result"));
+            Log.d(TAG,"RESULT:"+ str);
+            return str;
+
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+        }
+
+        return null;
+    }
+
+    /***
+     * IC卡支付
+     * @param auditNo   本地流水号
+     * @param cardno    卡唯一号
+     * @param cdate     本机交易日期时间
+     * @param cmoney    交易金额
+     * @return
+     */
+    public int cardPayment(int auditNo,int cardno,Date cdate,int cmoney){
+        Log.d(TAG,"cardPayment");
+
+        String accessToken = accessToken();
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + "/api/Payinfoes?accessToken=" + accessToken;
+        Log.d(TAG,"url:"+url);
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        String reqTime = format.format(cdate);
+
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("clientID", clientId);
+
+        requestMap.put("cno", auditNo+"");
+        requestMap.put("cposno", cposno);
+        requestMap.put("cusercode", cusercode);
+        requestMap.put("cardno", cardno);
+        float famount = (float)(0.01 * cmoney);
+        requestMap.put("cmoney", famount);
+        requestMap.put("cdate",reqTime);
+
+        String reqParamsSet = hashMapEncode(requestMap);
+        Log.d(TAG,"数据："+reqParamsSet);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpPost201(url,CONTENT_TYPE_URLENCODED,reqParamsSet);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+            Log.d(TAG,"ResponseCode:"+errCode);
+            if(errCode==201) return 0;
+
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return -1;
+            }
+
+            // {"cno":"430","cposno":"30001","cpostype":"0","cpayway":"2","cusercode":"91001","cardno":4943,"cdate":"2022-12-27T14:43:43.984+08:00",
+            // "cmoney":0.12,"cremain":0.0,"cnote":null,"typeid":100,"localtime":null,"SystemID":null,"personinfo":null}
+            HashMap responseBody = (HashMap) fromJsonString(ret, HashMap.class);
+            if(null==responseBody){
+                errMsg = "后台返回信息格式出错";
+                return -1;
+            }
+
+            String str = JSON.toJSONString(responseBody);
+            return -1;
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+        }
+
+        return -1;
+    }
+
+    /***
+     * 二维码支付接口
+     * @param auditNo       本地流水号
+     * @param systemId      二维码中的SystemId
+     * @param qrType        二维码中的类型
+     * @param userId        二维码中用户Id
+     * @param cdate         本地的交易日期时间
+     * @param cmoney        交易金额
+     * @return
+     */
+    public int qrPayment(int auditNo,int systemId,int qrType,String userId,Date cdate,int cmoney){
+        Log.d(TAG,"qrPersonInfo");
+
+        String accessToken = accessToken();
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + "/api/qr/payinfoes?accessToken=" + accessToken;
+        Log.d(TAG,"url:"+url);
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        String reqTime = format.format(cdate);
+
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("cno", auditNo);
+        requestMap.put("cposno", cposno);
+        requestMap.put("cusercode", cusercode);
+        requestMap.put("systemid", systemId);
+        requestMap.put("qrtype", qrType);
+        requestMap.put("userid", userId);
+        requestMap.put("cdate", reqTime);
+        float famount = (float)(cmoney*0.01);
+        requestMap.put("cmoney", famount);
+
+        String reqParamsSet = Base64Util.EncodeString(toJsonString(requestMap));
+
+        String data = secret + clientId + reqParamsSet + cdate.getTime();
+        String mac = DigestUtils.md5Hex(data);
+
+        Log.d(TAG,String.format("消费（二维码），mac前字符串:{%s}，mac后字符串:{%s}", data, mac));
+
+        Map body = new HashMap();
+        body.put("clientID", clientId);
+        body.put("reqTime", reqTime);
+        body.put("reqParamsSet", reqParamsSet);
+        body.put("mac", mac);
+
+        String jsonData = JSON.toJSONString(body);
+        Log.d(TAG,"jsonData:"+jsonData);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpPost201(url,CONTENT_TYPE_JSON,jsonData);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return -1;
+            }
+
+            //  {"Code":"201","Msg":"Created","respTime":"2022-12-27T14:50:40.329981+08:00",
+            //  "respParamSet":"eyJjbm8iOiI0MzEiLCJjcG9zbm8iOiIzMDAwMSIsImNwb3N0eXBlIjoiMCIsImNwYXl3YXkiOiIyIiwiY3VzZXJjb2RlIjoiOTEwMDEiLCJjYXJkbm8iOjQ5NDMsImNkYXRlIjoiMjAyMi0xMi0yN1QxNDo1MDo0MC40NjErMDg6MDAiLCJjbW9uZXkiOjAuMDIsImNyZW1haW4iOjAuMCwiY25vdGUiOiJxciIsInR5cGVpZCI6MTAwLCJsb2NhbHRpbWUiOm51bGwsIlN5c3RlbUlEIjpudWxsLCJwZXJzb25pbmZvIjpudWxsfQ==",
+            //  "Mac":"12c9a02109a49ebb0e90ba645d9fe966"}
+            HashMap responseBody = (HashMap) fromJsonString(ret, HashMap.class);
+            if(null==responseBody){
+                errMsg = "后台返回信息格式出错";
+                return -1;
+            }
+
+            String respParamSet = (String) responseBody.get("respParamSet");
+            if(null==respParamSet){
+                errMsg = "后台返回信息respParamSet格式出错";
+                return -1;
+            }
+
+            String responseParam = Base64Util.Decode2String(respParamSet);
+            if(null==respParamSet){
+                Log.d(TAG,"responseParam is null");
+                errMsg = "后台返回信息Base64解码出错";
+                return -1;
+            }
+
+            //  {"cno":"433","cposno":"30001","cpostype":"0","cpayway":"2","cusercode":"91001","cardno":4943,
+            //  "cdate":"2022-12-27T14:55:42.851+08:00","cmoney":0.02,"cremain":0.0,
+            //  "cnote":"qr","typeid":100,"localtime":null,"SystemID":null,"personinfo":null}
+            Log.d(TAG,String.format("对api返回的respParamSet进行JSON转换,内容:{%s}", responseParam));
+            HashMap respParam = (HashMap) fromJsonString(responseParam, HashMap.class);
+
+//            errCode = (int)Double.parseDouble(String.valueOf(respParam.get("errcode")));
+//            errMsg = String.valueOf(respParam.get("errmsg"));
+//            if (errCode != 0) return -1;
+//
+//            HashMap retMap = (HashMap) fromJsonString(String.valueOf(respParam.get("Result")), HashMap.class);
+//            String str = JSON.toJSONString(retMap);
+//            Log.d(TAG,"JSON:"+str);
+
+            if(errCode==201) return 0;
+            return -1;
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+        }
+        return -1;
+    }
+
+    /**
+     * <p>Json字符串转为对象</p>
+     */
+    public Object fromJsonString(String jsonString, Class<?> clz) {
+        jsonString = jsonString.replaceAll(" ","").replaceAll("=,","=null,");
+
+        Gson gson = new Gson();
+
+        return gson.fromJson(jsonString, clz);
+    }
+
+    /**
+     * <p>Json字符串转为对象</p>
+     */
+    public String toJsonString(Object obj) {
+        Gson gson = new Gson();
+        return gson.toJson(obj);
+    }
+
+    public String getSecret() {
+        return secret;
+    }
+
+    public void setSecret(String secret) {
+        this.secret = secret;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getServerIP() {
+        return serverIP;
+    }
+
+    public void setServerIP(String serverIP) {
+        this.serverIP = serverIP;
+    }
+
+    public int getPortNo() {
+        return portNo;
+    }
+
+    public void setPortNo(int portNo) {
+        this.portNo = portNo;
+    }
+
+    public String getCposno() {
+        return cposno;
+    }
+
+    public void setCposno(String cposno) {
+        this.cposno = cposno;
+    }
+
+    public String getCusercode() {
+        return cusercode;
+    }
+
+    public void setCusercode(String cusercode) {
+        this.cusercode = cusercode;
+    }
+
+    private String hashMapEncode(Map<String,Object> requestMap){
+        String str ="";
+        if(requestMap.size()>0){
+            for(Map.Entry<String,Object> entry:requestMap.entrySet()){
+                String str0 = String.format("%s=%s",entry.getKey(), URLEncoder.encode(entry.getValue().toString()));
+                if(str.length()>0)
+                    str = str +"&" + str0;
+                else
+                    str = str + str0;
+            }
+        }
+        Log.d(TAG,"hashMapEncode:"+str);
+        return str;
+    }
+}
