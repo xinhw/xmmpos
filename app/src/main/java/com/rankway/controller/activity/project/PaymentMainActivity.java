@@ -473,6 +473,9 @@ public class PaymentMainActivity
         protected Integer doInBackground(String... strings) {
             payWebapi obj = payWebapi.getInstance();
 
+            obj.setServerIP(posInfoBean.getServerIP());
+            obj.setPortNo(posInfoBean.getPortNo());
+
             // 1. 获取POS流水
             posAudit audit = obj.getPosAuditNo(posInfoBean.getCposno());
             if(null==audit){
@@ -489,13 +492,14 @@ public class PaymentMainActivity
 
             if(payType==PAYMENT_TYPE_CARD){
                 Log.d(TAG,"IC卡支付查询：");
-                cardInfoObj = obj.getCardPersonInfo(cardPaymentObj.getGsno());
-                Log.d(TAG,"getCardPersonInfo:"+cardInfoObj);
+                cardInfoObj = obj.getPersonInfoBySNO(cardPaymentObj.getGsno());
+                Log.d(TAG,"getPersonBySNO:"+cardInfoObj);
             }else {
                 Log.d(TAG,"二维码支付查询：");
-                cardInfoObj = obj.getQrPersonInfo(cardPaymentObj.getSystemId(), cardPaymentObj.getQrType(), cardPaymentObj.getUserId());
+                cardInfoObj = obj.getPersonInfoByQrCode(cardPaymentObj.getSystemId(), cardPaymentObj.getQrType(), cardPaymentObj.getUserId());
                 Log.d(TAG, "getQrPersonInfo:" + cardInfoObj);
             }
+            if(null==cardInfoObj) errString = obj.getErrMsg();
             return 0;
         }
 
@@ -506,6 +510,7 @@ public class PaymentMainActivity
 
             if(null==cardInfoObj){
                 tvPayment.setVisibility(View.GONE);
+                showLongToast(errString);
                 playSound(false);
                 return;
             }
@@ -537,8 +542,9 @@ public class PaymentMainActivity
             playSound(false);
             return;
         }
-        int remain = (int)cardPaymentObj.getGremain()*100;
-        if(amount>remain){
+        amount = Float.parseFloat(etAmount.getText().toString());
+
+        if(amount>cardPaymentObj.getGremain()){
             showToast("余额不足支付!");
             playSound(false);
             return;
@@ -583,6 +589,7 @@ public class PaymentMainActivity
             posInfoBean.setAuditNo(audit.getPosCno()+1);
             savePosInfoBean(posInfoBean);
 
+            Log.d(TAG,"cardPaymentObj:"+cardPaymentObj.toString());
 
             if(cardPaymentObj.getQrType()==1) {
                 // public int qrPayment(int auditNo,int systemId,int qrType,String userId,Date cdate,int cmoney){

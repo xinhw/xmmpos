@@ -92,7 +92,7 @@ public class decodeQRCode {
 
         cardInfo obj = new cardInfo();
         //  SystemId;
-        obj.setStatusid(value[3]);
+        obj.setSystemId(value[3]);
         //  QRType
         obj.setQrType(value[4]);
 

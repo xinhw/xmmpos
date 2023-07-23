@@ -44,6 +44,22 @@ public class payWebapi {
     private int errCode;
     private String errMsg;
 
+    public int getErrCode() {
+        return errCode;
+    }
+
+    public void setErrCode(int errCode) {
+        this.errCode = errCode;
+    }
+
+    public String getErrMsg() {
+        return errMsg;
+    }
+
+    public void setErrMsg(String errMsg) {
+        this.errMsg = errMsg;
+    }
+
     public static payWebapi getInstance(){
         return SingletonHoler.sInstance;
     }
@@ -155,7 +171,7 @@ public class payWebapi {
     }
 
     /***
-     * 根据工号（WorkNo）查询信息
+     * 根据工号（WorkNo）查询个人信息
      * @param workNo        工号
      * @return
      */
@@ -236,11 +252,60 @@ public class payWebapi {
     }
 
     /***
-     * 通过卡唯一号查询个人信息
-     * @param cardsno       卡唯一号
+     * 根据卡唯一号查询个人信息
+     * @param sno
      * @return
      */
-    public cardInfo getCardPersonInfo(String cardsno) {
+    public cardInfo getPersonInfoBySNO(String sno){
+        Log.d(TAG,"getPersonBySNO");
+
+        String accessToken = accessToken();
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + String.format("/api/PersoninfoFromSnoV2/%s?accessToken=",sno) + accessToken;
+        Log.d(TAG,"URL:"+url);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpPost(url,CONTENT_TYPE_JSON,"");
+            Log.d(TAG,"ret:"+ret);
+
+            WebapiResponse resp = JSON.parseObject(ret,WebapiResponse.class);
+            Log.d(TAG,"resp:" +resp.toString());
+
+            errMsg = resp.getErrmsg();
+            if (resp.getError() != 0) return null;
+
+            cardInfo obj = new cardInfo();
+
+            //  gremain
+            obj.setGremain((float)resp.getResult().getGremain());
+            //  gno
+            obj.setGno(resp.getResult().getGno());
+
+            //  gname
+            obj.setName(resp.getResult().getGname());
+
+            //  StatusId
+            obj.setStatusid(resp.getResult().getStatusId());
+
+            //  cardno
+            obj.setCardno(resp.getResult().getCardno());
+
+            return obj;
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+        }
+
+        return null;
+    }
+
+    /***
+     * 通过卡号查询个人信息
+     * @param cardno       卡号（写入卡内的号码）
+     * @return
+     */
+    public cardInfo getPersonInfoByCardNo(String cardno) {
         Log.d(TAG,"getCardPersonInfo");
 
         String accessToken = accessToken();
@@ -250,7 +315,7 @@ public class payWebapi {
         Log.d(TAG,"URL:"+url);
 
         Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("cardno", cardsno);
+        requestMap.put("cardno", cardno);
 
         String reqParamsSet = Base64Util.EncodeString(toJsonString(requestMap));
         Log.d(TAG,"Base64编码前："+toJsonString(requestMap));
@@ -332,7 +397,7 @@ public class payWebapi {
      * @param userId
      * @return
      */
-    public cardInfo getQrPersonInfo(int systemId,int qrType,String userId) {
+    public cardInfo getPersonInfoByQrCode(int systemId,int qrType,String userId) {
         Log.d(TAG,"getQrPersonInfo");
 
         String accessToken = accessToken();
@@ -447,6 +512,10 @@ public class payWebapi {
             d = Double.parseDouble(str);
             obj.setCardno(d.intValue());
 
+            obj.setSystemId(systemId);
+            obj.setQrType(qrType);
+            obj.setUserId(userId);
+
             return obj;
 
         } catch (Exception e) {
@@ -461,7 +530,7 @@ public class payWebapi {
      * @param cardsno
      * @return
      */
-    public String cardPayRecords(String cardsno){
+    public String getRecordsByCardSNO(String cardsno){
         Log.d(TAG,"cardPayRecords");
 
         String accessToken = accessToken();
@@ -519,7 +588,7 @@ public class payWebapi {
      * @param userId        二维码中的UserId
      * @return
      */
-    public String qrPayRecords(int systemId,int qrType,String userId){
+    public String getRecordsByQrCode(int systemId,int qrType,String userId){
         Log.d(TAG,"qrPayRecords");
 
         String accessToken = accessToken();
@@ -682,7 +751,7 @@ public class payWebapi {
      * @return
      */
     public int qrPayment(int auditNo,int systemId,int qrType,String userId,Date cdate,int cmoney){
-        Log.d(TAG,"qrPersonInfo");
+        Log.d(TAG,"qrPayment");
 
         String accessToken = accessToken();
 
@@ -856,5 +925,143 @@ public class payWebapi {
         }
         Log.d(TAG,"hashMapEncode:"+str);
         return str;
+    }
+
+    // "cardno":520,"gsno":"de750674","gname":"童惠勇    ","gsex":"","gdeptname":"","deptId":"","StatusId":3,"gno":"66666757","gremain":0.00
+    public static class PersonInfo{
+        int cardno;
+        String gsno;
+        String gname;
+        String gsex;
+        String gdeptname;
+        int deptId;
+        int StatusId;
+        String gno;
+        double gremain;
+
+        public int getCardno() {
+            return cardno;
+        }
+
+        public void setCardno(int cardno) {
+            this.cardno = cardno;
+        }
+
+        public String getGsno() {
+            return gsno;
+        }
+
+        public void setGsno(String gsno) {
+            this.gsno = gsno;
+        }
+
+        public String getGname() {
+            return gname;
+        }
+
+        public void setGname(String gname) {
+            this.gname = gname;
+        }
+
+        public String getGsex() {
+            return gsex;
+        }
+
+        public void setGsex(String gsex) {
+            this.gsex = gsex;
+        }
+
+        public String getGdeptname() {
+            return gdeptname;
+        }
+
+        public void setGdeptname(String gdeptname) {
+            this.gdeptname = gdeptname;
+        }
+
+        public int getDeptId() {
+            return deptId;
+        }
+
+        public void setDeptId(int deptId) {
+            this.deptId = deptId;
+        }
+
+        public int getStatusId() {
+            return StatusId;
+        }
+
+        public void setStatusId(int statusId) {
+            StatusId = statusId;
+        }
+
+        public String getGno() {
+            return gno;
+        }
+
+        public void setGno(String gno) {
+            this.gno = gno;
+        }
+
+        public double getGremain() {
+            return gremain;
+        }
+
+        public void setGremain(double gremain) {
+            this.gremain = gremain;
+        }
+
+        @Override
+        public String toString() {
+            return "PersonInfo{" +
+                    "cardno=" + cardno +
+                    ", gsno='" + gsno + '\'' +
+                    ", gname='" + gname + '\'' +
+                    ", gsex='" + gsex + '\'' +
+                    ", gdeptname='" + gdeptname + '\'' +
+                    ", deptId=" + deptId +
+                    ", StatusId=" + StatusId +
+                    ", gno='" + gno + '\'' +
+                    ", gremain=" + gremain +
+                    '}';
+        }
+    }
+    public static class WebapiResponse{
+        int error;
+        String errmsg;
+        PersonInfo Result;
+
+        public int getError() {
+            return error;
+        }
+
+        public void setError(int error) {
+            this.error = error;
+        }
+
+        public String getErrmsg() {
+            return errmsg;
+        }
+
+        public void setErrmsg(String errmsg) {
+            this.errmsg = errmsg;
+        }
+
+        public PersonInfo getResult() {
+            return Result;
+        }
+
+        public void setResult(PersonInfo result) {
+            Result = result;
+        }
+
+        @Override
+        public String toString() {
+            return "WebapiResponse{" +
+                    "error=" + error +
+                    ", errmsg='" + errmsg + '\'' +
+                    ", Result=" + Result +
+                    '}';
+        }
     }
 }
