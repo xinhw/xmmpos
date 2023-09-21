@@ -43,7 +43,7 @@ public class DetApplication extends BaseApplication {
         DBManager.init(getApplicationContext());
 
         //  阿里移动推送初始化
-        initCloudChannel();
+//        initCloudChannel();
     }
 
 

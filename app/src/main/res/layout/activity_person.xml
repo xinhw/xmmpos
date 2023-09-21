@@ -95,7 +95,6 @@
         android:background="@color/btn_gray_normal" />
 
     <LinearLayout
-        android:id="@+id/viewAuditNo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">

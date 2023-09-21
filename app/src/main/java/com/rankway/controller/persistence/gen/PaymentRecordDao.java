@@ -1,13 +1,18 @@
 package com.rankway.controller.persistence.gen;
 
+import java.util.List;
+import java.util.ArrayList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
 import org.greenrobot.greendao.AbstractDao;
 import org.greenrobot.greendao.Property;
+import org.greenrobot.greendao.internal.SqlUtils;
 import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
+
+import com.rankway.controller.persistence.entity.PaymentTotal;
 
 import com.rankway.controller.persistence.entity.PaymentRecord;
 
@@ -44,7 +49,10 @@ public class PaymentRecordDao extends AbstractDao<PaymentRecord, Long> {
         public final static Property SystemId = new Property(17, int.class, "systemId", false, "SYSTEM_ID");
         public final static Property UploadFlag = new Property(18, int.class, "uploadFlag", false, "UPLOAD_FLAG");
         public final static Property UploadTime = new Property(19, java.util.Date.class, "uploadTime", false, "UPLOAD_TIME");
+        public final static Property PaymentTotalId = new Property(20, long.class, "paymentTotalId", false, "PAYMENT_TOTAL_ID");
     }
+
+    private DaoSession daoSession;
 
 
     public PaymentRecordDao(DaoConfig config) {
@@ -53,6 +61,7 @@ public class PaymentRecordDao extends AbstractDao<PaymentRecord, Long> {
     
     public PaymentRecordDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
+        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
@@ -78,7 +87,8 @@ public class PaymentRecordDao extends AbstractDao<PaymentRecord, Long> {
                 "\"QR_TYPE\" INTEGER NOT NULL ," + // 16: qrType
                 "\"SYSTEM_ID\" INTEGER NOT NULL ," + // 17: systemId
                 "\"UPLOAD_FLAG\" INTEGER NOT NULL ," + // 18: uploadFlag
-                "\"UPLOAD_TIME\" INTEGER);"); // 19: uploadTime
+                "\"UPLOAD_TIME\" INTEGER," + // 19: uploadTime
+                "\"PAYMENT_TOTAL_ID\" INTEGER NOT NULL );"); // 20: paymentTotalId
     }
 
     /** Drops the underlying database table. */
@@ -146,6 +156,7 @@ public class PaymentRecordDao extends AbstractDao<PaymentRecord, Long> {
         if (uploadTime != null) {
             stmt.bindLong(20, uploadTime.getTime());
         }
+        stmt.bindLong(21, entity.getPaymentTotalId());
     }
 
     @Override
@@ -207,6 +218,13 @@ public class PaymentRecordDao extends AbstractDao<PaymentRecord, Long> {
         if (uploadTime != null) {
             stmt.bindLong(20, uploadTime.getTime());
         }
+        stmt.bindLong(21, entity.getPaymentTotalId());
+    }
+
+    @Override
+    protected final void attachEntity(PaymentRecord entity) {
+        super.attachEntity(entity);
+        entity.__setDaoSession(daoSession);
     }
 
     @Override
@@ -236,7 +254,8 @@ public class PaymentRecordDao extends AbstractDao<PaymentRecord, Long> {
             cursor.getInt(offset + 16), // qrType
             cursor.getInt(offset + 17), // systemId
             cursor.getInt(offset + 18), // uploadFlag
-            cursor.isNull(offset + 19) ? null : new java.util.Date(cursor.getLong(offset + 19)) // uploadTime
+            cursor.isNull(offset + 19) ? null : new java.util.Date(cursor.getLong(offset + 19)), // uploadTime
+            cursor.getLong(offset + 20) // paymentTotalId
         );
         return entity;
     }
@@ -263,6 +282,7 @@ public class PaymentRecordDao extends AbstractDao<PaymentRecord, Long> {
         entity.setSystemId(cursor.getInt(offset + 17));
         entity.setUploadFlag(cursor.getInt(offset + 18));
         entity.setUploadTime(cursor.isNull(offset + 19) ? null : new java.util.Date(cursor.getLong(offset + 19)));
+        entity.setPaymentTotalId(cursor.getLong(offset + 20));
      }
     
     @Override
@@ -290,4 +310,97 @@ public class PaymentRecordDao extends AbstractDao<PaymentRecord, Long> {
         return true;
     }
     
+    private String selectDeep;
+
+    protected String getSelectDeep() {
+        if (selectDeep == null) {
+            StringBuilder builder = new StringBuilder("SELECT ");
+            SqlUtils.appendColumns(builder, "T", getAllColumns());
+            builder.append(',');
+            SqlUtils.appendColumns(builder, "T0", daoSession.getPaymentTotalDao().getAllColumns());
+            builder.append(" FROM PAYMENT_RECORD T");
+            builder.append(" LEFT JOIN PAYMENT_TOTAL T0 ON T.\"PAYMENT_TOTAL_ID\"=T0.\"_id\"");
+            builder.append(' ');
+            selectDeep = builder.toString();
+        }
+        return selectDeep;
+    }
+    
+    protected PaymentRecord loadCurrentDeep(Cursor cursor, boolean lock) {
+        PaymentRecord entity = loadCurrent(cursor, 0, lock);
+        int offset = getAllColumns().length;
+
+        PaymentTotal total = loadCurrentOther(daoSession.getPaymentTotalDao(), cursor, offset);
+         if(total != null) {
+            entity.setTotal(total);
+        }
+
+        return entity;    
+    }
+
+    public PaymentRecord loadDeep(Long key) {
+        assertSinglePk();
+        if (key == null) {
+            return null;
+        }
+
+        StringBuilder builder = new StringBuilder(getSelectDeep());
+        builder.append("WHERE ");
+        SqlUtils.appendColumnsEqValue(builder, "T", getPkColumns());
+        String sql = builder.toString();
+        
+        String[] keyArray = new String[] { key.toString() };
+        Cursor cursor = db.rawQuery(sql, keyArray);
+        
+        try {
+            boolean available = cursor.moveToFirst();
+            if (!available) {
+                return null;
+            } else if (!cursor.isLast()) {
+                throw new IllegalStateException("Expected unique result, but count was " + cursor.getCount());
+            }
+            return loadCurrentDeep(cursor, true);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+    /** Reads all available rows from the given cursor and returns a list of new ImageTO objects. */
+    public List<PaymentRecord> loadAllDeepFromCursor(Cursor cursor) {
+        int count = cursor.getCount();
+        List<PaymentRecord> list = new ArrayList<PaymentRecord>(count);
+        
+        if (cursor.moveToFirst()) {
+            if (identityScope != null) {
+                identityScope.lock();
+                identityScope.reserveRoom(count);
+            }
+            try {
+                do {
+                    list.add(loadCurrentDeep(cursor, false));
+                } while (cursor.moveToNext());
+            } finally {
+                if (identityScope != null) {
+                    identityScope.unlock();
+                }
+            }
+        }
+        return list;
+    }
+    
+    protected List<PaymentRecord> loadDeepAllAndCloseCursor(Cursor cursor) {
+        try {
+            return loadAllDeepFromCursor(cursor);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+
+    /** A raw-style query where you can pass any WHERE clause and arguments. */
+    public List<PaymentRecord> queryDeep(String where, String... selectionArg) {
+        Cursor cursor = db.rawQuery(getSelectDeep() + where, selectionArg);
+        return loadDeepAllAndCloseCursor(cursor);
+    }
+ 
 }

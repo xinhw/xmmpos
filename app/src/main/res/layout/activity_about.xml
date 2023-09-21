@@ -12,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:layout_marginTop="20dp"
-        android:id="@+id/settings_more"
         android:background="@drawable/message_item_auto"
         android:orientation="horizontal">
 
@@ -40,7 +39,6 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/update_app"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="0.5dp"

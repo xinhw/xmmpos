@@ -112,17 +112,6 @@ public class ETEKMessageProcess {
                     case 0:
                         md2.setTitle("APP更新");
                         md2.setContent("收到APP更新消息，请到【系统设置】——【关于】，点击【检查更新】下载并升级！");
-                        activity.setStringInfo(AppSpSaveConstant.TAG_FORCE_UPGRADE_APP,obj.getUrl());
-                        break;
-                    case 1:
-                        md2.setTitle("主控板程序更新");
-                        md2.setContent("收到主控板更新消息，请到【系统设置】——【关于】，点击【检查更新】下载并升级！");
-                        activity.setStringInfo(AppSpSaveConstant.TAG_FORCE_UPGRADE_MAINBOARD,obj.getUrl());
-                        break;
-                    default:
-                        md2.setTitle("Blaster程序更新");
-                        md2.setContent("收到Blaster更新消息，请到【系统设置】——【关于】，点击【检查更新】下载。下载完成后需要【系统设置】-【Blaster升级】手动升级！");
-                        activity.setStringInfo(AppSpSaveConstant.TAG_FORCE_UPGRADE_BLASTER,obj.getUrl());
                         break;
                 }
                 resp.setResponse("设置成功！");

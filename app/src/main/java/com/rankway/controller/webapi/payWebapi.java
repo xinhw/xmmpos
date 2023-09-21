@@ -115,7 +115,7 @@ public class payWebapi {
 
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
         String url = serverPort + "/api/pos?AccessToken=" + accessToken;
-        Log.d(TAG,"url="+url);
+        Log.d(TAG,String.format("url=%s, %s",url,jsonData));
 
         HttpUtil httpUtil = new HttpUtil();
         String ret = httpUtil.httpPost(url,CONTENT_TYPE_URLENCODED,jsonData);
@@ -284,7 +284,7 @@ public class payWebapi {
             obj.setGno(resp.getResult().getGno());
 
             //  gname
-            obj.setName(resp.getResult().getGname());
+            obj.setName(resp.getResult().getGname().toString().trim());
 
             //  StatusId
             obj.setStatusid(resp.getResult().getStatusId());
@@ -772,6 +772,7 @@ public class payWebapi {
         requestMap.put("cdate", reqTime);
         float famount = (float)(cmoney*0.01);
         requestMap.put("cmoney", famount);
+        Log.d(TAG,"requestMap "+requestMap.toString());
 
         String reqParamsSet = Base64Util.EncodeString(toJsonString(requestMap));
 
@@ -841,6 +842,7 @@ public class payWebapi {
             return -1;
         } catch (Exception e) {
             errMsg = e.getMessage();
+            Log.d(TAG,errMsg);
         }
         return -1;
     }

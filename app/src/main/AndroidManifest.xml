@@ -34,6 +34,7 @@
     <uses-feature
         android:name="android.hardware.nfc"
         android:required="true" />
+    <uses-feature android:name="android.hardware.usb.host" />
 
     <application
         android:name=".DetApplication"
@@ -47,11 +48,27 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:allowBackup">
         <activity
+            android:name=".activity.project.PaymentStatisticsActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activity.project.PayActivity"
+            android:exported="true">
+
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+            <!-- <action android:name="android.nfc.action.TECH_DISCOVERED" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
+        </activity>
+        <activity
             android:name=".activity.project.PaymentSettingActivity"
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".activity.project.PaymentRecordDetailActivity"
+            android:name=".activity.project.PaymentRecordListActivity"
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
@@ -76,8 +93,7 @@
         <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
         <!-- </intent-filter> -->
         <!-- </activity> -->
-        <activity android:name=".activity.project.SettingsActivity" />
-        <!-- <activity -->
+        <activity android:name=".activity.project.SettingsActivity" /> <!-- <activity -->
         <!-- android:name=".activity.project.HomeActivity2" -->
         <!-- android:launchMode="singleTask" -->
         <!-- android:theme="@style/AppTheme.NoActionBar" /> -->
@@ -89,7 +105,6 @@
         <activity
             android:name=".activity.project.NotificationDetail"
             android:theme="@style/activity_theme" /> <!-- 请填写你自己的- appKey -->
-
         <meta-data
             android:name="com.alibaba.app.appkey"
             android:value="333524478" />

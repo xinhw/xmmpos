@@ -37,7 +37,9 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -66,13 +68,16 @@ import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.hardware.util.SoundPoolHelp;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.MessageDetail;
+import com.rankway.controller.persistence.entity.PaymentRecord;
 import com.rankway.controller.persistence.entity.SemiEventEntity;
 import com.rankway.controller.persistence.gen.SemiEventEntityDao;
 import com.rankway.controller.pushmessage.ETEKMessageProcess;
 import com.rankway.controller.utils.AppUtils;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
+import com.rankway.controller.utils.DateStringUtils;
 import com.rankway.controller.utils.UpdateAppUtils;
 import com.rankway.controller.utils.VibrateUtil;
+import com.rankway.controller.widget.MyAlertDialog;
 import com.rankway.sommerlibrary.R;
 import com.rankway.sommerlibrary.common.ActivityCollector;
 import com.rankway.sommerlibrary.utils.FileUtils;
@@ -248,7 +253,6 @@ public class BaseActivity extends AppCompatActivity {
     protected void initSupportActionBar(int title) {
         getSupportActionBar().setTitle(title);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);//这句代码使启用Activity回退功能，并显示Toolbar上的左侧回退图标
-
     }
 
 
@@ -273,17 +277,14 @@ public class BaseActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(index, value);
         editor.apply();
-
     }
 
 
     protected void setIntInfo(String index, int value) {
-
         preferences = getSharedPreferences("detInfo", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt(index, value);
         editor.apply();
-
     }
 
 
@@ -292,28 +293,22 @@ public class BaseActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putLong(index, value);
         editor.apply();
-
     }
 
     protected long getLongInfo(String index) {
-
         preferences = getSharedPreferences("detInfo", MODE_PRIVATE);
         return preferences.getLong(index, 0L);
-
     }
 
 
     protected String getStringInfo(String index) {
         preferences = getSharedPreferences("detInfo", MODE_PRIVATE);
         return preferences.getString(index, "");
-
     }
 
     protected int getIntInfo(String index) {
-
         preferences = getSharedPreferences("detInfo", MODE_PRIVATE);
         return preferences.getInt(index, 0);
-
     }
 
     protected Uri getUriInfo(String index) {
@@ -367,7 +362,6 @@ public class BaseActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putBoolean(index, value);
         editor.apply();
-
     }
 
     protected void getPixel() {
@@ -538,7 +532,6 @@ public class BaseActivity extends AppCompatActivity {
         });
     }
 
-
     protected void delayAction(final Intent intent, long time) {
         Handler handler = new Handler();
 
@@ -554,8 +547,7 @@ public class BaseActivity extends AppCompatActivity {
         }, time);
     }
 
-
-    public void showDialogMessage(String strtext) {
+    public void showDialogMessage(String strtext, String format, String 确定, DialogInterface.OnClickListener onClickListener, String 取消, DialogInterface.OnClickListener clickListener) {
         android.app.AlertDialog.Builder builder = null;
         builder = new android.app.AlertDialog.Builder(this);
         builder.setCancelable(false);
@@ -569,6 +561,42 @@ public class BaseActivity extends AppCompatActivity {
         builder.create().show();
     }
 
+    /***
+     * 显示信息，带View，【确认】，和【取消】按钮
+     * @param title
+     * @param message
+     * @param confirmText
+     * @param confirmListener
+     * @param cancelText
+     * @param cancelListener
+     * @param view
+     * @return
+     */
+    public MyAlertDialog showDialogMessage(String title, CharSequence message,
+                                           String confirmText, DialogInterface.OnClickListener confirmListener,
+                                           String cancelText, DialogInterface.OnClickListener cancelListener,
+                                           View view) {
+
+        MyAlertDialog myAlertDialog = new MyAlertDialog(this);
+        myAlertDialog.setCancelable(false);
+        myAlertDialog.setCanceledOnTouchOutside(false); //设置弹出框失去焦点是否隐藏,即点击屏蔽其它地方是否隐藏
+        myAlertDialog.show();
+        if(null!=title) myAlertDialog.setTitle(title);
+        if(null!=message) myAlertDialog.setMessage(message);
+        if(view != null) myAlertDialog.resetContent(view);
+
+        myAlertDialog.setPositive(confirmText,confirmListener);
+        myAlertDialog.setNegative(cancelText,cancelListener);
+
+//        if(confirmListener!=null){
+//            myAlertDialog.setPositive(confirmText,confirmListener);
+//        }
+//        if(cancelListener!=null){
+//            myAlertDialog.setNegative(cancelText,cancelListener);
+//        }
+        return myAlertDialog;
+    }
+
 
     public void detSleep(int ms) {
         try {
@@ -577,7 +605,6 @@ public class BaseActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //  上报状态
@@ -708,8 +735,6 @@ public class BaseActivity extends AppCompatActivity {
     //  APP和主控板程序升级
     ////////////////////////////////////////////////////////////////////////////////////////////////
     private final int appUpdate = 0;
-    private final int mainBoardupdate = 1;
-    private final int blasterUpdate = 2;
 
     private AlertDialog updateDialog;
 
@@ -717,44 +742,6 @@ public class BaseActivity extends AppCompatActivity {
      * 检查服务器上版本信息
      */
     public void checkAppUpdate() {
-        //  强制升级APP
-        final String strurl = getStringInfo(AppSpSaveConstant.TAG_FORCE_UPGRADE_APP);
-        if (!TextUtils.isEmpty(strurl)) {
-            Log.d(TAG, "APP强制升级:" + strurl);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    downLoadFile(appUpdate, strurl, FileUtils.ExternalStorageDirectory + File.separator + "test", "Seismic.apk");
-                }
-            });
-            return;
-        }
-
-        //  强制升级MainBoard
-        final String strurl1 = getStringInfo(AppSpSaveConstant.TAG_FORCE_UPGRADE_MAINBOARD);
-        if (!TextUtils.isEmpty(strurl1)) {
-            Log.d(TAG, "主控板强制升级:" + strurl1);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    downLoadFile(mainBoardupdate, strurl1, FileUtils.ExternalStorageDirectory + File.separator + "test", "MainBoard.bin");
-                }
-            });
-            return;
-        }
-
-        //  强制升级Blaster
-        final String strurl2 = getStringInfo(AppSpSaveConstant.TAG_FORCE_UPGRADE_BLASTER);
-        if (!TextUtils.isEmpty(strurl2)) {
-            Log.d(TAG, "Blaster强制升级:" + strurl2);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    downLoadFile(blasterUpdate, strurl2, FileUtils.ExternalStorageDirectory + File.separator + "test", "Blaster.bin");
-                }
-            });
-            return;
-        }
 
         UpdateAppUtils.checkAppUpdate(AppIntentString.APP_DOWNLOAD_URL, this, new UpdateAppUtils.AppUpdateCallback() {
             @Override
@@ -776,24 +763,11 @@ public class BaseActivity extends AppCompatActivity {
                     return;
                 }
 
-                AppUpdateBean.ResultBean.MainBoardBean mainBoard = updateInfo.getResult().getMainBoard();
-                if (null == mainBoard) {
-                    showUpdateMessage("主控板已经是最新版本，无需升级");
-                    Log.d(TAG, "升级应答包 AppUpdateBean.ResultBean.MainBoardBean 无效！");
-                    return;
-                }
-
-                AppUpdateBean.ResultBean.Blaster blaster = updateInfo.getResult().getBlaster();
-                if (null == blaster) {
-                    showUpdateMessage("Blaster已经是最新版本，无需升级");
-                    Log.d(TAG, "升级应答包 AppUpdateBean.ResultBean.Blaster 无效！");
-                    return;
-                }
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        checkAppData(app, mainBoard, blaster);
+                        checkAppData(app);
                     }
                 });
 
@@ -806,12 +780,10 @@ public class BaseActivity extends AppCompatActivity {
         });
     }
 
-    private void checkAppData(AppUpdateBean.ResultBean.AppBean app,
-                              AppUpdateBean.ResultBean.MainBoardBean mainBoard,
-                              AppUpdateBean.ResultBean.Blaster blaster) {
+    private void checkAppData(AppUpdateBean.ResultBean.AppBean app) {
         //app更新
         if (AppUtils.getAppVersion(this) < app.getVersionCode()) {
-            showUpdateDialog(appUpdate, app, mainBoard, blaster);
+            showUpdateDialog(appUpdate, app);
             return;
         }
 
@@ -824,22 +796,13 @@ public class BaseActivity extends AppCompatActivity {
      *
      * @param flag      0代表app更新    1代表控制板更新
      * @param app
-     * @param mainBoard
      */
     private void showUpdateDialog(int flag,
-                                  AppUpdateBean.ResultBean.AppBean app,
-                                  AppUpdateBean.ResultBean.MainBoardBean mainBoard,
-                                  AppUpdateBean.ResultBean.Blaster blaster) {
+                                  AppUpdateBean.ResultBean.AppBean app) {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         switch (flag) {
             case appUpdate:
                 builder.setMessage(app.getVersionNote());
-                break;
-            case mainBoardupdate:
-                builder.setMessage(mainBoard.getVersionNote());
-                break;
-            default:
-                builder.setMessage(blaster.getVersionNote());
                 break;
         }
 
@@ -852,29 +815,12 @@ public class BaseActivity extends AppCompatActivity {
                     case appUpdate:
                         downloadUrl = app.getDownloadUrl();
                         if (!TextUtils.isEmpty(downloadUrl) && downloadUrl.startsWith("http")) {
-                            downLoadFile(flag, downloadUrl, FileUtils.ExternalStorageDirectory + File.separator + "test", "Seismic.apk");
+                            downLoadFile(flag, downloadUrl, FileUtils.ExternalStorageDirectory + File.separator + "test", "posapp.apk");
                         } else {
                             showUpdateMessage("连接错误，无法更新！");
                         }
                         break;
 
-                    case mainBoardupdate:
-                        downloadUrl = mainBoard.getDownloadUrl();
-                        if (!TextUtils.isEmpty(downloadUrl) && downloadUrl.startsWith("http")) {
-                            downLoadFile(flag, downloadUrl, FileUtils.ExternalStorageDirectory + File.separator + "test", "MainBoard.bin");
-                        } else {
-                            showUpdateMessage("连接错误，无法更新！");
-                        }
-                        break;
-
-                    default:
-                        downloadUrl = blaster.getDownloadUrl();
-                        if (!TextUtils.isEmpty(downloadUrl) && downloadUrl.startsWith("http")) {
-                            downLoadFile(flag, downloadUrl, FileUtils.ExternalStorageDirectory + File.separator + "test", "Blaster.bin");
-                        } else {
-                            showUpdateMessage("连接错误，无法更新！");
-                        }
-                        break;
                 }
             }
         });
@@ -919,26 +865,8 @@ public class BaseActivity extends AppCompatActivity {
                                 dissDownLoadDialog();
                                 switch (flag) {
                                     case appUpdate:
-                                        setStringInfo(AppSpSaveConstant.TAG_FORCE_UPGRADE_APP, "");
-
                                         UpdateAppUtils.installApk(BaseActivity.this, file);
                                         showUpdateMessage("下载完成！");
-                                        break;
-
-                                    case mainBoardupdate:
-                                        setStringInfo(AppSpSaveConstant.TAG_FORCE_UPGRADE_MAINBOARD, "");
-
-//                                        Intent intent = new Intent(BaseActivity.this, MainBoardUpdateActivity.class);
-//                                        intent.putExtra("AUTODOWNLOAD", "1");
-//                                        BaseActivity.this.startActivity(intent);
-
-                                        showUpdateMessage("下载完成！");
-                                        break;
-
-                                    default:
-                                        setStringInfo(AppSpSaveConstant.TAG_FORCE_UPGRADE_BLASTER, "");
-
-                                        showUpdateMessage("Blaster程序下载完成，请升级！");
                                         break;
                                 }
                             }
@@ -1078,7 +1006,6 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-
     protected void showInputDialog(String title, String defaultVal, int inType, IDialogResult dr) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = LayoutInflater.from(this).inflate(com.rankway.controller.R.layout.dialog_intput, null);
@@ -1127,7 +1054,6 @@ public class BaseActivity extends AppCompatActivity {
         builder.create().show();
         return;
     }
-
 
     protected void showUpdateMessage(String msg) {
         Log.d(TAG, "showUpdateMessage:" + msg);
@@ -1680,4 +1606,75 @@ public class BaseActivity extends AppCompatActivity {
         return;
     }
 
+    /***
+     * 隐藏输入键盘
+     * @param v
+     */
+    protected void hideInputKeyboard(View v) {
+        if (null == v) return;
+        InputMethodManager imm = (InputMethodManager) getSystemService(mContext.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+    }
+
+    /***
+     * 显示输入软键盘
+     * @param v
+     */
+    protected void showInputKeyboard(View v){
+        if(null==v) return;
+        v.setFocusable(true);
+        v.setFocusableInTouchMode(true);
+        v.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(mContext.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(v, 0);
+    }
+
+
+    /***
+     * 显示交易记录对话框
+     * @param type
+     * @param record
+     */
+    protected void showPaymentRecordDialog(int type,PaymentRecord record){
+        if(null==record) return;
+
+        View view = getLayoutInflater().inflate(com.rankway.controller.R.layout.dialog_payment_record, null, false);
+        TextView tvPosNo = view.findViewById(com.rankway.controller.R.id.tvPosNo);
+        TextView tvAuditNo = view.findViewById(com.rankway.controller.R.id.tvAuditNo);
+        TextView tvWorkNo = view.findViewById(com.rankway.controller.R.id.tvWorkNo);
+        TextView tvWorkName = view.findViewById(com.rankway.controller.R.id.tvWorkName);
+        TextView tvPayWay = view.findViewById(com.rankway.controller.R.id.tvPayWay);
+        TextView tvRemain = view.findViewById(com.rankway.controller.R.id.tvRemain);
+        TextView tvAmount =  view.findViewById(com.rankway.controller.R.id.tvAmount);
+        TextView tvTransTime = view.findViewById(com.rankway.controller.R.id.tvTransTime);
+
+        tvPosNo.setText(record.getPosNo());
+        tvAuditNo.setText(record.getAuditNo()+"");
+        tvWorkNo.setText(record.getWorkNo());
+        tvWorkName.setText(record.getWorkName());
+        if(record.getQrType()==0){
+            tvPayWay.setText("IC卡");
+        }else{
+            tvPayWay.setText("二维码");
+        }
+        tvRemain.setText(String.format("%.2f",record.getRemain()));
+        tvAmount.setText(String.format("%.2f",record.getAmount()));
+        tvTransTime.setText(DateStringUtils.dateToString(record.getTransTime()));
+
+        showDialogMessage(null, null,
+                "确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                },
+                "取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                },
+                view
+        );
+    }
 }

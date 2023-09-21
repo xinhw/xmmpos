@@ -198,6 +198,19 @@
                 android:textSize="60dp"
                 android:textStyle="italic"
                 android:text="12.32"/>
+            <TextView
+                android:id="@+id/btnPay"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="3dp"
+                android:layout_marginEnd="3dp"
+                android:layout_marginBottom="3dp"
+                android:background="@drawable/btn_bg_semic"
+                android:gravity="center"
+                android:text="支付"
+                android:textSize="@dimen/dp_18"
+                android:textColor="@color/white" />
         </LinearLayout>
     </LinearLayout>
 
@@ -208,7 +221,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="240dp"
+        android:layout_height="match_parent"
         android:orientation="vertical">
         <include layout="@layout/item_payment_record_detail" />
 
@@ -219,22 +232,5 @@
             android:layout_height="match_parent"/>
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/btn_gray_normal" />
 
-    <TextView
-        android:id="@+id/btnPay"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginStart="3dp"
-        android:layout_marginEnd="3dp"
-        android:layout_marginBottom="3dp"
-        android:background="@drawable/btn_bg_semic"
-        android:gravity="center"
-        android:text="支付"
-        android:textSize="@dimen/dp_18"
-        android:textColor="@color/white" />
 </LinearLayout>

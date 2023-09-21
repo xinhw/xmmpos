@@ -29,6 +29,7 @@ import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.adapter.PaymentRecordDetailAdapter;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DataConverter;
+import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecord;
 import com.rankway.controller.persistence.gen.PaymentRecordDao;
@@ -51,7 +52,7 @@ import java.util.List;
 
 public class PaymentMainActivity
         extends BaseActivity
-        implements View.OnClickListener {
+        implements View.OnClickListener, PaymentRecordDetailAdapter.OnItemClickListener {
     private final String TAG = "MainPaymentActivity";
 
     NfcAdapter nfcAdapter;
@@ -73,7 +74,7 @@ public class PaymentMainActivity
     boolean isPaying = false;           //  是否在支付中
     TextView tvPayment;
 
-    final int MAX_IDLE_TIME_MS = 60*1000;       //  最大未支付时间（毫秒）
+    final int MAX_IDLE_TIME_MS = 60 * 1000;       //  最大未支付时间（毫秒）
 
     long lastQueryTime = 0;
     private cardInfo cardPaymentObj = null;
@@ -90,8 +91,6 @@ public class PaymentMainActivity
     private int totalCount = 0;
     private float totalAmount = 0;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,11 +104,11 @@ public class PaymentMainActivity
 
         initScanner();
 
-        mHandler.sendEmptyMessageDelayed(100,1000);
+        mHandler.sendEmptyMessageDelayed(100, 1000);
     }
 
     private void initView() {
-        int[] ids = {R.id.back_img,R.id.imgSetting,R.id.btnPay};
+        int[] ids = {R.id.back_img, R.id.imgSetting, R.id.btnPay};
         setOnClickListener(ids);
 
         tvLocalTime = findViewById(R.id.handsetime);
@@ -128,25 +127,28 @@ public class PaymentMainActivity
         etAmount = findViewById(R.id.etAmount);
         etAmount.setText("");
 
-        tvPayment =findViewById(R.id.btnPay);
+        tvPayment = findViewById(R.id.btnPay);
         tvPayment.setVisibility(View.GONE);
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
-    private void setOnClickListener(int[] ids){
-        Log.d(TAG,"setOnClickListener");
-        for(int id:ids){
+
+    private void setOnClickListener(int[] ids) {
+        Log.d(TAG, "setOnClickListener");
+        for (int id : ids) {
             View view = findViewById(id);
-            if(null!=view) view.setOnClickListener(this);
+            if (null != view) view.setOnClickListener(this);
         }
         return;
     }
 
 
     private void initData() {
-        adapter = new PaymentRecordDetailAdapter(R.layout.item_payment_record_detail,listRecords);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new PaymentRecordDetailAdapter(mContext, listRecords);
         recyclerView.setAdapter(adapter);
+        adapter.setOnItemClickListener(this);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +179,7 @@ public class PaymentMainActivity
 
     @Override
     protected void onNewIntent(Intent intent) {
-        Log.d(TAG,"onNewIntent");
+        Log.d(TAG, "onNewIntent");
 
         super.onNewIntent(intent);
         // 当前app正在前端界面运行，这个时候有intent发送过来，那么系统就会调用onNewIntent回调方法，将intent传送过来
@@ -191,15 +193,15 @@ public class PaymentMainActivity
      * Parses the NDEF Message from the intent and prints to the TextView
      */
     private void processIntent(Intent intent) {
-        Log.d(TAG,"processIntent");
+        Log.d(TAG, "processIntent");
 
         //取出封装在intent中的TAG
         Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         String CardId = DataConverter.bytes2HexString(tagFromIntent.getId());
         String metaInfo = "";
-        metaInfo+="卡片ID:"+CardId;
+        metaInfo += "卡片ID:" + CardId;
         for (String tech : tagFromIntent.getTechList()) {
-            Log.d(TAG,tech);
+            Log.d(TAG, tech);
         }
         boolean auth = false;
 
@@ -228,7 +230,7 @@ public class PaymentMainActivity
             }
             metaInfo += "\n卡片类型：" + typeS + "\n共" + sectorCount + "个扇区\n共"
                     + mfc.getBlockCount() + "个块\n存储空间: " + mfc.getSize() + "B\n";
-            Log.d(TAG,metaInfo);
+            Log.d(TAG, metaInfo);
 
 //            for (int j = 0; j < sectorCount; j++) {
 //                //Authenticate a sector with key A.
@@ -269,7 +271,7 @@ public class PaymentMainActivity
     //  扫描仪部分
     ////////////////////////////////////////////////////////////////////////////////////////////////
     private void initScanner() {
-        Log.d(TAG,"initScanner");
+        Log.d(TAG, "initScanner");
         enableScanner();
 
         IntentFilter intentFilter = new IntentFilter();
@@ -307,6 +309,26 @@ public class PaymentMainActivity
         scanner.close();
     }
 
+    @Override
+    public void onItemClick(View view, int position) {
+        Log.d(TAG, "onItemClick " + position);
+        adapter.notifyDataSetChanged();
+        recyclerView.scrollToPosition(position);
+    }
+
+    @Override
+    public void onItemLongClick(View view, int position) {
+        Log.d(TAG, "onItemLongClick " + position);
+        adapter.notifyDataSetChanged();
+        recyclerView.scrollToPosition(position);
+    }
+
+    @Override
+    public void onItemDoubleClick(View view, int position) {
+        Log.d(TAG, "onItemDoubleClick " + position);
+        showPaymentRecordDialog(0, listRecords.get(position));
+    }
+
     /**
      * 扫描结果广播接收
      */
@@ -323,9 +345,9 @@ public class PaymentMainActivity
             if (scanResult.length() == 0) return;
 
             cardPaymentObj = decodeQRCode.decode(scanResult);
-            if(null==cardPaymentObj){
+            if (null == cardPaymentObj) {
                 playSound(false);
-                ToastUtils.showLong(mContext,"无效的二维码");
+                ToastUtils.showLong(mContext, "无效的二维码");
                 return;
             }
 
@@ -340,22 +362,22 @@ public class PaymentMainActivity
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG,"enableForegroundDispatch");
+        Log.d(TAG, "enableForegroundDispatch");
 
         enableScanner();
 
-        if(null!=nfcAdapter) {
+        if (null != nfcAdapter) {
             nfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
         }
 
         posInfoBean = getPosInfoBean();
-        if(null==posInfoBean){
-            Log.d(TAG,"第一次使用，需要配置参数");
+        if (null == posInfoBean) {
+            Log.d(TAG, "第一次使用，需要配置参数");
             startActivity(SettingsActivity.class);
         }
 
         getTodayRecords();
-        refreshStatistics(totalCount,totalAmount);
+        refreshStatistics(totalCount, totalAmount);
 
         adapter.notifyDataSetChanged();
     }
@@ -367,27 +389,36 @@ public class PaymentMainActivity
 
         disableScanner();
 
-        if(nfcAdapter!=null){
-            Log.d(TAG,"disableForegroundDispatch");
+        if (nfcAdapter != null) {
+            Log.d(TAG, "disableForegroundDispatch");
             nfcAdapter.disableForegroundDispatch(this);//关闭前台发布系统
         }
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        disableScanner();
+
+        System.exit(0);
+    }
+
+    @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.back_img:
                 finishPrompt();
                 break;
 
             case R.id.imgSetting:
-                if(!isPaying) {
+                if (!isPaying) {
                     startActivity(PaymentSettingActivity.class);
                 }
                 break;
 
             case R.id.btnPay:
-                if(!isPaying) {
+                if (!isPaying) {
                     startPayment();
                 }
                 break;
@@ -396,14 +427,14 @@ public class PaymentMainActivity
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.d(TAG,"keyCode:"+keyCode);
+        Log.d(TAG, "keyCode:" + keyCode);
 
         //  右下角返回键
         if (KeyEvent.KEYCODE_BACK == keyCode) {
             finishPrompt();
             return true;
         }
-        if(KeyEvent.KEYCODE_HOME==keyCode){
+        if (KeyEvent.KEYCODE_HOME == keyCode) {
             return true;
         }
 
@@ -415,13 +446,13 @@ public class PaymentMainActivity
      * @param nCount
      * @param famount
      */
-    private void refreshStatistics(int nCount,float famount){
+    private void refreshStatistics(int nCount, float famount) {
         String format = getString(R.string.formatTotalCount);
-        String str = String.format(format,nCount);
+        String str = String.format(format, nCount);
         tvTotalCount.setText(str);
 
         format = getString(R.string.formatTotalAmount);
-        str = String.format(format,famount);
+        str = String.format(format, famount);
         tvTotalAmount.setText(str);
 
         refreshLocalTime();
@@ -430,15 +461,15 @@ public class PaymentMainActivity
     /***
      * 刷新当亲日期时间
      */
-    private void refreshLocalTime(){
+    private void refreshLocalTime() {
         String strtime = DateStringUtils.getCurrentTime();
 
         String format = getString(R.string.formatCurrentTime);
-        String str = String.format(format,strtime);
+        String str = String.format(format, strtime);
         tvLocalTime.setText(str);
     }
 
-    private void clearLastPayment(){
+    private void clearLastPayment() {
         tvName.setText("");
         tvWorkNo.setText("");
         tvRemain.setText("");
@@ -447,7 +478,7 @@ public class PaymentMainActivity
     }
 
 
-    private void startQuery(int payType){
+    private void startQuery(int payType) {
         clearLastPayment();
         AsynTaskQuery task = new AsynTaskQuery(payType);
         task.execute();
@@ -459,7 +490,7 @@ public class PaymentMainActivity
         private cardInfo cardInfoObj = null;
         private String errString = "";
 
-        public AsynTaskQuery(int type){
+        public AsynTaskQuery(int type) {
             this.payType = type;
         }
 
@@ -478,28 +509,29 @@ public class PaymentMainActivity
 
             // 1. 获取POS流水
             posAudit audit = obj.getPosAuditNo(posInfoBean.getCposno());
-            if(null==audit){
+            if (null == audit) {
                 errString = "获取POS流水号失败！";
                 return -1;
             }
 
             //  设置POS流水号
-            posInfoBean.setAuditNo(audit.getPosCno()+1);
+            posInfoBean.setAuditNo(audit.getPosCno());
             savePosInfoBean(posInfoBean);
 
             obj.setCposno(posInfoBean.getCposno());
             obj.setCusercode(posInfoBean.getUsercode());
 
-            if(payType==PAYMENT_TYPE_CARD){
-                Log.d(TAG,"IC卡支付查询：");
+            if (payType == PAYMENT_TYPE_CARD) {
+                DetLog.writeLog(TAG, "IC卡支付查询：");
                 cardInfoObj = obj.getPersonInfoBySNO(cardPaymentObj.getGsno());
-                Log.d(TAG,"getPersonBySNO:"+cardInfoObj);
-            }else {
-                Log.d(TAG,"二维码支付查询：");
+                cardInfoObj.setGsno(cardPaymentObj.getGsno());
+                DetLog.writeLog(TAG, "getPersonBySNO:" + cardInfoObj);
+            } else {
+                DetLog.writeLog(TAG, "二维码支付查询：");
                 cardInfoObj = obj.getPersonInfoByQrCode(cardPaymentObj.getSystemId(), cardPaymentObj.getQrType(), cardPaymentObj.getUserId());
-                Log.d(TAG, "getQrPersonInfo:" + cardInfoObj);
+                DetLog.writeLog(TAG, "getQrPersonInfo:" + cardInfoObj);
             }
-            if(null==cardInfoObj) errString = obj.getErrMsg();
+            if (null == cardInfoObj) errString = obj.getErrMsg();
             return 0;
         }
 
@@ -508,10 +540,14 @@ public class PaymentMainActivity
             super.onPostExecute(integer);
             missProDialog();
 
-            if(null==cardInfoObj){
+            if (null == cardInfoObj) {
                 tvPayment.setVisibility(View.GONE);
+
+                DetLog.writeLog(TAG, "查询失败：" + errString);
+
                 showLongToast(errString);
                 playSound(false);
+
                 return;
             }
             lastQueryTime = SystemClock.elapsedRealtime();
@@ -520,9 +556,17 @@ public class PaymentMainActivity
             cardPaymentObj = new cardInfo(cardInfoObj);
             tvName.setText(cardPaymentObj.getName());
             tvWorkNo.setText(cardPaymentObj.getGno());
-            tvRemain.setText(String.format("%.02f",cardPaymentObj.getGremain()));
+            tvRemain.setText(String.format("%.02f", cardPaymentObj.getGremain()));
+
+            //  消费金额获取焦点
             etAmount.setText("");
+
+            //  显示输入法
+            showInputKeyboard(etAmount);
+
             playSound(true);
+
+            DetLog.writeLog(TAG, "查询成功：" + cardInfoObj.toString());
             return;
         }
     }
@@ -532,19 +576,30 @@ public class PaymentMainActivity
      * 开始支付
      */
     private void startPayment() {
-        Log.d(TAG,"startPayment");
+        Log.d(TAG, "startPayment");
         float amount = 0;
         /***
          * 有效性判断
          */
-        if(StringUtils.isEmpty(etAmount.getText().toString())){
+        if (StringUtils.isEmpty(etAmount.getText().toString())) {
             showToast("请输入有效的金额!");
             playSound(false);
             return;
         }
-        amount = Float.parseFloat(etAmount.getText().toString());
+        try {
+            amount = Float.parseFloat(etAmount.getText().toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            playSound(false);
+            showToast("请输入有效的金额!");
+            return;
+        }
+        etAmount.setText(String.format("%.2f", amount));
 
-        if(amount>cardPaymentObj.getGremain()){
+        //  隐藏输入法
+        hideInputKeyboard(etAmount);
+
+        if (amount > cardPaymentObj.getGremain()) {
             showToast("余额不足支付!");
             playSound(false);
             return;
@@ -561,7 +616,7 @@ public class PaymentMainActivity
         float famount = 0;
         String errString = "";
 
-        public AsynTaskPayment(float amount){
+        public AsynTaskPayment(float amount) {
             this.famount = amount;
         }
 
@@ -580,25 +635,25 @@ public class PaymentMainActivity
 
             // 1. 获取POS流水
             posAudit audit = obj.getPosAuditNo(posInfoBean.getCposno());
-            if(null==audit){
+            if (null == audit) {
                 errString = "获取POS流水号失败！";
                 return -1;
             }
 
             //  设置POS流水号
-            posInfoBean.setAuditNo(audit.getPosCno()+1);
+            posInfoBean.setAuditNo(audit.getPosCno());
             savePosInfoBean(posInfoBean);
 
-            Log.d(TAG,"cardPaymentObj:"+cardPaymentObj.toString());
+            Log.d(TAG, "cardPaymentObj:" + cardPaymentObj.toString());
 
-            if(cardPaymentObj.getQrType()==1) {
+            if (cardPaymentObj.getQrType() == 1) {
                 // public int qrPayment(int auditNo,int systemId,int qrType,String userId,Date cdate,int cmoney){
-                ret = obj.qrPayment(posInfoBean.getAuditNo(),cardPaymentObj.getSystemId(),cardPaymentObj.getQrType(),cardPaymentObj.getUserId(),new Date(),(int)(famount*100));
-                Log.d(TAG,"qrPayment:"+ret);
-            }else{
+                ret = obj.qrPayment(posInfoBean.getAuditNo(), cardPaymentObj.getSystemId(), cardPaymentObj.getQrType(), cardPaymentObj.getUserId(), new Date(), (int) (famount * 100));
+                DetLog.writeLog(TAG, "qrPayment:" + ret);
+            } else {
                 // public int cardPayment(int auditNo,int cardno,Date cdate,int cmoney){
-                ret = obj.cardPayment(posInfoBean.getAuditNo(), cardPaymentObj.getCardno(), new Date(), (int)(famount*100));
-                Log.d(TAG, "cardPayment:" + ret);
+                ret = obj.cardPayment(posInfoBean.getAuditNo(), cardPaymentObj.getCardno(), new Date(), (int) (famount * 100));
+                DetLog.writeLog(TAG, "cardPayment:" + ret);
             }
 
             return ret;
@@ -610,17 +665,26 @@ public class PaymentMainActivity
             missProDialog();
             isPaying = false;
 
-            if(0==integer){
+            if (0 == integer) {
                 tvPayment.setVisibility(View.GONE);
                 playSound(true);
 
-                savePaymentRecord(famount);
+                //  在线交易，所以会成功
+                savePaymentRecord(famount, 1);
 
                 totalCount++;
                 totalAmount = totalAmount + famount;
-                refreshStatistics(totalCount,totalAmount);
-            }else{
+
+                refreshStatistics(totalCount, totalAmount);
+
+                DetLog.writeLog(TAG, "支付成功：" + cardPaymentObj.toString());
+            } else {
                 playSound(false);
+
+                showLongToast(errString);
+                playSound(false);
+
+                DetLog.writeLog(TAG, "支付失败：" + errString);
             }
             return;
         }
@@ -629,7 +693,7 @@ public class PaymentMainActivity
     /***
      * 询问是否退出APP
      */
-    private void finishPrompt(){
+    private void finishPrompt() {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
         builder.setCancelable(false);
         builder.setMessage("是否要退出APP？");
@@ -650,23 +714,22 @@ public class PaymentMainActivity
     }
 
 
-
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            switch (msg.what){
+            switch (msg.what) {
                 case 100:       //  时间定时器
                     refreshLocalTime();
 
                     //  查询到信息后，如果超过一定时间不支付，清除
                     long t1 = SystemClock.elapsedRealtime();
-                    if((t1-lastQueryTime)>=MAX_IDLE_TIME_MS){
+                    if ((t1 - lastQueryTime) >= MAX_IDLE_TIME_MS) {
                         clearLastPayment();
                         lastQueryTime = t1;
                     }
 
-                    mHandler.sendEmptyMessageDelayed(100,1000);
+                    mHandler.sendEmptyMessageDelayed(100, 1000);
                     break;
 
                 case 120:       //  刷新
@@ -677,27 +740,29 @@ public class PaymentMainActivity
     };
 
 
-    private void savePaymentRecord(float amount){
-        PaymentRecord record = new PaymentRecord(cardPaymentObj,amount,posInfoBean);
+    private void savePaymentRecord(float amount, int uploadFlag) {
+        PaymentRecord record = new PaymentRecord(cardPaymentObj, amount, posInfoBean);
+
+        record.setUploadFlag(uploadFlag);
         DBManager.getInstance().getPaymentRecordDao().save(record);
 
-        listRecords.add(0,record);
+        listRecords.add(0, record);
         adapter.notifyDataSetChanged();
 
         return;
     }
 
 
-    private void getTodayRecords(){
+    private void getTodayRecords() {
         Calendar calnow = Calendar.getInstance();
-        calnow.set(Calendar.HOUR_OF_DAY,0);
-        calnow.set(Calendar.MINUTE,0);
-        calnow.set(Calendar.SECOND,0);
-        calnow.set(Calendar.MILLISECOND,0);
+        calnow.set(Calendar.HOUR_OF_DAY, 0);
+        calnow.set(Calendar.MINUTE, 0);
+        calnow.set(Calendar.SECOND, 0);
+        calnow.set(Calendar.MILLISECOND, 0);
 
         Date today = calnow.getTime();
 
-        calnow.add(Calendar.DAY_OF_YEAR,1);
+        calnow.add(Calendar.DAY_OF_YEAR, 1);
         Date tommorw = calnow.getTime();
 
         listRecords.clear();
@@ -705,7 +770,7 @@ public class PaymentMainActivity
                 .where(PaymentRecordDao.Properties.TransTime.ge(today))
                 .where(PaymentRecordDao.Properties.TransTime.lt(tommorw))
                 .list();
-        if(records.size()>0){
+        if (records.size() > 0) {
             Collections.reverse(records);
             listRecords.addAll(records);
         }
@@ -713,11 +778,60 @@ public class PaymentMainActivity
         totalCount = 0;
         totalAmount = 0.0f;
 
-        for(PaymentRecord record:listRecords){
+        for (PaymentRecord record : listRecords) {
             totalCount++;
             totalAmount = totalAmount + record.getAmount();
         }
 
         return;
     }
+
+
+//    private void enumAllUsbDevice(){
+//        Log.d(TAG,"enumAllUsbDevice");
+//
+//        UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+//        HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
+//        Log.d(TAG,"UsbDeviceCount: "+deviceList.size());
+//
+//        Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
+//        while(deviceIterator.hasNext()) {
+//            UsbDevice device = deviceIterator.next();
+//            if(null!=device) Log.d(TAG,devicesString(device));
+//
+//            //获取设备接口
+//            for (int i = 0; i < device.getInterfaceCount(); ) {
+//                // 一般来说一个设备都是一个接口，你可以通过getInterfaceCount()查看接口的个数
+//                // 这个接口上有两个端点，分别对应OUT 和 IN
+//                UsbInterface usbInterface = device.getInterface(i);
+//                if(null==usbInterface) continue;
+//
+//                Log.d(TAG,"UsbInterface Id:"+usbInterface.getId()+" Name:"+usbInterface.getName()
+//                        + " Class:"+usbInterface.getClass()+" Procotocol:"+usbInterface.getInterfaceProtocol()
+//                        +" EndPointCount:"+usbInterface.getEndpointCount());
+//
+//                for(int j=0;j< usbInterface.getEndpointCount();j++){
+//                    UsbEndpoint endpoint = usbInterface.getEndpoint(j);
+//                    if(endpoint==null) continue;
+//
+//                    Log.d(TAG,"UsbEndpoint Address:"+endpoint.getAddress() +
+//                            " Attributes:"+endpoint.getAttributes() +
+//                            " Direction:"+endpoint.getDirection());
+//                }
+//                break;
+//            }
+//        }
+//    }
+//
+//    private String devicesString(UsbDevice device){
+//        StringBuilder builder = new StringBuilder("UsbDevice Name=" + device.getDeviceName() +
+//                " VendorId=" + device.getVendorId() + " ProductId=" + device.getProductId() +
+//                " mClass=" + device.getClass() + " mSubclass=" + device.getDeviceSubclass() +
+//                " mProtocol=" + device.getDeviceProtocol() + " mManufacturerName=" +" mSerialNumber=" +
+//                " InterfaceCount="+device.getInterfaceCount() +
+//                "  ");
+//        return builder.toString();
+//    }
+
+
 }

@@ -23,7 +23,7 @@ public class PaymentSettingActivity
     }
 
     private void initView() {
-        int[] ids = {R.id.back_img,R.id.paymentDetail,R.id.paymentStatistics,R.id.paymentSetting};
+        int[] ids = {R.id.back_img, R.id.paymentDetail, R.id.paymentStatistics, R.id.paymentSetting};
         setOnClickListener(ids);
 
         TextView textView = findViewById(R.id.text_title);
@@ -31,11 +31,11 @@ public class PaymentSettingActivity
     }
 
 
-    private void setOnClickListener(int[] ids){
-        Log.d(TAG,"setOnClickListener");
-        for(int id:ids){
+    private void setOnClickListener(int[] ids) {
+        Log.d(TAG, "setOnClickListener");
+        for (int id : ids) {
             View view = findViewById(id);
-            if(null!=view) view.setOnClickListener(this);
+            if (null != view) view.setOnClickListener(this);
         }
         return;
     }
@@ -43,16 +43,17 @@ public class PaymentSettingActivity
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.back_img:
                 finish();
                 break;
 
             case R.id.paymentDetail:
-                startActivity(PaymentRecordDetailActivity.class);
+                startActivity(PaymentRecordListActivity.class);
                 break;
 
             case R.id.paymentStatistics:
+                startActivity(PaymentStatisticsActivity.class);
                 break;
 
             case R.id.paymentSetting:
