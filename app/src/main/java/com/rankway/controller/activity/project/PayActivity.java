@@ -62,21 +62,6 @@ public class PayActivity extends BaseActivity {
                 return;
             }
             Log.d(TAG,"qrcode:"+qrcode);
-
-//            // 扫码确定参数
-//            Gson gson = new Gson();
-//            try {
-//                qrCodeBean = gson.fromJson(qrcode, QRCode.class);
-//                // 你的代码...
-//                // 如果要支持中文，数据用可以URLEncoder/URLDecoder编解码
-//            } catch (JsonSyntaxException e) {
-//                // 解析失败...
-//            } catch (UnsupportedEncodingException e) {
-//                // 解码失败...
-//            } finally {
-//                mStringBufferResult.setLength(0);
-//            }
-
         }
     };
 

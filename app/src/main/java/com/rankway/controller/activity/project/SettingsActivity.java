@@ -1,7 +1,9 @@
 package com.rankway.controller.activity.project;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
@@ -527,12 +529,27 @@ public class SettingsActivity
         builder.create().show();
     }
 
+
+    /***
+     * 删除APP在/data/data/packageName下的信息
+     * 重新启动APP
+     */
     private void resetAppData() {
         DataCleanManager.deleteFile(new File("data/data/" + getPackageName()));
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("已恢复出厂设置，需要重启应用");
-        builder.setPositiveButton("确定", (dialog, which) -> finish());
+        builder.setMessage("已恢复出厂设置，需要重启应用后生效!");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+
+                //  重启APP
+                ActivityManager manager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+                manager.restartPackage(getPackageName());
+            }
+        });
+
         AlertDialog alertDialog = builder.create();
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.setCancelable(false);

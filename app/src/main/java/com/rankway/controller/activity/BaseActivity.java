@@ -61,7 +61,6 @@ import com.rankway.controller.common.HandesetInfo;
 import com.rankway.controller.common.SemiEventList;
 import com.rankway.controller.common.SemiRespHeader;
 import com.rankway.controller.common.SemiServerAddress;
-import com.rankway.controller.common.WhiteBlackListMode;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.entity.AppUpdateBean;
 import com.rankway.controller.hardware.util.DetLog;
@@ -667,69 +666,6 @@ public class BaseActivity extends AppCompatActivity {
     //  黑白名单同步
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /***
-     * 获取赛米平台的黑白名单设置
-     */
-    public void checkWhiteBlackList() {
-        //  白名单
-        httpGetList(WhiteBlackListMode.TYPE_WHITE_LIST);
-        // 黑名单
-        httpGetList(WhiteBlackListMode.TYPE_BLACK_LIST);
-    }
-
-    /**
-     * 获取黑白名单通信过程
-     *
-     * @param type
-     */
-    private void httpGetList(int type) {
-        //  起爆器
-        String sno = getStringInfo(getString(com.rankway.controller.R.string.controller_sno));
-        //  用户名
-        String user = SpManager.getIntance().getSpString(AppSpSaveConstant.USER_NAME);
-
-        String url = "";
-        if (type == WhiteBlackListMode.TYPE_WHITE_LIST) {
-            url = String.format(SemiServerAddress.getWhiteListURL(), sno, user);
-        } else {
-            url = String.format(SemiServerAddress.getBlackListURL(), sno, user);
-        }
-
-        Log.d(TAG, "URL:" + url);
-        AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
-        asyncHttpCilentUtil.httpGet(url, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.d(TAG, "onFailure: " + call.request());
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String strjson = response.body().string();
-                Log.d(TAG, "onSuccess:" + strjson);
-                try {
-                    SemiRespHeader result = JSON.parseObject(strjson, SemiRespHeader.class);
-                    if (result == null) {
-                        return;
-                    }
-
-                    //  无正确应答
-                    if (TextUtils.isEmpty(result.getCode())) {
-                        return;
-                    }
-
-                    //  应答不正确
-                    if (!result.getCode().equals("40000")) {
-                        return;
-                    }
-                    strjson = JSON.toJSONString(result.getResults());
-                    WhiteBlackListMode.getInstance().storeWhiteBlackList(type, strjson);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //  APP和主控板程序升级

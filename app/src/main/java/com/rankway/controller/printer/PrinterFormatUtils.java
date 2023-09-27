@@ -1,4 +1,4 @@
-package com.rankway.controller.utils;
+package com.rankway.controller.printer;
 
 import android.annotation.SuppressLint;
 import android.text.TextUtils;
@@ -18,7 +18,7 @@ import java.nio.charset.Charset;
  *   version: 1.0
  * </pre>
  */
-public class printerFormatUtils {
+public class PrinterFormatUtils {
 
     /**
      * 打印纸一行最大的字节
@@ -46,7 +46,7 @@ public class printerFormatUtils {
     }
 
     public static void setOutputStream(OutputStream outputStream) {
-        printerFormatUtils.outputStream = outputStream;
+        PrinterFormatUtils.outputStream = outputStream;
     }
 
 
@@ -135,6 +135,12 @@ public class printerFormatUtils {
      * 设置默认行间距
      */
     public static final byte[] LINE_SPACING_DEFAULT = {0x1b, 0x32};
+
+    /*
+     * 换行
+     */
+    public static final byte[] NEW_LINE = {0x0a};
+
 
     /**
      * 设置行间距
@@ -250,5 +256,33 @@ public class printerFormatUtils {
             return name.substring(0, 8) + "..";
         }
         return name;
+    }
+
+
+    /***
+     *
+     * @param lines 行数
+     * @return
+     */
+    public static byte[] getFeedCommand(int lines){
+        byte[] bytes = new byte[3];
+        bytes[0] = 0x1b;
+        bytes[1] = 0x64;
+        bytes[2] = (byte)(lines&0xff);
+        return bytes;
+    }
+
+    /***
+     *
+     * @param doubleSize true: 2倍字体 false: 正常
+     * @return
+     */
+    public static byte[] getFontSizeCommand(boolean doubleSize){
+        byte[] bytes = new byte[3];
+        bytes[0] = 0x1D;
+        bytes[1] = 0x21;
+        bytes[2] = 0x00;
+        if(doubleSize) bytes[2] = 0x11;
+        return bytes;
     }
 }
