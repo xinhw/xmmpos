@@ -28,7 +28,7 @@ import java.util.List;
 public class MobilePosPayRecordDetailAdapter
         extends RecyclerView.Adapter<MobilePosPayRecordDetailAdapter.PaymentRecordDetailViewHolder> {
 
-    private final String TAG = "PaymentRecordDetailAdapter";
+    private final String TAG = "MobilePosPayRecordDetailAdapter";
     private List<PaymentRecord> data;
     private int selectedItem = -1;
     private OnItemClickListener onItemClickListener;

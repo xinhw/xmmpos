@@ -34,7 +34,7 @@ public class MobilePosPayRecordListActivity
         extends BaseActivity
         implements View.OnClickListener, MobilePosPayRecordAdapter.OnItemClickListener {
 
-    final String TAG = "PaymentRecordListActivity";
+    final String TAG = "MobilePosPayRecordListActivity";
 
     View onDataView;
     RecyclerView recyclerView;

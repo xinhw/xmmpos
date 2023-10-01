@@ -24,7 +24,7 @@ public class MobilePosPayStatisticsActivity
         extends BaseActivity
         implements View.OnClickListener,
         MobliePosPayStatisticsAdapter.OnItemClickListener {
-    final String TAG = "PaymentStatisticsActivity";
+    final String TAG = "MobilePosPayStatisticsActivity";
 
     View onDataView;
     RecyclerView recyclerView;

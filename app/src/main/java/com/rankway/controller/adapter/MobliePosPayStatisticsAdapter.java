@@ -26,7 +26,7 @@ import java.util.List;
 public class MobliePosPayStatisticsAdapter
         extends RecyclerView.Adapter<MobliePosPayStatisticsAdapter.PaymentRecordStatisticsViewHolder>{
 
-    private final String TAG ="PaymentStatisticsAdapter";
+    private final String TAG ="MobliePosPayStatisticsAdapter";
 
     List<PaymentStatisticsRecordEntity> data;
     OnItemClickListener onItemClickListener;

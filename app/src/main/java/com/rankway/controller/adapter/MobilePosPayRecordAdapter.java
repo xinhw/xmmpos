@@ -29,7 +29,7 @@ import java.util.List;
 public class MobilePosPayRecordAdapter
         extends RecyclerView.Adapter<MobilePosPayRecordAdapter.PaymentRecordViewHolder> {
 
-    private final String TAG = "PaymentRecordAdapter";
+    private final String TAG = "MobilePosPayRecordAdapter";
     private List<PaymentRecord> data;
     private int selectedItem = -1;
     private OnItemClickListener onItemClickListener;
