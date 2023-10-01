@@ -26,8 +26,8 @@ import java.util.List;
  *   version: 1.0
  * </pre>
  */
-public class PaymentRecordAdapter
-        extends RecyclerView.Adapter<PaymentRecordAdapter.PaymentRecordViewHolder> {
+public class MobilePosPayRecordAdapter
+        extends RecyclerView.Adapter<MobilePosPayRecordAdapter.PaymentRecordViewHolder> {
 
     private final String TAG = "PaymentRecordAdapter";
     private List<PaymentRecord> data;
@@ -37,7 +37,7 @@ public class PaymentRecordAdapter
     private long lastClickTime = 0;
     private final int MIN_CLICK_INTERVAL = 500; //
 
-    public PaymentRecordAdapter(Context context, List<PaymentRecord> records){
+    public MobilePosPayRecordAdapter(Context context, List<PaymentRecord> records){
         this.mContext = context;
         this.data = records;
     }

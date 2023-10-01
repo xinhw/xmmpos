@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
-import com.rankway.controller.adapter.PaymentStatisticsAdapter;
+import com.rankway.controller.adapter.MobliePosPayStatisticsAdapter;
 import com.rankway.controller.entity.PaymentStatisticsRecordEntity;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecord;
@@ -20,15 +20,15 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class PaymentStatisticsActivity
+public class MobilePosPayStatisticsActivity
         extends BaseActivity
         implements View.OnClickListener,
-        PaymentStatisticsAdapter.OnItemClickListener {
+        MobliePosPayStatisticsAdapter.OnItemClickListener {
     final String TAG = "PaymentStatisticsActivity";
 
     View onDataView;
     RecyclerView recyclerView;
-    PaymentStatisticsAdapter adapter;
+    MobliePosPayStatisticsAdapter adapter;
     List<PaymentStatisticsRecordEntity> listStatistics = new ArrayList<>();
 
     @Override
@@ -66,7 +66,7 @@ public class PaymentStatisticsActivity
 
     private void initData() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new PaymentStatisticsAdapter(mContext, listStatistics);
+        adapter = new MobliePosPayStatisticsAdapter(mContext, listStatistics);
         recyclerView.setAdapter(adapter);
         adapter.setOnItemClickListener(this);
 

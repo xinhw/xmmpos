@@ -48,42 +48,19 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:allowBackup">
         <activity
-            android:name=".activity.project.ModulesTestActivity"
-            android:exported="true"
-            android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <action android:name="android.nfc.action.TECH_DISCOVERED" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activity.project.PaymentStatisticsActivity"
+            android:name=".activity.project.MobilePosPayStatisticsActivity"
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".activity.project.PayActivity"
-            android:exported="true">
-
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-            <!-- <action android:name="android.nfc.action.TECH_DISCOVERED" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
-        </activity>
-        <activity
-            android:name=".activity.project.PaymentSettingActivity"
+            android:name=".activity.project.MobilePosPaySettingMenuActivity"
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".activity.project.PaymentRecordListActivity"
+            android:name=".activity.project.MobilePosPayRecordListActivity"
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".activity.project.PaymentMainActivity"
+            android:name=".activity.project.MobilePosPayMainActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
@@ -104,7 +81,7 @@
         <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
         <!-- </intent-filter> -->
         <!-- </activity> -->
-        <activity android:name=".activity.project.SettingsActivity" /> <!-- <activity -->
+        <activity android:name=".activity.project.MobilePosSettingsActivity" /> <!-- <activity -->
         <!-- android:name=".activity.project.HomeActivity2" -->
         <!-- android:launchMode="singleTask" -->
         <!-- android:theme="@style/AppTheme.NoActionBar" /> -->

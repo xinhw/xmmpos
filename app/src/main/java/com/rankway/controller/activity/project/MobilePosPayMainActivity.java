@@ -26,7 +26,7 @@ import android.widget.Toast;
 
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
-import com.rankway.controller.adapter.PaymentRecordDetailAdapter;
+import com.rankway.controller.adapter.MobilePosPayRecordDetailAdapter;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DataConverter;
 import com.rankway.controller.hardware.util.DetLog;
@@ -50,9 +50,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class PaymentMainActivity
+public class MobilePosPayMainActivity
         extends BaseActivity
-        implements View.OnClickListener, PaymentRecordDetailAdapter.OnItemClickListener {
+        implements View.OnClickListener, MobilePosPayRecordDetailAdapter.OnItemClickListener {
     private final String TAG = "MainPaymentActivity";
 
     NfcAdapter nfcAdapter;
@@ -85,7 +85,7 @@ public class PaymentMainActivity
     private PosInfoBean posInfoBean = null;
 
     List<PaymentRecord> listRecords = new ArrayList<>();    //  今日所有消费记录
-    PaymentRecordDetailAdapter adapter;
+    MobilePosPayRecordDetailAdapter adapter;
     RecyclerView recyclerView;
 
     private int totalCount = 0;
@@ -146,7 +146,7 @@ public class PaymentMainActivity
 
     private void initData() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new PaymentRecordDetailAdapter(mContext, listRecords);
+        adapter = new MobilePosPayRecordDetailAdapter(mContext, listRecords);
         recyclerView.setAdapter(adapter);
         adapter.setOnItemClickListener(this);
     }
@@ -373,7 +373,7 @@ public class PaymentMainActivity
         posInfoBean = getPosInfoBean();
         if (null == posInfoBean) {
             Log.d(TAG, "第一次使用，需要配置参数");
-            startActivity(SettingsActivity.class);
+            startActivity(MobilePosSettingsActivity.class);
         }
 
         getTodayRecords();
@@ -413,7 +413,7 @@ public class PaymentMainActivity
 
             case R.id.imgSetting:
                 if (!isPaying) {
-                    startActivity(PaymentSettingActivity.class);
+                    startActivity(MobilePosPaySettingMenuActivity.class);
                 }
                 break;
 

@@ -1,6 +1,5 @@
 package com.rankway.controller.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -11,8 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rankway.controller.R;
-import com.rankway.controller.persistence.entity.PaymentRecord;
-import com.rankway.controller.utils.DateStringUtils;
+import com.rankway.controller.entity.PaymentStatisticsRecordEntity;
 
 import java.util.List;
 
@@ -20,48 +18,48 @@ import java.util.List;
  * <pre>
  *   author : Xin Hongwei
  *   e-mail : xinhw@wxsemicon.com
- *   time  : 2022/12/10
+ *   time  : 2023/09/18
  *   desc  :
  *   version: 1.0
  * </pre>
  */
-public class PaymentRecordDetailAdapter
-        extends RecyclerView.Adapter<PaymentRecordDetailAdapter.PaymentRecordDetailViewHolder> {
+public class MobliePosPayStatisticsAdapter
+        extends RecyclerView.Adapter<MobliePosPayStatisticsAdapter.PaymentRecordStatisticsViewHolder>{
 
-    private final String TAG = "PaymentRecordDetailAdapter";
-    private List<PaymentRecord> data;
+    private final String TAG ="PaymentStatisticsAdapter";
+
+    List<PaymentStatisticsRecordEntity> data;
+    OnItemClickListener onItemClickListener;
+
     private int selectedItem = -1;
-    private OnItemClickListener onItemClickListener;
     private Context mContext;
     private long lastClickTime = 0;
     private final int MIN_CLICK_INTERVAL = 500; //
 
-    public PaymentRecordDetailAdapter(Context context,List<PaymentRecord> records){
+
+    public MobliePosPayStatisticsAdapter(Context context, List<PaymentStatisticsRecordEntity> records){
         this.mContext = context;
         this.data = records;
-    }
-
-    private int getMyColor(int green) {
-        return mContext.getResources().getColor(green);
     }
 
     @NonNull
     @androidx.annotation.NonNull
     @Override
-    public PaymentRecordDetailViewHolder onCreateViewHolder(@NonNull @androidx.annotation.NonNull ViewGroup viewGroup, int i) {
-        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_payment_record_detail,viewGroup,false);
-        PaymentRecordDetailViewHolder holder = new PaymentRecordDetailViewHolder(inflate);
+    public PaymentRecordStatisticsViewHolder onCreateViewHolder(@NonNull @androidx.annotation.NonNull ViewGroup viewGroup, int i) {
+        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_payment_statistics,viewGroup,false);
+        PaymentRecordStatisticsViewHolder holder = new PaymentRecordStatisticsViewHolder(inflate);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull @androidx.annotation.NonNull PaymentRecordDetailViewHolder holder, @SuppressLint("RecyclerView") int i) {
+    public void onBindViewHolder(@NonNull @androidx.annotation.NonNull PaymentRecordStatisticsViewHolder holder, int i) {
         holder.itemView.setSelected(i==selectedItem);
-        PaymentRecord item = data.get(i);
-        holder.cno.setText(item.getAuditNo()+"");
-        holder.workNo.setText(item.getWorkNo());
-        holder.amount.setText(String.format("￥%.2f",item.getAmount()));
-        holder.transTime.setText(DateStringUtils.dateToString(item.getTransTime()));
+        PaymentStatisticsRecordEntity item = data.get(i);
+        holder.seqNo.setText(item.getSeqNo()+"");
+        holder.transDate.setText(item.getCdate());
+        holder.subCount.setText(item.getSubCount()+"");
+        holder.subAmount.setText(String.format("￥%.2f",item.getSubAmount()));
+
         holder.rootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,46 +80,21 @@ public class PaymentRecordDetailAdapter
                 }
             }
         });
+
         holder.rootView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if(onItemClickListener!=null) onItemClickListener.onItemLongClick(v,i);
+                if(null!=onItemClickListener) onItemClickListener.onItemLongClick(v,i);
                 selectedItem = i;
                 lastClickTime = SystemClock.elapsedRealtime();
                 return false;
             }
         });
-
-    }
-
-    public int getSelectedItem() {
-        return selectedItem;
-    }
-
-    public void setSelectedItem(int selectedItem) {
-        this.selectedItem = selectedItem;
     }
 
     @Override
     public int getItemCount() {
         return data.size();
-    }
-
-    public class PaymentRecordDetailViewHolder extends RecyclerView.ViewHolder{
-        View rootView;
-        TextView cno;
-        TextView workNo;
-        TextView amount;
-        TextView transTime;
-
-        public PaymentRecordDetailViewHolder(@NonNull @androidx.annotation.NonNull View itemView) {
-            super(itemView);
-            rootView = itemView.findViewById(R.id.rootView);
-            cno = itemView.findViewById(R.id.cno);
-            workNo = itemView.findViewById(R.id.workNo);
-            amount = itemView.findViewById(R.id.amount);
-            transTime = itemView.findViewById(R.id.transTime);
-        }
     }
 
     public interface OnItemClickListener{
@@ -133,5 +106,21 @@ public class PaymentRecordDetailAdapter
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.onItemClickListener = listener;
     }
-}
 
+    public class PaymentRecordStatisticsViewHolder extends RecyclerView.ViewHolder {
+        View rootView;
+        TextView seqNo;
+        TextView transDate;
+        TextView subCount;
+        TextView subAmount;
+
+        public PaymentRecordStatisticsViewHolder(@NonNull @androidx.annotation.NonNull View itemView) {
+            super(itemView);
+            rootView = itemView.findViewById(R.id.rootView);
+            seqNo  = itemView.findViewById(R.id.seqNo);
+            transDate  = itemView.findViewById(R.id.transDate);
+            subCount  = itemView.findViewById(R.id.subCount);
+            subAmount  = itemView.findViewById(R.id.subAmount);
+        }
+    }
+}
