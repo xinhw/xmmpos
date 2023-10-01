@@ -12,7 +12,7 @@ import com.rankway.controller.activity.BaseActivity;
 public class MobilePosSettingMenuActivity
         extends BaseActivity
         implements View.OnClickListener {
-    final String TAG = "PaymentSettingActivity";
+    final String TAG = "MobilePosSettingMenuActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

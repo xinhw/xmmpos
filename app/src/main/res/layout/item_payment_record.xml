@@ -6,124 +6,116 @@
     android:padding="5dp"
     android:layout_margin="3dp"
     android:background="@drawable/seleted_status"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/auditNo"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_weight="0.8"
+        android:padding="5dp"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:text="序号" />
 
-        <TextView
-            android:id="@+id/auditNo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.8"
-            android:padding="5dp"
-            android:gravity="left"
-            android:textColor="@color/black"
-            android:textSize="14sp"
-            android:text="序号:" />
+    <View
+        android:layout_width="0.1dp"
+        android:layout_height="match_parent"
+        android:background="@color/btn_gray_normal" />
 
-        <View
-            android:layout_width="0.1dp"
-            android:layout_height="match_parent"
-            android:background="@color/btn_gray_normal" />
-
-        <TextView
-            android:id="@+id/workNo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.8"
-            android:textSize="14sp"
-            android:padding="5dp"
-            android:textColor="@color/black"
-            android:gravity="left"
-            android:text="工号:" />
-
-        <View
-            android:layout_width="0.1dp"
-            android:layout_height="match_parent"
-            android:background="@color/btn_gray_normal" />
-
-        <TextView
-            android:id="@+id/workName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.8"
-            android:textSize="14sp"
-            android:padding="5dp"
-            android:textColor="@color/black"
-            android:gravity="left"
-            android:text="姓名:" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/workNo"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:id="@+id/amount"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="14sp"
-            android:padding="5dp"
-            android:textColor="@color/black"
-            android:gravity="left"
-            android:text="金额:" />
+        android:layout_weight="0.8"
+        android:textSize="14sp"
+        android:padding="5dp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:text="工号" />
 
-        <View
-            android:layout_width="0.1dp"
-            android:layout_height="match_parent"
-            android:background="@color/btn_gray_normal" />
+    <View
+        android:layout_width="0.1dp"
+        android:layout_height="match_parent"
+        android:background="@color/btn_gray_normal" />
 
-        <TextView
-            android:id="@+id/balance"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="14sp"
-            android:padding="5dp"
-            android:textColor="@color/black"
-            android:gravity="left"
-            android:text="余额:" />
-
-        <View
-            android:layout_width="0.1dp"
-            android:layout_height="match_parent"
-            android:background="@color/btn_gray_normal" />
-
-        <TextView
-            android:id="@+id/payWay"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="14sp"
-            android:padding="5dp"
-            android:textColor="@color/black"
-            android:gravity="left"
-            android:text="方式：" />
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/workName"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:id="@+id/transTime"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:textSize="14sp"
-            android:padding="5dp"
-            android:textColor="@color/black"
-            android:gravity="right"
-            android:text="时间：" />
+        android:layout_weight="0.8"
+        android:textSize="14sp"
+        android:padding="5dp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:text="姓名" />
 
-    </LinearLayout>
+    <View
+        android:layout_width="0.1dp"
+        android:layout_height="match_parent"
+        android:background="@color/btn_gray_normal" />
+
+    <TextView
+        android:id="@+id/amount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="14sp"
+        android:padding="5dp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:text="金额" />
+
+    <View
+        android:layout_width="0.1dp"
+        android:layout_height="match_parent"
+        android:background="@color/btn_gray_normal" />
+
+    <TextView
+        android:id="@+id/balance"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="14sp"
+        android:padding="5dp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:text="余额" />
+
+    <View
+        android:layout_width="0.1dp"
+        android:layout_height="match_parent"
+        android:background="@color/btn_gray_normal" />
+
+    <TextView
+        android:id="@+id/payWay"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="14sp"
+        android:padding="5dp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:text="方式" />
+
+    <View
+        android:layout_width="0.1dp"
+        android:layout_height="match_parent"
+        android:background="@color/btn_gray_normal" />
+
+    <TextView
+        android:id="@+id/transTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:textSize="14sp"
+        android:padding="5dp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:text="时间" />
+
+
 
 </LinearLayout>
 

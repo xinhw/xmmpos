@@ -26,10 +26,10 @@ import java.util.List;
  *   version: 1.0
  * </pre>
  */
-public class MobliePayRecordAdapter
-        extends RecyclerView.Adapter<MobliePayRecordAdapter.PaymentRecordViewHolder> {
+public class MobliePosPayRecordAdapter
+        extends RecyclerView.Adapter<MobliePosPayRecordAdapter.PaymentRecordViewHolder> {
 
-    private final String TAG = "PaymentRecordAdapter";
+    private final String TAG = "MobliePosPayRecordAdapter";
     private List<PaymentRecord> data;
     private int selectedItem = -1;
     private OnItemClickListener onItemClickListener;
@@ -37,7 +37,7 @@ public class MobliePayRecordAdapter
     private long lastClickTime = 0;
     private final int MIN_CLICK_INTERVAL = 500; //
 
-    public MobliePayRecordAdapter(Context context, List<PaymentRecord> records){
+    public MobliePosPayRecordAdapter(Context context, List<PaymentRecord> records){
         this.mContext = context;
         this.data = records;
     }

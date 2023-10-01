@@ -44,7 +44,7 @@ public class DeskPosPayMainActivity
         DishTypeAdapter.OnItemClickListener,
         PaymentDialog.OnPaymentResult{
 
-    private final String TAG = "MainDeskPOSActivity";
+    private final String TAG = "DeskPosPayMainActivity";
 
     RecyclerView selectedRecyclerView;
     List<Dish> listSelectedDish = new ArrayList<>();        //  选中的菜品

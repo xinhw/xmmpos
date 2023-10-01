@@ -1,11 +1,11 @@
 package com.rankway.controller.activity.project;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 
 import com.rankway.controller.R;
+import com.rankway.controller.activity.BaseActivity;
 
-public class DeskPosLoginActivity extends AppCompatActivity {
+public class DeskPosLoginActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

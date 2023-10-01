@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
-import com.rankway.controller.adapter.MobliePayRecordAdapter;
+import com.rankway.controller.adapter.MobliePosPayRecordAdapter;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
@@ -32,9 +32,9 @@ import java.util.List;
 
 public class MobilePayRecordListActivity
         extends BaseActivity
-        implements View.OnClickListener, MobliePayRecordAdapter.OnItemClickListener {
+        implements View.OnClickListener, MobliePosPayRecordAdapter.OnItemClickListener {
 
-    final String TAG = "PaymentRecordListActivity";
+    final String TAG = "MobilePayRecordListActivity";
 
     View onDataView;
     RecyclerView recyclerView;
@@ -42,7 +42,7 @@ public class MobilePayRecordListActivity
     List<PaymentRecord> todayRecords = new ArrayList<>();
     List<PaymentRecord> allRecords = new ArrayList<>();
 
-    private MobliePayRecordAdapter adapter;
+    private MobliePosPayRecordAdapter adapter;
 
     TextView tvTodayRecord;
     TextView tvAllRecord;
@@ -86,7 +86,7 @@ public class MobilePayRecordListActivity
 
     private void initData() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new MobliePayRecordAdapter(mContext, showRecords);
+        adapter = new MobliePosPayRecordAdapter(mContext, showRecords);
         recyclerView.setAdapter(adapter);
         adapter.setOnItemClickListener(this);
 

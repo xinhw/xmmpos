@@ -54,7 +54,7 @@ public class MobilePosSettingsActivity
         extends BaseActivity
         implements View.OnClickListener {
 
-    private final String TAG = "PersonActivity";
+    private final String TAG = "MobilePosSettingsActivity";
 
     private TextView tvPosName;
     private TextView tvPosNo;

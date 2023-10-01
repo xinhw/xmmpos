@@ -76,6 +76,18 @@
             android:layout_marginRight="5dp"
             android:gravity="center"
             android:text="金额" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/btn_gray_normal" />
+
+        <ImageView
+            android:id="@+id/detail"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:scaleType="center"
+            android:layout_weight="0.6"/>
     </LinearLayout>
 
 

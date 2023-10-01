@@ -31,7 +31,7 @@ import java.util.Iterator;
 
 public class DeskPosModulesTestActivity extends BaseActivity {
 
-    private final String TAG = "ModulesTestActivity";
+    private final String TAG = "DeskPosModulesTestActivity";
 
     private LinearLayout llResult;
     private ScrollView scrollViewResult;

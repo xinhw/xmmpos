@@ -53,7 +53,7 @@ import java.util.List;
 public class MobliePosPayMainActivity
         extends BaseActivity
         implements View.OnClickListener, MobilePosPayRecordDetailAdapter.OnItemClickListener {
-    private final String TAG = "MainPaymentActivity";
+    private final String TAG = "MobliePosPayMainActivity";
 
     NfcAdapter nfcAdapter;
     private PendingIntent pendingIntent;

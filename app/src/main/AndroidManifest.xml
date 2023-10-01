@@ -49,13 +49,16 @@
         tools:replace="android:allowBackup">
         <activity
             android:name=".activity.project.DeskPosPayRecordActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activity.project.DeskPosLoginActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activity.project.DeskPosPayMainActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activity.project.DeskPosModulesTestActivity"
             android:exported="true"
