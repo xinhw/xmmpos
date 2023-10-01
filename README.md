@@ -1,2 +1,2 @@
 # xmmpos
-这是台式Android平台POS源代码
+台式Android平台POS源代码

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,10 +26,10 @@ import java.util.List;
  *   version: 1.0
  * </pre>
  */
-public class PaymentRecordDetailAdapter
-        extends RecyclerView.Adapter<PaymentRecordDetailAdapter.PaymentRecordDetailViewHolder> {
+public class MobliePayRecordAdapter
+        extends RecyclerView.Adapter<MobliePayRecordAdapter.PaymentRecordViewHolder> {
 
-    private final String TAG = "PaymentRecordDetailAdapter";
+    private final String TAG = "PaymentRecordAdapter";
     private List<PaymentRecord> data;
     private int selectedItem = -1;
     private OnItemClickListener onItemClickListener;
@@ -36,10 +37,20 @@ public class PaymentRecordDetailAdapter
     private long lastClickTime = 0;
     private final int MIN_CLICK_INTERVAL = 500; //
 
-    public PaymentRecordDetailAdapter(Context context,List<PaymentRecord> records){
+    public MobliePayRecordAdapter(Context context, List<PaymentRecord> records){
         this.mContext = context;
         this.data = records;
     }
+
+    public int getSelectedItem() {
+        return selectedItem;
+    }
+
+    public void setSelectedItem(int i) {
+        Log.d(TAG,"setSelectedItem选中的是："+i);
+        this.selectedItem = i;
+    }
+
 
     private int getMyColor(int green) {
         return mContext.getResources().getColor(green);
@@ -48,20 +59,28 @@ public class PaymentRecordDetailAdapter
     @NonNull
     @androidx.annotation.NonNull
     @Override
-    public PaymentRecordDetailViewHolder onCreateViewHolder(@NonNull @androidx.annotation.NonNull ViewGroup viewGroup, int i) {
-        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_payment_record_detail,viewGroup,false);
-        PaymentRecordDetailViewHolder holder = new PaymentRecordDetailViewHolder(inflate);
+    public PaymentRecordViewHolder onCreateViewHolder(@NonNull @androidx.annotation.NonNull ViewGroup viewGroup, int i) {
+        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_payment_record,viewGroup,false);
+        PaymentRecordViewHolder holder = new PaymentRecordViewHolder(inflate);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull @androidx.annotation.NonNull PaymentRecordDetailViewHolder holder, @SuppressLint("RecyclerView") int i) {
+    public void onBindViewHolder(@NonNull @androidx.annotation.NonNull PaymentRecordViewHolder holder, @SuppressLint("RecyclerView") int i) {
         holder.itemView.setSelected(i==selectedItem);
         PaymentRecord item = data.get(i);
-        holder.cno.setText(item.getAuditNo()+"");
-        holder.workNo.setText(item.getWorkNo());
-        holder.amount.setText(String.format("￥%.2f",item.getAmount()));
-        holder.transTime.setText(DateStringUtils.dateToString(item.getTransTime()));
+        holder.auditNo.setText("序号:"+item.getAuditNo());
+        holder.workNo.setText("工号:"+item.getWorkNo());
+        holder.workName.setText("姓名:"+item.getWorkName());
+        holder.amount.setText(String.format("金额：￥%.2f",item.getAmount()));
+        holder.balance.setText(String.format("余额：￥%.2f",item.getBalance()));
+        if(item.getQrType()==0){
+            holder.payWay.setText("方式:IC卡");
+        }else{
+            holder.payWay.setText("方式:二维码");
+        }
+        holder.transTime.setText("时间："+ DateStringUtils.dateToString(item.getTransTime()));
+
         holder.rootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,24 +101,16 @@ public class PaymentRecordDetailAdapter
                 }
             }
         });
+
         holder.rootView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if(onItemClickListener!=null) onItemClickListener.onItemLongClick(v,i);
+                if(null!=onItemClickListener) onItemClickListener.onItemLongClick(v,i);
                 selectedItem = i;
                 lastClickTime = SystemClock.elapsedRealtime();
                 return false;
             }
         });
-
-    }
-
-    public int getSelectedItem() {
-        return selectedItem;
-    }
-
-    public void setSelectedItem(int selectedItem) {
-        this.selectedItem = selectedItem;
     }
 
     @Override
@@ -107,19 +118,27 @@ public class PaymentRecordDetailAdapter
         return data.size();
     }
 
-    public class PaymentRecordDetailViewHolder extends RecyclerView.ViewHolder{
+
+    public class PaymentRecordViewHolder extends RecyclerView.ViewHolder{
         View rootView;
-        TextView cno;
+        TextView auditNo;
         TextView workNo;
+        TextView workName;
         TextView amount;
+        TextView balance;
+        TextView payWay;
         TextView transTime;
 
-        public PaymentRecordDetailViewHolder(@NonNull @androidx.annotation.NonNull View itemView) {
+
+        public PaymentRecordViewHolder(@NonNull @androidx.annotation.NonNull View itemView) {
             super(itemView);
             rootView = itemView.findViewById(R.id.rootView);
-            cno = itemView.findViewById(R.id.cno);
+            auditNo = itemView.findViewById(R.id.auditNo);
             workNo = itemView.findViewById(R.id.workNo);
+            workName = itemView.findViewById(R.id.workName);
             amount = itemView.findViewById(R.id.amount);
+            balance = itemView.findViewById(R.id.balance);
+            payWay = itemView.findViewById(R.id.payWay);
             transTime = itemView.findViewById(R.id.transTime);
         }
     }
@@ -134,4 +153,3 @@ public class PaymentRecordDetailAdapter
         this.onItemClickListener = listener;
     }
 }
-

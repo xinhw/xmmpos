@@ -29,7 +29,7 @@ import com.rankway.controller.printer.PrinterFormatUtils;
 import java.util.HashMap;
 import java.util.Iterator;
 
-public class ModulesTestActivity extends BaseActivity {
+public class DeskPosModulesTestActivity extends BaseActivity {
 
     private final String TAG = "ModulesTestActivity";
 
@@ -69,7 +69,7 @@ public class ModulesTestActivity extends BaseActivity {
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(ModulesTestActivity.this, "连接上二维码扫描头后直接扫描测试", Toast.LENGTH_LONG).show();
+                Toast.makeText(DeskPosModulesTestActivity.this, "连接上二维码扫描头后直接扫描测试", Toast.LENGTH_LONG).show();
                 playSound(false);
             }
         });

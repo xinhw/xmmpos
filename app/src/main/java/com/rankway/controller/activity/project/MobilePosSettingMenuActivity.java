@@ -9,7 +9,7 @@ import android.widget.TextView;
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
 
-public class PaymentSettingActivity
+public class MobilePosSettingMenuActivity
         extends BaseActivity
         implements View.OnClickListener {
     final String TAG = "PaymentSettingActivity";
@@ -49,15 +49,15 @@ public class PaymentSettingActivity
                 break;
 
             case R.id.paymentDetail:
-                startActivity(PaymentRecordListActivity.class);
+                startActivity(MobilePayRecordListActivity.class);
                 break;
 
             case R.id.paymentStatistics:
-                startActivity(PaymentStatisticsActivity.class);
+                startActivity(MobilePosStatisticsActivity.class);
                 break;
 
             case R.id.paymentSetting:
-                startActivity(SettingsActivity.class);
+                startActivity(MobilePosSettingsActivity.class);
                 break;
         }
     }

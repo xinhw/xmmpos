@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootView"
+    android:layout_width="60dp"
+    android:layout_height="60dp"
+    android:orientation="vertical"
+    android:padding="5dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:background="@drawable/btn_bg_semic">
+
+    <TextView
+        android:id="@+id/tvDishType"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="大荤"
+        android:textSize="14sp"
+        android:textColor="#333333"
+        android:gravity="center"/>
+
+</LinearLayout>

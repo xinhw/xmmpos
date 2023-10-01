@@ -1,5 +1,7 @@
 package com.rankway.controller.dto;
 
+import java.util.Date;
+
 /**
  * <pre>
  *   author : Xin Hongwei
@@ -15,6 +17,15 @@ public class PosInfoBean {
     int auditNo;
     String serverIP;
     int portNo;
+
+    String shiftNo;     //  班次号
+
+    int status;         //  状态：0--已经结班；1--未结班
+    public static final int STATUS_SETTLE_OUT = 0;      //  结班
+    public static final int STATUS_SETTLE_IN = 1;       //  班上
+
+    Date startTime;         //  开班时间
+    Date settleTime;        //  结班时间
 
     public String getCposno() {
         return cposno;
@@ -56,6 +67,38 @@ public class PosInfoBean {
         this.portNo = portNo;
     }
 
+    public String getShiftNo() {
+        return shiftNo;
+    }
+
+    public void setShiftNo(String shiftNo) {
+        this.shiftNo = shiftNo;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getSettleTime() {
+        return settleTime;
+    }
+
+    public void setSettleTime(Date settleTime) {
+        this.settleTime = settleTime;
+    }
+
     @Override
     public String toString() {
         return "PosInfoBean{" +
@@ -64,6 +107,10 @@ public class PosInfoBean {
                 ", auditNo=" + auditNo +
                 ", serverIP='" + serverIP + '\'' +
                 ", portNo=" + portNo +
+                ", shiftNo='" + shiftNo + '\'' +
+                ", status=" + status +
+                ", startTime=" + startTime +
+                ", settleTime=" + settleTime +
                 '}';
     }
 }

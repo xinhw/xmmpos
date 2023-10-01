@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/base_map">
+
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/colorPrimary">
+        <LinearLayout
+            android:id="@+id/back_img"
+            android:layout_width="56dp"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@mipmap/back" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:gravity="center_vertical"
+            android:text="报业大厦POS机"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/imgSetting"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="5dp"
+            android:gravity="center"
+            android:paddingTop="15dp"
+            android:paddingRight="5dp"
+            android:paddingBottom="15dp"
+            android:src="@drawable/setting_white"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginTop="5dp">
+       <LinearLayout
+           android:layout_width="0dp"
+           android:layout_weight="5"
+           android:layout_height="match_parent">
+           <TextView
+               android:id="@+id/tvPosNo"
+               android:layout_width="0dp"
+               android:layout_weight="1"
+               android:layout_height="match_parent"
+               android:text="POS号：25001"
+               android:textSize="16sp"
+               android:layout_marginLeft="3dp"
+               android:paddingLeft="2dp"
+               android:textColor="@color/black"
+               android:background="@drawable/seleted_status"
+               android:gravity="center|left"/>
+
+           <TextView
+               android:id="@+id/tvTime"
+               android:layout_width="0dp"
+               android:layout_weight="2"
+               android:layout_height="match_parent"
+               android:text="时间：2023-09-30 16:32:34"
+               android:textSize="16sp"
+               android:paddingLeft="5dp"
+               android:textColor="@color/black"
+               android:background="@drawable/seleted_status"
+               android:gravity="center|left"/>
+
+       </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="4"
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/tvTotalCount"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:text="总数：235"
+                android:textSize="16sp"
+                android:paddingLeft="5dp"
+                android:textColor="@color/black"
+                android:background="@drawable/seleted_status"
+                android:gravity="center|left"/>
+
+            <TextView
+                android:id="@+id/tvTotalAmount"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:text="总金额：2304.00"
+                android:textSize="16sp"
+                android:paddingLeft="5dp"
+                android:textColor="@color/black"
+                android:background="@drawable/seleted_status"
+                android:gravity="center|left"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvExit"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:text="注销"
+                android:textSize="16sp"
+                android:textColor="@color/red"
+                android:background="@drawable/seleted_status"
+                android:gravity="center"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginTop="5dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="6"
+            android:tooltipText="支付区域"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1.5"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/tvSelectedTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:background="@drawable/seleted_status"
+                    android:text="选购内容"/>
+                <!-- 这里需要加个标题-->
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/selectedRecyclerView"
+                    android:scrollbars="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <!-- 简单统计信息-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:background="@drawable/seleted_status"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_height="match_parent"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:gravity="left"
+                        android:paddingLeft="3dp"
+                        android:textStyle="bold"
+                        android:text="数量："/>
+                    <TextView
+                        android:id="@+id/tvSubCount"
+                        android:layout_height="match_parent"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textStyle="bold|italic"
+                        android:text="1000"/>
+                    <TextView
+                        android:layout_height="match_parent"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:gravity="left"
+                        android:paddingLeft="2dp"
+                        android:textStyle="bold"
+                        android:text="小计："/>
+                    <TextView
+                        android:id="@+id/tvSubAmount"
+                        android:layout_height="match_parent"
+                        android:layout_width="0dp"
+                        android:layout_weight="1.5"
+                        android:gravity="center"
+                        android:paddingLeft="2dp"
+                        android:textStyle="bold|italic"
+                        android:text="10076.23"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="5dp"
+                android:layout_height="match_parent"
+                android:background="@color/btn_gray_normal" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="3"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+                    <!-- 商品类别-->
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/dishTypeRecyclerView"
+                        android:scrollbars="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="5dp"
+                    android:background="@color/btn_gray_normal" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="2"
+                    android:orientation="vertical">
+                    <!-- 商品明细-->
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/dishRecyclerView"
+                        android:scrollbars="vertical"
+                        android:layout_width="match_parent"
+                        android:visibility="gone"
+                        android:layout_height="match_parent"/>
+
+                    <LinearLayout
+                        android:id="@+id/noDishView"
+                        android:gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                        <TextView
+                            android:text="没有商品"
+                            android:textSize="18sp"
+                            android:textColor="@color/black"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="@color/btn_gray_normal" />
+
+        <LinearLayout
+            android:id="@+id/tipView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+            <!-- 显示一些提示信息，比如时间等-->
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/tvClearSelected"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:text="清除"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    android:background="@drawable/btn_bg_semic"
+                    android:gravity="center"/>
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/btn_gray_normal" />
+
+                <TextView
+                    android:id="@+id/tvQuatity"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:text="修改数量"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    android:background="@drawable/btn_bg_semic"
+                    android:gravity="center"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent">
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvCardPay"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:text="卡支付"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    android:background="@drawable/btn_bg_semic"
+                    android:gravity="center"/>
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/btn_gray_normal" />
+
+                <TextView
+                    android:id="@+id/tvQRPay"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:text="二维码"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    android:background="@drawable/btn_bg_semic"
+                    android:gravity="center"/>
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/btn_gray_normal" />
+
+                <TextView
+                    android:id="@+id/tvPrintAgain"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:text="再次打印"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    android:background="@drawable/btn_bg_semic"
+                    android:gravity="center"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

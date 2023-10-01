@@ -5,6 +5,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Transient;
 
 /**
  * <pre>
@@ -27,10 +28,14 @@ public class Dish {
 
     long typeId;
 
+    @Transient
+    int count;
+
     @JSONField(serialize = false)
     long timestamp;
 
     public Dish(){
+        this.count = 1;
         this.timestamp = System.currentTimeMillis();
     }
 
@@ -102,6 +107,13 @@ public class Dish {
         this.timestamp = timestamp;
     }
 
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
 
     @Override
     public String toString() {
@@ -112,6 +124,7 @@ public class Dish {
                 ", price=" + price +
                 ", status='" + status + '\'' +
                 ", typeId=" + typeId +
+                ", count=" + count +
                 ", timestamp=" + timestamp +
                 '}';
     }

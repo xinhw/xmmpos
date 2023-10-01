@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 import com.rankway.controller.persistence.entity.PaymentRecord;
 import com.rankway.controller.persistence.gen.DaoMaster;
 import com.rankway.controller.persistence.gen.DaoSession;
+import com.rankway.controller.persistence.gen.DishDao;
+import com.rankway.controller.persistence.gen.DishTypeDao;
 import com.rankway.controller.persistence.gen.MessageDetailDao;
 import com.rankway.controller.persistence.gen.PaymentRecordDao;
 import com.rankway.controller.persistence.gen.SemiEventEntityDao;
@@ -66,10 +68,11 @@ public class DBManager {
         getPaymentRecordDao().deleteInTx(list);
     }
 
+    public DishTypeDao getDishTypeDao(){
+        return mDaoSession.getDishTypeDao();
+    }
 
-
-
-
-
-
+    public DishDao getDishDao(){
+        return mDaoSession.getDishDao();
+    }
 }

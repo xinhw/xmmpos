@@ -11,7 +11,7 @@ import android.content.Context;
  *   version: 1.0
  * </pre>
  */
-public abstract  class PrinterBase {
+public abstract class PrinterBase {
     Context mContext;
     String errMessage;
 
@@ -31,6 +31,5 @@ public abstract  class PrinterBase {
     public void setErrMessage(String s){
         this.errMessage = s;
     }
-
 
 }

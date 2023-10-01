@@ -63,12 +63,16 @@ import com.rankway.controller.common.SemiRespHeader;
 import com.rankway.controller.common.SemiServerAddress;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.entity.AppUpdateBean;
+import com.rankway.controller.entity.PaymentStatisticsRecordEntity;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.hardware.util.SoundPoolHelp;
 import com.rankway.controller.persistence.DBManager;
+import com.rankway.controller.persistence.entity.Dish;
+import com.rankway.controller.persistence.entity.DishType;
 import com.rankway.controller.persistence.entity.MessageDetail;
 import com.rankway.controller.persistence.entity.PaymentRecord;
 import com.rankway.controller.persistence.entity.SemiEventEntity;
+import com.rankway.controller.persistence.gen.DishDao;
 import com.rankway.controller.persistence.gen.SemiEventEntityDao;
 import com.rankway.controller.pushmessage.ETEKMessageProcess;
 import com.rankway.controller.utils.AppUtils;
@@ -96,6 +100,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -897,7 +902,7 @@ public class BaseActivity extends AppCompatActivity {
      * 播放声音
      * @param b
      */
-    protected void playSound(boolean b) {
+    public void playSound(boolean b) {
         if (soundPoolHelp != null) {
             soundPoolHelp.playSound(b);
             VibrateUtil.vibrate(this, 150);
@@ -1535,7 +1540,7 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    protected void savePosInfoBean(PosInfoBean bean){
+    public void savePosInfoBean(PosInfoBean bean){
         String str = JSON.toJSONString(bean);
         Log.d(TAG,"savePosInfoBean "+str);
         setStringInfo(AppIntentString.POS_INFO_BEAN,str);
@@ -1612,5 +1617,103 @@ public class BaseActivity extends AppCompatActivity {
                 },
                 view
         );
+    }
+
+
+    /***
+     * 获取本地的菜品种类信息
+     * @return
+     */
+    protected List<DishType> getLocalDishType(){
+        List<DishType> allTypes = new ArrayList<>();
+        allTypes.clear();
+
+        List<DishType> list = DBManager.getInstance().getDishTypeDao().loadAll();
+        list.sort(new Comparator<DishType>() {
+            @Override
+            public int compare(DishType o1, DishType o2) {
+                return (int)(o1.getId()-o2.getId());
+            }
+        });
+
+        allTypes.addAll(list);
+        return allTypes;
+    }
+
+    /***
+     * 获取本地的菜品信息（参数为菜品种类）
+     * @param dishType
+     * @return
+     */
+    protected List<Dish> getLocalDish(DishType dishType){
+        List<Dish> allDishes = new ArrayList<>();
+        allDishes.clear();
+
+        List<Dish> list = DBManager.getInstance().getDishDao()
+                .queryBuilder()
+                .where(DishDao.Properties.TypeId.eq(dishType.getId()))
+                .list();
+        list.sort(new Comparator<Dish>() {
+            @Override
+            public int compare(Dish o1, Dish o2) {
+                return (int)(o1.getId()-o2.getId());
+            }
+        });
+        allDishes.addAll(list);
+        return allDishes;
+    }
+
+
+    /***
+     * 获取逐日统计的记录信息
+     * @return
+     */
+    protected List<PaymentStatisticsRecordEntity> getStatisticsRecord() {
+        Log.d(TAG, "getStatisticsRecord");
+        List<PaymentStatisticsRecordEntity> listStatistics = new ArrayList<>();
+
+        listStatistics.clear();
+        List<PaymentRecord> records = DBManager.getInstance().getPaymentRecordDao()
+                .queryBuilder()
+                .list();
+        if (records.size() == 0) return listStatistics;
+        Log.d(TAG, "记录总数：" + records.size());
+
+        records.sort(new Comparator<PaymentRecord>() {
+            @Override
+            public int compare(PaymentRecord o1, PaymentRecord o2) {
+                if (o1.getTransTime().before(o2.getTransTime())) return -1;
+                return 1;
+            }
+        });
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        int seqNo = 1;
+        for (int i = 0; i < records.size(); i++) {
+            PaymentRecord record = records.get(i);
+            String s = format.format(record.getTransTime());
+
+            boolean bexist = false;
+            for (PaymentStatisticsRecordEntity entity : listStatistics) {
+                if (s.equals(entity.getCdate())) {
+                    bexist = true;
+                    entity.setSubCount(entity.getSubCount() + 1);
+                    entity.setSubAmount(entity.getSubAmount() + record.getAmount());
+                    entity.getRecordList().add(record);
+                    break;
+                }
+            }
+            if (bexist) continue;
+
+            PaymentStatisticsRecordEntity entity = new PaymentStatisticsRecordEntity();
+            entity.setSeqNo(seqNo);
+            entity.setSubCount(1);
+            entity.setCdate(s);
+            entity.setSubAmount(record.getAmount());
+            entity.getRecordList().add(record);
+            listStatistics.add(entity);
+            seqNo++;
+        }
+        return listStatistics;
     }
 }

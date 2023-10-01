@@ -10,25 +10,21 @@ import android.widget.TextView;
 
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
-import com.rankway.controller.adapter.PaymentStatisticsAdapter;
+import com.rankway.controller.adapter.MobilePosPayStatisticsAdapter;
 import com.rankway.controller.entity.PaymentStatisticsRecordEntity;
-import com.rankway.controller.persistence.DBManager;
-import com.rankway.controller.persistence.entity.PaymentRecord;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
-public class PaymentStatisticsActivity
+public class MobilePosStatisticsActivity
         extends BaseActivity
         implements View.OnClickListener,
-        PaymentStatisticsAdapter.OnItemClickListener {
+        MobilePosPayStatisticsAdapter.OnItemClickListener {
     final String TAG = "PaymentStatisticsActivity";
 
     View onDataView;
     RecyclerView recyclerView;
-    PaymentStatisticsAdapter adapter;
+    MobilePosPayStatisticsAdapter adapter;
     List<PaymentStatisticsRecordEntity> listStatistics = new ArrayList<>();
 
     @Override
@@ -66,60 +62,18 @@ public class PaymentStatisticsActivity
 
     private void initData() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new PaymentStatisticsAdapter(mContext, listStatistics);
+        adapter = new MobilePosPayStatisticsAdapter(mContext, listStatistics);
         recyclerView.setAdapter(adapter);
         adapter.setOnItemClickListener(this);
 
-        getStatisticsRecord();
+        List<PaymentStatisticsRecordEntity> list0 = getStatisticsRecord();
+        listStatistics.clear();
+        listStatistics.addAll(list0);
+
         adapter.notifyDataSetChanged();
     }
 
-    private void getStatisticsRecord() {
-        Log.d(TAG, "getStatisticsRecord");
 
-        listStatistics.clear();
-        List<PaymentRecord> records = DBManager.getInstance().getPaymentRecordDao()
-                .queryBuilder()
-                .list();
-        if (records.size() == 0) return;
-        Log.d(TAG, "记录总数：" + records.size());
-
-        records.sort(new Comparator<PaymentRecord>() {
-            @Override
-            public int compare(PaymentRecord o1, PaymentRecord o2) {
-                if (o1.getTransTime().before(o2.getTransTime())) return -1;
-                return 1;
-            }
-        });
-
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        int seqNo = 1;
-        for (int i = 0; i < records.size(); i++) {
-            PaymentRecord record = records.get(i);
-            String s = format.format(record.getTransTime());
-
-            boolean bexist = false;
-            for (PaymentStatisticsRecordEntity entity : listStatistics) {
-                if (s.equals(entity.getCdate())) {
-                    bexist = true;
-                    entity.setSubCount(entity.getSubCount() + 1);
-                    entity.setSubAmount(entity.getSubAmount() + record.getAmount());
-                    entity.getRecordList().add(record);
-                    break;
-                }
-            }
-            if (bexist) continue;
-
-            PaymentStatisticsRecordEntity entity = new PaymentStatisticsRecordEntity();
-            entity.setSeqNo(seqNo);
-            entity.setSubCount(1);
-            entity.setCdate(s);
-            entity.setSubAmount(record.getAmount());
-            entity.getRecordList().add(record);
-            listStatistics.add(entity);
-            seqNo++;
-        }
-    }
 
 
     @Override
