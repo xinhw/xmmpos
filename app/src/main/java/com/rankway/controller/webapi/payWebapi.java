@@ -5,6 +5,10 @@ import android.util.Log;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
+import com.rankway.controller.persistence.entity.CardBlackListEntity;
+import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.entity.QrBlackListEntity;
+import com.rankway.controller.persistence.entity.UserInfoEntity;
 import com.rankway.controller.utils.Base64Util;
 import com.rankway.controller.utils.HttpUtil;
 
@@ -14,6 +18,7 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -43,6 +48,9 @@ public class payWebapi {
 
     private int errCode;
     private String errMsg;
+
+    private static int continuosErrCount = 0;           //  通信连续失败次数
+    private static boolean isConnected = false;         //  连接状态
 
     public int getErrCode() {
         return errCode;
@@ -1066,4 +1074,200 @@ public class payWebapi {
                     '}';
         }
     }
+
+
+    /***
+     * 获取黑名单
+     * @return
+     */
+    public List<CardBlackListEntity> getCardBlackList(){
+        Log.d(TAG,"getBlackList");
+
+        String accessToken = accessToken();
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + String.format("/api/Personinfo/blacklist?accessToken=%s",accessToken);
+        Log.d(TAG,"URL:"+url);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpGet(url);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return null;
+            }
+
+            List<CardBlackListEntity> list = JSON.parseArray(ret, CardBlackListEntity.class);
+            return list;
+
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+        }
+
+        return null;
+    }
+
+    /***
+     * 获取黑名单
+     * @return
+     */
+    public List<QrBlackListEntity> getQrBlackList(){
+        Log.d(TAG,"getQrBlackList");
+
+        String accessToken = accessToken();
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + String.format("/api/Personinfo/blacklist?accessToken=%s",accessToken);
+        Log.d(TAG,"URL:"+url);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpGet(url);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return null;
+            }
+
+            List<QrBlackListEntity> list = JSON.parseArray(ret, QrBlackListEntity.class);
+            return list;
+
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+        }
+
+        return null;
+    }
+
+
+    /***
+     * 获取操作员
+     * @return
+     */
+    public List<UserInfoEntity> getUserInfoList(){
+        Log.d(TAG,"getUserInfoList");
+
+        String accessToken = accessToken();
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + String.format("/api/Personinfo/blacklist?accessToken=%s",accessToken);
+        Log.d(TAG,"URL:"+url);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpGet(url);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return null;
+            }
+
+            List<UserInfoEntity> list = JSON.parseArray(ret, UserInfoEntity.class);
+            return list;
+
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+        }
+
+        return null;
+    }
+
+    /***
+     * 批量上送离线IC卡交易
+     * @param records
+     * @return
+     */
+    public int pushOfflineCardPaymentRecords(List<PaymentRecordEntity> records){
+        Log.d(TAG,"pushOfflineCardPaymentRecords "+records.size());
+
+        String accessToken = accessToken();
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + "/api/payinfoes/list?accessToken=" + accessToken;
+        Log.d(TAG,"url:"+url);
+
+        String jsonData = JSON.toJSONString(records);
+        Log.d(TAG,"jsonData:"+jsonData);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpPost(url,CONTENT_TYPE_JSON,jsonData);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return -1;
+            }
+
+            HashMap responseBody = (HashMap) fromJsonString(ret, HashMap.class);
+            if(null==responseBody){
+                errMsg = "后台返回信息格式出错";
+                return -1;
+            }
+
+            //  需要填充内容
+
+            return 0;
+
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+        }
+
+        return -1;
+    }
+
+    /***
+     * 批量上送二维码交易
+     * @param records
+     * @return
+     */
+    public int pushOfflineQRPaymentRecords(List<PaymentRecordEntity> records){
+        Log.d(TAG,"pushOfflineQRPaymentRecords "+records.size());
+
+        String accessToken = accessToken();
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + "/api/qr/payinfoes/list?accessToken=" + accessToken;
+        Log.d(TAG,"url:"+url);
+
+        String jsonData = JSON.toJSONString(records);
+        Log.d(TAG,"jsonData:"+jsonData);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpPost(url,CONTENT_TYPE_JSON,jsonData);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return -1;
+            }
+
+            HashMap responseBody = (HashMap) fromJsonString(ret, HashMap.class);
+            if(null==responseBody){
+                errMsg = "后台返回信息格式出错";
+                return -1;
+            }
+
+            //  需要填充内容
+
+            return 0;
+
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+        }
+
+        return -1;
+    }
+
+
 }

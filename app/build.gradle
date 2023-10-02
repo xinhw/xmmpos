@@ -55,10 +55,6 @@ android {
     sourceSets {
         main {
             jniLibs.srcDir 'libs'
-//            manifest.srcFile 'AndroidManifest.xml'
-//            java.srcDirs = ['src']
-//            assets.srcDirs = ['assets']
-//            res.srcDirs = ['res']
         }
 
         // Move the tests to tests/java, tests/res, etc...
@@ -75,12 +71,6 @@ android {
         android.applicationVariants.all { variant ->
             variant.outputs.all { output ->
                 outputFileName = "WXSEMICON_FEB_${variant.versionCode}-${variant.versionName}-${releaseTime()}.apk"
-//                def outputFile = output.outputFile
-//                if (outputFile != null && outputFile.name.endsWith('.apk')) {
-//                    // 这里修改apk名称 
-//                    def fileName = outputFile.name.replace("app", "det_${defaultConfig.versionName}_${defaultConfig.versionCode}_${releaseTime()}")
-//                    outputFileName = new File("/", fileName)
-//                }
             }
         }
 
@@ -91,7 +81,7 @@ android {
 
 greendao {
     // 指定数据库schema版本号，迁移等操作会用到
-    schemaVersion 4
+    schemaVersion 6
     // 设置生成数据库文件的目录，默认是在build中，可以将生成的文件放到我们的java目录中
     targetGenDir 'src/main/java'
     // 设置生成的数据库相关文件的包名，默认为entity所在的包名

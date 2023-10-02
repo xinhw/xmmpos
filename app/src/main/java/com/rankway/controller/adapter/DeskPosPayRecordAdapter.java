@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.rankway.controller.R;
 import com.rankway.controller.entity.PaymentStatisticsRecordEntity;
-import com.rankway.controller.persistence.entity.PaymentRecord;
+import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.utils.DateStringUtils;
 
 import java.util.List;
@@ -197,7 +197,7 @@ public class DeskPosPayRecordAdapter
             convertView.setBackgroundColor(Color.WHITE);
             childrenHolder.rootView.setSelected(false);
         }
-        PaymentRecord item = dataEntity.get(groupPosition).getRecordList().get(childPosition);
+        PaymentRecordEntity item = dataEntity.get(groupPosition).getRecordList().get(childPosition);
         childrenHolder.auditNo.setText(childPosition+"");
         childrenHolder.workNo.setText(item.getWorkNo().trim());
         childrenHolder.workName.setText(item.getWorkName().trim());
@@ -256,7 +256,7 @@ public class DeskPosPayRecordAdapter
     }
 
     public interface OnItemClickListener{
-        void childOnClickListener(int groupPosition, int childPosition, PaymentRecord record);
+        void childOnClickListener(int groupPosition, int childPosition, PaymentRecordEntity record);
         void parentOnClickListener(View view,int groupPosition);
     }
 

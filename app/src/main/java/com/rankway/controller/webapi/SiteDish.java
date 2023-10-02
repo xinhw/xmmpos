@@ -1,6 +1,6 @@
 package com.rankway.controller.webapi;
 
-import com.rankway.controller.persistence.entity.DishType;
+import com.rankway.controller.persistence.entity.DishTypeEntity;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class SiteDish {
     String siteId;
     String siteDesc;
     String siteVersion;
-    List<DishType> dishTypes;
+    List<DishTypeEntity> dishTypeEntities;
 
     public String getSiteId() {
         return siteId;
@@ -47,12 +47,12 @@ public class SiteDish {
         this.siteVersion = siteVersion;
     }
 
-    public List<DishType> getDishTypes() {
-        return dishTypes;
+    public List<DishTypeEntity> getDishTypes() {
+        return dishTypeEntities;
     }
 
-    public void setDishTypes(List<DishType> dishTypes) {
-        this.dishTypes = dishTypes;
+    public void setDishTypes(List<DishTypeEntity> dishTypeEntities) {
+        this.dishTypeEntities = dishTypeEntities;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class SiteDish {
                 "siteId='" + siteId + '\'' +
                 ", siteDesc='" + siteDesc + '\'' +
                 ", siteVersion='" + siteVersion + '\'' +
-                ", dishTypes=" + dishTypes +
+                ", dishTypes=" + dishTypeEntities +
                 '}';
     }
 }

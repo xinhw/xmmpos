@@ -31,7 +31,7 @@ import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DataConverter;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
-import com.rankway.controller.persistence.entity.PaymentRecord;
+import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.persistence.gen.PaymentRecordDao;
 import com.rankway.controller.scan.ScannerBase;
 import com.rankway.controller.scan.ScannerFactory;
@@ -84,7 +84,7 @@ public class MobliePosPayMainActivity
 
     private PosInfoBean posInfoBean = null;
 
-    List<PaymentRecord> listRecords = new ArrayList<>();    //  今日所有消费记录
+    List<PaymentRecordEntity> listRecords = new ArrayList<>();    //  今日所有消费记录
     MobilePosPayRecordDetailAdapter adapter;
     RecyclerView recyclerView;
 
@@ -741,10 +741,10 @@ public class MobliePosPayMainActivity
 
 
     private void savePaymentRecord(float amount, int uploadFlag) {
-        PaymentRecord record = new PaymentRecord(cardPaymentObj, amount, posInfoBean);
+        PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, amount, posInfoBean);
 
         record.setUploadFlag(uploadFlag);
-        DBManager.getInstance().getPaymentRecordDao().save(record);
+        DBManager.getInstance().getPaymentRecordEntityDao().save(record);
 
         listRecords.add(0, record);
         adapter.notifyDataSetChanged();
@@ -766,7 +766,7 @@ public class MobliePosPayMainActivity
         Date tommorw = calnow.getTime();
 
         listRecords.clear();
-        List<PaymentRecord> records = DBManager.getInstance().getPaymentRecordDao().queryBuilder()
+        List<PaymentRecordEntity> records = DBManager.getInstance().getPaymentRecordEntityDao().queryBuilder()
                 .where(PaymentRecordDao.Properties.TransTime.ge(today))
                 .where(PaymentRecordDao.Properties.TransTime.lt(tommorw))
                 .list();
@@ -778,7 +778,7 @@ public class MobliePosPayMainActivity
         totalCount = 0;
         totalAmount = 0.0f;
 
-        for (PaymentRecord record : listRecords) {
+        for (PaymentRecordEntity record : listRecords) {
             totalCount++;
             totalAmount = totalAmount + record.getAmount();
         }

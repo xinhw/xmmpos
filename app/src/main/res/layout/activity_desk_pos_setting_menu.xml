@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/base_map">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/colorPrimary">
+        <LinearLayout
+            android:id="@+id/back_img"
+            android:layout_width="56dp"
+            android:layout_height="match_parent"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@mipmap/back" />
+        </LinearLayout>
+
+
+        <TextView
+            android:paddingStart="20dp"
+            android:id="@+id/text_title"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="160dp">
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/deskPosRecord"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            card_view:cardBackgroundColor="@android:color/white"
+            card_view:cardCornerRadius="8dp"
+            card_view:cardElevation="3dp"
+            card_view:cardUseCompatPadding="true"
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_marginTop="10dp"
+                android:drawableTop="@drawable/desk_pos_record"
+                android:text="消费记录"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:drawablePadding="30px"
+                android:textAlignment="center"
+                android:textSize="24dp"
+                android:background="#1Affffff"
+                android:layout_weight="1">
+            </TextView>
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/deskPosModuleTest"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            card_view:cardBackgroundColor="@android:color/white"
+            card_view:cardCornerRadius="8dp"
+            card_view:cardElevation="3dp"
+            card_view:cardUseCompatPadding="true"
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_marginTop="10dp"
+                android:drawableTop="@drawable/desk_pos_testing"
+                android:text="模块测试"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:drawablePadding="30px"
+                android:textAlignment="center"
+                android:textSize="24dp"
+                android:background="#1Affffff"
+                android:layout_weight="1">
+            </TextView>
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/deskPosAuxillary"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            card_view:cardBackgroundColor="@android:color/white"
+            card_view:cardCornerRadius="8dp"
+            card_view:cardElevation="3dp"
+            card_view:cardUseCompatPadding="true"
+            android:layout_weight="1"
+            >
+            <TextView
+                android:layout_marginTop="10dp"
+                android:drawableTop="@drawable/desk_pos_setting"
+                android:text="辅助功能"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:drawablePadding="30px"
+                android:textAlignment="center"
+                android:textSize="24dp"
+                android:background="#1Affffff"
+                android:layout_weight="1">
+            </TextView>
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/deskPosSetting"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            card_view:cardBackgroundColor="@android:color/white"
+            card_view:cardCornerRadius="8dp"
+            card_view:cardElevation="3dp"
+            card_view:cardUseCompatPadding="true"
+            android:layout_weight="1"
+            >
+            <TextView
+                android:layout_marginTop="10dp"
+                android:drawableTop="@drawable/desk_pos_setting"
+                android:text="本机设置"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:drawablePadding="30px"
+                android:textAlignment="center"
+                android:textSize="24dp"
+                android:background="#1Affffff"
+                android:layout_weight="1">
+            </TextView>
+        </android.support.v7.widget.CardView>
+
+
+    </LinearLayout>
+
+
+</LinearLayout>

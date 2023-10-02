@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rankway.controller.R;
-import com.rankway.controller.persistence.entity.PaymentRecord;
+import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.utils.DateStringUtils;
 
 import java.util.List;
@@ -29,14 +29,14 @@ public class MobilePosPayRecordDetailAdapter
         extends RecyclerView.Adapter<MobilePosPayRecordDetailAdapter.PaymentRecordDetailViewHolder> {
 
     private final String TAG = "MobilePosPayRecordDetailAdapter";
-    private List<PaymentRecord> data;
+    private List<PaymentRecordEntity> data;
     private int selectedItem = -1;
     private OnItemClickListener onItemClickListener;
     private Context mContext;
     private long lastClickTime = 0;
     private final int MIN_CLICK_INTERVAL = 500; //
 
-    public MobilePosPayRecordDetailAdapter(Context context, List<PaymentRecord> records){
+    public MobilePosPayRecordDetailAdapter(Context context, List<PaymentRecordEntity> records){
         this.mContext = context;
         this.data = records;
     }
@@ -57,7 +57,7 @@ public class MobilePosPayRecordDetailAdapter
     @Override
     public void onBindViewHolder(@NonNull @androidx.annotation.NonNull PaymentRecordDetailViewHolder holder, @SuppressLint("RecyclerView") int i) {
         holder.itemView.setSelected(i==selectedItem);
-        PaymentRecord item = data.get(i);
+        PaymentRecordEntity item = data.get(i);
         holder.cno.setText(item.getAuditNo()+"");
         holder.workNo.setText(item.getWorkNo());
         holder.amount.setText(String.format("￥%.2f",item.getAmount()));

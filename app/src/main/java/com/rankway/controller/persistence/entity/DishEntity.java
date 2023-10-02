@@ -4,8 +4,9 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.Transient;
+import org.greenrobot.greendao.annotation.Generated;
 
 /**
  * <pre>
@@ -17,7 +18,7 @@ import org.greenrobot.greendao.annotation.Transient;
  * </pre>
  */
 @Entity
-public class Dish {
+public class DishEntity {
     @Id(autoincrement = true)
     Long id;
 
@@ -34,14 +35,14 @@ public class Dish {
     @JSONField(serialize = false)
     long timestamp;
 
-    public Dish(){
+    public DishEntity(){
         this.count = 1;
         this.timestamp = System.currentTimeMillis();
     }
 
-    @Generated(hash = 442392805)
-    public Dish(Long id, String dishCode, String dishName, int price, String status,
-            long typeId, long timestamp) {
+    @Keep
+    public DishEntity(Long id, String dishCode, String dishName, int price, String status,
+                      long typeId, long timestamp) {
         this.id = id;
         this.dishCode = dishCode;
         this.dishName = dishName;

@@ -29,7 +29,7 @@ import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
-import com.rankway.controller.persistence.entity.PaymentRecord;
+import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.reader.ReaderFactory;
 import com.rankway.controller.webapi.cardInfo;
 import com.rankway.controller.webapi.decodeQRCode;
@@ -156,7 +156,7 @@ public class PaymentDialog
 
 
     public interface OnPaymentResult{
-        void onPaymentSuccess(PaymentRecord record);
+        void onPaymentSuccess(PaymentRecordEntity record);
         void onPaymentCancel();
     }
 
@@ -166,7 +166,12 @@ public class PaymentDialog
         this.onPaymentResultListner = listner;
     }
 
-
+    /***
+     * 处理扫描头输入
+     * @param keyCode
+     * @param event
+     * @return
+     */
     private boolean processKeyEvent(int keyCode,KeyEvent event){
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             char aChar = (char) event.getUnicodeChar();
@@ -349,10 +354,10 @@ public class PaymentDialog
                 baseActivity.playSound(true);
                 DetLog.writeLog(TAG, "支付成功：" + cardPaymentObj.toString());
 
-                PaymentRecord record = new PaymentRecord(cardPaymentObj, (int)(famount*100), posInfoBean);
+                PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, (int)(famount*100), posInfoBean);
 
                 record.setUploadFlag(0x01);
-                DBManager.getInstance().getPaymentRecordDao().save(record);
+                DBManager.getInstance().getPaymentRecordEntityDao().save(record);
 
                 if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentSuccess(record);
 

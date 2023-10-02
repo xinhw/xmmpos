@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rankway.controller.R;
-import com.rankway.controller.persistence.entity.PaymentRecord;
+import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.utils.DateStringUtils;
 
 import java.util.List;
@@ -30,14 +30,14 @@ public class MobliePosPayRecordAdapter
         extends RecyclerView.Adapter<MobliePosPayRecordAdapter.PaymentRecordViewHolder> {
 
     private final String TAG = "MobliePosPayRecordAdapter";
-    private List<PaymentRecord> data;
+    private List<PaymentRecordEntity> data;
     private int selectedItem = -1;
     private OnItemClickListener onItemClickListener;
     private Context mContext;
     private long lastClickTime = 0;
     private final int MIN_CLICK_INTERVAL = 500; //
 
-    public MobliePosPayRecordAdapter(Context context, List<PaymentRecord> records){
+    public MobliePosPayRecordAdapter(Context context, List<PaymentRecordEntity> records){
         this.mContext = context;
         this.data = records;
     }
@@ -68,7 +68,7 @@ public class MobliePosPayRecordAdapter
     @Override
     public void onBindViewHolder(@NonNull @androidx.annotation.NonNull PaymentRecordViewHolder holder, @SuppressLint("RecyclerView") int i) {
         holder.itemView.setSelected(i==selectedItem);
-        PaymentRecord item = data.get(i);
+        PaymentRecordEntity item = data.get(i);
         holder.auditNo.setText("序号:"+item.getAuditNo());
         holder.workNo.setText("工号:"+item.getWorkNo());
         holder.workName.setText("姓名:"+item.getWorkName());

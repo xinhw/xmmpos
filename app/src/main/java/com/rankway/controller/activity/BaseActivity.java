@@ -67,10 +67,10 @@ import com.rankway.controller.entity.PaymentStatisticsRecordEntity;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.hardware.util.SoundPoolHelp;
 import com.rankway.controller.persistence.DBManager;
-import com.rankway.controller.persistence.entity.Dish;
-import com.rankway.controller.persistence.entity.DishType;
+import com.rankway.controller.persistence.entity.DishEntity;
+import com.rankway.controller.persistence.entity.DishTypeEntity;
 import com.rankway.controller.persistence.entity.MessageDetail;
-import com.rankway.controller.persistence.entity.PaymentRecord;
+import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.persistence.entity.SemiEventEntity;
 import com.rankway.controller.persistence.gen.DishDao;
 import com.rankway.controller.persistence.gen.SemiEventEntityDao;
@@ -136,6 +136,12 @@ public class BaseActivity extends AppCompatActivity {
             progressDialog.dismiss();
         }
         progressDialog = null;
+    }
+
+    protected void setProDialogText(String strText) {
+        if (null != progressDialog) {
+            progressDialog.setMessage(strText);
+        }
     }
 
     protected void showStatusDialog(final String content) {
@@ -1576,7 +1582,7 @@ public class BaseActivity extends AppCompatActivity {
      * @param type
      * @param record
      */
-    protected void showPaymentRecordDialog(int type,PaymentRecord record){
+    protected void showPaymentRecordDialog(int type, PaymentRecordEntity record){
         if(null==record) return;
 
         View view = getLayoutInflater().inflate(com.rankway.controller.R.layout.dialog_payment_record, null, false);
@@ -1624,14 +1630,14 @@ public class BaseActivity extends AppCompatActivity {
      * 获取本地的菜品种类信息
      * @return
      */
-    protected List<DishType> getLocalDishType(){
-        List<DishType> allTypes = new ArrayList<>();
+    protected List<DishTypeEntity> getLocalDishType(){
+        List<DishTypeEntity> allTypes = new ArrayList<>();
         allTypes.clear();
 
-        List<DishType> list = DBManager.getInstance().getDishTypeDao().loadAll();
-        list.sort(new Comparator<DishType>() {
+        List<DishTypeEntity> list = DBManager.getInstance().getDishTypeEntityDao().loadAll();
+        list.sort(new Comparator<DishTypeEntity>() {
             @Override
-            public int compare(DishType o1, DishType o2) {
+            public int compare(DishTypeEntity o1, DishTypeEntity o2) {
                 return (int)(o1.getId()-o2.getId());
             }
         });
@@ -1642,25 +1648,25 @@ public class BaseActivity extends AppCompatActivity {
 
     /***
      * 获取本地的菜品信息（参数为菜品种类）
-     * @param dishType
+     * @param dishTypeEntity
      * @return
      */
-    protected List<Dish> getLocalDish(DishType dishType){
-        List<Dish> allDishes = new ArrayList<>();
-        allDishes.clear();
+    protected List<DishEntity> getLocalDish(DishTypeEntity dishTypeEntity){
+        List<DishEntity> allDishEntities = new ArrayList<>();
+        allDishEntities.clear();
 
-        List<Dish> list = DBManager.getInstance().getDishDao()
+        List<DishEntity> list = DBManager.getInstance().getDishEntityDao()
                 .queryBuilder()
-                .where(DishDao.Properties.TypeId.eq(dishType.getId()))
+                .where(DishDao.Properties.TypeId.eq(dishTypeEntity.getId()))
                 .list();
-        list.sort(new Comparator<Dish>() {
+        list.sort(new Comparator<DishEntity>() {
             @Override
-            public int compare(Dish o1, Dish o2) {
+            public int compare(DishEntity o1, DishEntity o2) {
                 return (int)(o1.getId()-o2.getId());
             }
         });
-        allDishes.addAll(list);
-        return allDishes;
+        allDishEntities.addAll(list);
+        return allDishEntities;
     }
 
 
@@ -1673,15 +1679,15 @@ public class BaseActivity extends AppCompatActivity {
         List<PaymentStatisticsRecordEntity> listStatistics = new ArrayList<>();
 
         listStatistics.clear();
-        List<PaymentRecord> records = DBManager.getInstance().getPaymentRecordDao()
+        List<PaymentRecordEntity> records = DBManager.getInstance().getPaymentRecordEntityDao()
                 .queryBuilder()
                 .list();
         if (records.size() == 0) return listStatistics;
         Log.d(TAG, "记录总数：" + records.size());
 
-        records.sort(new Comparator<PaymentRecord>() {
+        records.sort(new Comparator<PaymentRecordEntity>() {
             @Override
-            public int compare(PaymentRecord o1, PaymentRecord o2) {
+            public int compare(PaymentRecordEntity o1, PaymentRecordEntity o2) {
                 if (o1.getTransTime().before(o2.getTransTime())) return -1;
                 return 1;
             }
@@ -1690,7 +1696,7 @@ public class BaseActivity extends AppCompatActivity {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         int seqNo = 1;
         for (int i = 0; i < records.size(); i++) {
-            PaymentRecord record = records.get(i);
+            PaymentRecordEntity record = records.get(i);
             String s = format.format(record.getTransTime());
 
             boolean bexist = false;

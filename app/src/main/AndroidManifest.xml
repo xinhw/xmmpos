@@ -48,27 +48,37 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:allowBackup">
         <activity
+            android:name=".activity.project.DeskPosAuxillaryMenuActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activity.project.DeskPosSettingMenuActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".activity.project.DeskPosPayRecordActivity"
             android:exported="true"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.project.DeskPosLoginActivity"
             android:exported="true"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity
-            android:name=".activity.project.DeskPosPayMainActivity"
-            android:exported="true"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity
-            android:name=".activity.project.DeskPosModulesTestActivity"
-            android:exported="true"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.nfc.action.TECH_DISCOVERED" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activity.project.DeskPosPayMainActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activity.project.DeskPosModulesTestActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
             android:name=".activity.project.MobilePosStatisticsActivity"

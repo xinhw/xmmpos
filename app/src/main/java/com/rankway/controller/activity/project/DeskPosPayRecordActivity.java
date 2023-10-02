@@ -11,7 +11,7 @@ import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.activity.project.view.RankwayExpandableListView;
 import com.rankway.controller.adapter.DeskPosPayRecordAdapter;
 import com.rankway.controller.entity.PaymentStatisticsRecordEntity;
-import com.rankway.controller.persistence.entity.PaymentRecord;
+import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,7 @@ public class DeskPosPayRecordActivity extends BaseActivity {
 
         adapter.setOnItemClickListener(new DeskPosPayRecordAdapter.OnItemClickListener() {
             @Override
-            public void childOnClickListener(int groupPosition, int childPosition, PaymentRecord record) {
+            public void childOnClickListener(int groupPosition, int childPosition, PaymentRecordEntity record) {
                 adapter.setSelectedChildItem(groupPosition, childPosition);
                 adapter.notifyDataSetChanged();
             }

@@ -1,8 +1,8 @@
 package com.rankway.controller.printer;
 
 import com.rankway.controller.dto.PosInfoBean;
-import com.rankway.controller.persistence.entity.Dish;
-import com.rankway.controller.persistence.entity.PaymentRecord;
+import com.rankway.controller.persistence.entity.DishEntity;
+import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.utils.DateStringUtils;
 
 import java.util.List;
@@ -20,10 +20,14 @@ public class PrinterUtils {
 
     private String title;
 
+    public PrinterUtils(){
+        title = "报业大厦餐厅";
+    }
+
     public void printPayItem(PrinterBase printer,
                              PosInfoBean posInfoBean,
-                             PaymentRecord record,
-                             List<Dish> dishList){
+                             PaymentRecordEntity record,
+                             List<DishEntity> dishEntityList){
         String s = "";
 
         //  走纸5行
@@ -74,16 +78,16 @@ public class PrinterUtils {
         printer.printString(s);
 
         int totoalAmount = 0;
-        for(Dish dish:dishList){
+        for(DishEntity dishEntity : dishEntityList){
             //  商品名称打印1行
-            s = " " + dish.getDishName().trim();
+            s = " " + dishEntity.getDishName().trim();
             printer.printString(s);
 
             // 空格[6]+ 单价[9] + 数量[5] + 金额[11] 空额[1] (32)
-            float f = (float)(dish.getPrice()*0.01);
+            float f = (float)(dishEntity.getPrice()*0.01);
             String sprice = padLeftSpace(String.format("%.2f",f),9);
-            String scount = padLeftSpace(dish.getCount()+"",5);
-            int amount = dish.getCount()* dish.getPrice();
+            String scount = padLeftSpace(dishEntity.getCount()+"",5);
+            int amount = dishEntity.getCount()* dishEntity.getPrice();
             f = (float) (amount*0.01);
             String samount = padLeftSpace(String.format("%.2f",f),11);
 
@@ -116,7 +120,7 @@ public class PrinterUtils {
      */
     public void printShiftSettle(PrinterBase printer,
                                  PosInfoBean posInfoBean,
-                                 List<PaymentRecord> records){
+                                 List<PaymentRecordEntity> records){
 
         int totalCount,cardCount,qrCount;
         float totalAmount,cardAmount,qrAmount;
@@ -124,7 +128,7 @@ public class PrinterUtils {
         totalCount = cardCount = qrCount = 0;
         totalAmount = cardAmount = qrAmount = 0.00f;
 
-        for(PaymentRecord record:records){
+        for(PaymentRecordEntity record:records){
             if(record.getQrType()==0){
                 cardCount++;
                 cardAmount = cardAmount + record.getAmount();

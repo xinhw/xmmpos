@@ -1,17 +1,20 @@
 package com.rankway.controller.persistence.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
-
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.ToMany;
-
-import java.util.List;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.DaoException;
 import com.rankway.controller.persistence.gen.DaoSession;
 import com.rankway.controller.persistence.gen.DishDao;
 import com.rankway.controller.persistence.gen.DishTypeDao;
+
+import org.greenrobot.greendao.DaoException;
+import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Keep;
+import org.greenrobot.greendao.annotation.ToMany;
+
+import java.util.List;
+import com.rankway.controller.persistence.gen.DishEntityDao;
+import com.rankway.controller.persistence.gen.DishTypeEntityDao;
 
 /**
  * <pre>
@@ -23,7 +26,7 @@ import com.rankway.controller.persistence.gen.DishTypeDao;
  * </pre>
  */
 @Entity
-public class DishType {
+public class DishTypeEntity {
     @Id(autoincrement = true)
     Long id;
 
@@ -32,7 +35,7 @@ public class DishType {
     int satus;
 
     @ToMany(referencedJoinProperty = "typeId")
-    List<Dish> dishTransRecordDatas;
+    List<DishEntity> dishEntityTransRecordData;
 
     @JSONField(serialize = false)
     long timestamp;
@@ -42,16 +45,16 @@ public class DishType {
     private transient DaoSession daoSession;
 
     /** Used for active entity operations. */
-    @Generated(hash = 1586670420)
-    private transient DishTypeDao myDao;
+    @Generated(hash = 953140332)
+    private transient DishTypeEntityDao myDao;
 
-    public DishType(){
+    public DishTypeEntity(){
         timestamp = System.currentTimeMillis();
     }
 
-    @Generated(hash = 1991250913)
-    public DishType(Long id, String dishTypeCode, String dishTypeName, int satus,
-            long timestamp) {
+    @Keep
+    public DishTypeEntity(Long id, String dishTypeCode, String dishTypeName, int satus,
+                          long timestamp) {
         this.id = id;
         this.dishTypeCode = dishTypeCode;
         this.dishTypeName = dishTypeName;
@@ -108,37 +111,8 @@ public class DishType {
                 ", dishTypeName='" + dishTypeName + '\'' +
                 ", satus=" + satus +
                 ", timestamp=" + timestamp +
-                ", dishTransRecordDatas=" + dishTransRecordDatas +
+                ", dishTransRecordDatas=" + dishEntityTransRecordData +
                 '}';
-    }
-
-    /**
-     * To-many relationship, resolved on first access (and after reset).
-     * Changes to to-many relations are not persisted, make changes to the target entity.
-     */
-    @Generated(hash = 1935461277)
-    public List<Dish> getDishTransRecordDatas() {
-        if (dishTransRecordDatas == null) {
-            final DaoSession daoSession = this.daoSession;
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            DishDao targetDao = daoSession.getDishDao();
-            List<Dish> dishTransRecordDatasNew = targetDao
-                    ._queryDishType_DishTransRecordDatas(id);
-            synchronized (this) {
-                if (dishTransRecordDatas == null) {
-                    dishTransRecordDatas = dishTransRecordDatasNew;
-                }
-            }
-        }
-        return dishTransRecordDatas;
-    }
-
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    @Generated(hash = 1988031716)
-    public synchronized void resetDishTransRecordDatas() {
-        dishTransRecordDatas = null;
     }
 
     /**
@@ -177,10 +151,39 @@ public class DishType {
         myDao.update(this);
     }
 
+    /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 1440730903)
+    public List<DishEntity> getDishEntityTransRecordData() {
+        if (dishEntityTransRecordData == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            DishEntityDao targetDao = daoSession.getDishEntityDao();
+            List<DishEntity> dishEntityTransRecordDataNew = targetDao
+                    ._queryDishTypeEntity_DishEntityTransRecordData(id);
+            synchronized (this) {
+                if (dishEntityTransRecordData == null) {
+                    dishEntityTransRecordData = dishEntityTransRecordDataNew;
+                }
+            }
+        }
+        return dishEntityTransRecordData;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 125619985)
+    public synchronized void resetDishEntityTransRecordData() {
+        dishEntityTransRecordData = null;
+    }
+
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 805740506)
+    @Generated(hash = 1054791633)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getDishTypeDao() : null;
+        myDao = daoSession != null ? daoSession.getDishTypeEntityDao() : null;
     }
 }

@@ -4,169 +4,74 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
-import com.rankway.controller.activity.project.manager.SpManager;
-import com.rankway.controller.common.AppIntentString;
-import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.CardBlackListEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.persistence.entity.QrBlackListEntity;
 import com.rankway.controller.persistence.entity.UserInfoEntity;
 import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
-import com.rankway.controller.persistence.gen.UserInfoEntityDao;
-import com.rankway.controller.utils.ClickUtil;
 import com.rankway.controller.webapi.payWebapi;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 import java.util.List;
 
-public class DeskPosLoginActivity
-        extends BaseActivity
-        implements View.OnClickListener{
-
-    final String TAG = "DeskPosLoginActivity";
-
-    TextView tvTitle;
-    EditText etUserCode;
-    EditText etPassword;
-    TextView tvAppVersion;
+public class DeskPosAuxillaryMenuActivity extends BaseActivity {
+    final String TAG = "DeskPosAuxillaryMenuActivity";
     TextView tvProcess;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_desk_pos_login);
+        setContentView(R.layout.activity_desk_pos_auxillary_menu);
 
         initView();
 
-        initData();
-
-        DetLog.writeLog(TAG,"程序启动");
     }
 
     private void initView() {
-        Log.d(TAG,"initView");
+        View view = findViewById(R.id.back_img);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
-        tvTitle = findViewById(R.id.tvTitle);
-        etUserCode = findViewById(R.id.etUserCode);
-        etPassword = findViewById(R.id.etPassword);
-        tvAppVersion = findViewById(R.id.tvAppVersion);
+        view = findViewById(R.id.deskPosRefresh);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startSyncDataTask();
+            }
+        });
+
+        view = findViewById(R.id.deskPosUpload);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startUploadTask();
+            }
+        });
+
         tvProcess = findViewById(R.id.tvProcess);
-
-        TextView textView = findViewById(R.id.tvLogin);
-        textView.setOnClickListener(this);
-        textView = findViewById(R.id.tvExit);
-        textView.setOnClickListener(this);
-    }
-
-    private void initData() {
-        Log.d(TAG,"initData");
-
-        //  程序版本
-        int versionCode = 0;
-        try{
-            versionCode = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(),0).versionCode;
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        tvAppVersion.setText(String.format("程序版本：1.0."+versionCode));
-
-        //  上次缓存的用户名
-        String str = SpManager.getIntance().getSpString(AppIntentString.LAST_LOGIN_USER);
-        if(StringUtils.isEmpty(str)){
-            etUserCode.setText("");
-        }else{
-            etUserCode.setText(str);
-        }
-
         tvProcess.setText("");
-
-        beginSyncDataTask();
     }
 
-    @Override
-    public void onClick(View v) {
-        if(ClickUtil.isFastDoubleClick(v.getId())){
-            showToast("请勿连续点击!");
-            return;
-        }
-
-        switch (v.getId()){
-            case R.id.tvLogin:
-                if(!verifyUserCode()) {
-                    playSound(false);
-                    break;
-                }
-
-                playSound(true);
-                startActivity(DeskPosPayMainActivity.class);
-                finish();
-
-                break;
-
-            case R.id.tvExit:
-                finish();
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    /***
-     * 验证操作员密码
-     * @return
-     */
-    private boolean verifyUserCode(){
-        String struserid = etUserCode.getText().toString().trim();
-        if(StringUtils.isEmpty(struserid)){
-            showToast("请输入操作员代码");
-            return false;
-        }
-        String strpassword = etPassword.getText().toString();
-
-        UserInfoEntity user = DBManager.getInstance().getUserInfoEntityDao()
-                .queryBuilder()
-                .where(UserInfoEntityDao.Properties.UserCode.eq(struserid))
-                .unique();
-        if(null==user){
-            showToast("操作员代码或密码错误");
-            return false;
-        }
-
-        if(user.getUserPassword().equalsIgnoreCase(strpassword)){
-            return true;
-        }
-        showToast("操作员代码或密码错误");
-        return false;
-    }
-
-    /***
-     * 开启数据同步任务
-     */
-    private void beginSyncDataTask(){
+    private void startSyncDataTask(){
         AsynSyncData task = new AsynSyncData();
         task.execute();
     }
 
+    private void startUploadTask(){
+        AsynUploadTask task = new AsynUploadTask();
+        task.execute();
+    }
 
-    /***
-     * 后台同步数据的异步任务
-     * 		操作员信息
-     * 		菜品种类和菜品明细（只下载上架的菜品）
-     * 		IC卡黑名单
-     * 		二维码黑名单
-     * 		未上传的记录上传
-     */
     private class AsynSyncData extends AsyncTask<String, Integer, Integer> {
         @Override
         protected void onPreExecute() {
@@ -211,6 +116,28 @@ public class DeskPosLoginActivity
                 DBManager.getInstance().getQrBlackListEntityDao().deleteAll();
                 DBManager.getInstance().getQrBlackListEntityDao().saveInTx(listQrBlacklist);
             }
+
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            missProDialog();
+        }
+    }
+
+
+    private class AsynUploadTask extends AsyncTask<String, Integer, Integer> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProDialog("上传中,请稍等...");
+        }
+
+        @Override
+        protected Integer doInBackground(String... strings) {
+            payWebapi obj = payWebapi.getInstance();
 
             //  5. 未上传的记录上传
             //  5.1 未上传的IC记录
@@ -293,5 +220,7 @@ public class DeskPosLoginActivity
             }
         }
     };
+
+
 
 }

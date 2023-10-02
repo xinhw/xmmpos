@@ -1,6 +1,6 @@
 package com.rankway.controller.entity;
 
-import com.rankway.controller.persistence.entity.PaymentRecord;
+import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ public class PaymentStatisticsRecordEntity {
     int subCount;
     float subAmount;
 
-    List<PaymentRecord> recordList;
+    List<PaymentRecordEntity> recordList;
 
     public PaymentStatisticsRecordEntity(){
         recordList = new ArrayList<>();
@@ -57,11 +57,11 @@ public class PaymentStatisticsRecordEntity {
         this.subAmount = subAmount;
     }
 
-    public List<PaymentRecord> getRecordList() {
+    public List<PaymentRecordEntity> getRecordList() {
         return recordList;
     }
 
-    public void setRecordList(List<PaymentRecord> recordList) {
+    public void setRecordList(List<PaymentRecordEntity> recordList) {
         this.recordList = recordList;
     }
 

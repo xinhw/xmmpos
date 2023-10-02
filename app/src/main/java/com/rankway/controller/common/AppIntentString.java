@@ -23,5 +23,8 @@ public class AppIntentString {
     // APP更新的地址
     public static final String APP_DOWNLOAD_URL = "http://121.36.16.185:6061/api/appVersions/posapp";
 
-    public static final String POS_INFO_BEAN = "posInfoBean";            //  POS相关信息
+    public static final String POS_INFO_BEAN = "posInfoBean";           //  POS相关信息
+    public static final String LAST_LOGIN_USER = "lastLoginUser";       //  上次登录用户
+    public static final String HTTP_OVER_TIME = "httpOverTime";         //  HTTP超时
+
 }

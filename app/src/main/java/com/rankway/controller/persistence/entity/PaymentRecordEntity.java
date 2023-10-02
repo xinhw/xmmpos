@@ -3,7 +3,7 @@ package com.rankway.controller.persistence.entity;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.persistence.gen.DaoSession;
-import com.rankway.controller.persistence.gen.PaymentRecordDao;
+import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.persistence.gen.PaymentTotalDao;
 import com.rankway.controller.webapi.cardInfo;
 
@@ -27,7 +27,7 @@ import java.util.Date;
  * </pre>
  */
 @Entity
-public class PaymentRecord implements Comparable<PaymentRecord>{
+public class PaymentRecordEntity implements Comparable<PaymentRecordEntity>{
     @Id(autoincrement = true)
     Long id;
 
@@ -64,18 +64,17 @@ public class PaymentRecord implements Comparable<PaymentRecord>{
     private transient DaoSession daoSession;
 
     /** Used for active entity operations. */
-    @Generated(hash = 1519637118)
-    private transient PaymentRecordDao myDao;
+    @Generated(hash = 1700074390)
+    private transient PaymentRecordEntityDao myDao;
 
     @Generated(hash = 1707628587)
     private transient Long total__resolvedKey;
 
-    @Generated(hash = 469486794)
-    public PaymentRecord(Long id, int auditNo, String posNo, int postype,
-            int payway, String userCode, int cardno, float remain, float amount,
-            float balance, int typeid, Date transTime, String cardSNO,
-            String workNo, String workName, String userId, int qrType, int systemId,
-            int uploadFlag, Date uploadTime, long paymentTotalId) {
+    @Generated(hash = 2058187595)
+    public PaymentRecordEntity(Long id, int auditNo, String posNo, int postype, int payway, String userCode,
+            int cardno, float remain, float amount, float balance, int typeid, Date transTime, String cardSNO,
+            String workNo, String workName, String userId, int qrType, int systemId, int uploadFlag,
+            Date uploadTime, long paymentTotalId) {
         this.id = id;
         this.auditNo = auditNo;
         this.posNo = posNo;
@@ -100,14 +99,14 @@ public class PaymentRecord implements Comparable<PaymentRecord>{
     }
 
     @Keep
-    public PaymentRecord() {
+    public PaymentRecordEntity() {
         this.typeid = 100;
         this.payway = 2;
         this.postype = 0;
         this.transTime = new Date();
     }
 
-    public PaymentRecord(cardInfo card, float amount,PosInfoBean pos){
+    public PaymentRecordEntity(cardInfo card, float amount, PosInfoBean pos){
         this.auditNo = pos.getAuditNo();
         this.posNo = pos.getCposno();
         this.postype = 0;
@@ -317,7 +316,7 @@ public class PaymentRecord implements Comparable<PaymentRecord>{
     }
 
     @Override
-    public int compareTo(PaymentRecord o) {
+    public int compareTo(PaymentRecordEntity o) {
         return (int)(this.id-o.getId());
     }
 
@@ -399,9 +398,9 @@ public class PaymentRecord implements Comparable<PaymentRecord>{
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1270212992)
+    @Generated(hash = 1205506751)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getPaymentRecordDao() : null;
+        myDao = daoSession != null ? daoSession.getPaymentRecordEntityDao() : null;
     }
 }

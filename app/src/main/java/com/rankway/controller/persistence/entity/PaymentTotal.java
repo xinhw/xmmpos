@@ -2,7 +2,7 @@ package com.rankway.controller.persistence.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.rankway.controller.persistence.gen.DaoSession;
-import com.rankway.controller.persistence.gen.PaymentItemDao;
+import com.rankway.controller.persistence.gen.PaymentItemEntityDao;
 import com.rankway.controller.persistence.gen.PaymentTotalDao;
 
 import org.greenrobot.greendao.DaoException;
@@ -36,7 +36,7 @@ public class PaymentTotal implements Comparable<PaymentTotal>{
     long recordId;
 
     @ToMany(referencedJoinProperty = "paymentTotalId")
-    List<PaymentItem> dishTransRecordDatas;
+    List<PaymentItemEntity> dishTransRecordDatas;
 
     @JSONField(serialize = false)
     int uploadFlag;
@@ -160,15 +160,15 @@ public class PaymentTotal implements Comparable<PaymentTotal>{
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
      */
-    @Generated(hash = 1209227958)
-    public List<PaymentItem> getDishTransRecordDatas() {
+    @Generated(hash = 1554649173)
+    public List<PaymentItemEntity> getDishTransRecordDatas() {
         if (dishTransRecordDatas == null) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            PaymentItemDao targetDao = daoSession.getPaymentItemDao();
-            List<PaymentItem> dishTransRecordDatasNew = targetDao
+            PaymentItemEntityDao targetDao = daoSession.getPaymentItemEntityDao();
+            List<PaymentItemEntity> dishTransRecordDatasNew = targetDao
                     ._queryPaymentTotal_DishTransRecordDatas(id);
             synchronized (this) {
                 if (dishTransRecordDatas == null) {

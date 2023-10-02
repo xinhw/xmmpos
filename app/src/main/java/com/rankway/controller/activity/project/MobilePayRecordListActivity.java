@@ -20,7 +20,7 @@ import com.rankway.controller.adapter.MobliePosPayRecordAdapter;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
-import com.rankway.controller.persistence.entity.PaymentRecord;
+import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.persistence.gen.PaymentRecordDao;
 import com.rankway.controller.webapi.cardInfo;
 
@@ -38,9 +38,9 @@ public class MobilePayRecordListActivity
 
     View onDataView;
     RecyclerView recyclerView;
-    List<PaymentRecord> showRecords = new ArrayList<>();
-    List<PaymentRecord> todayRecords = new ArrayList<>();
-    List<PaymentRecord> allRecords = new ArrayList<>();
+    List<PaymentRecordEntity> showRecords = new ArrayList<>();
+    List<PaymentRecordEntity> todayRecords = new ArrayList<>();
+    List<PaymentRecordEntity> allRecords = new ArrayList<>();
 
     private MobliePosPayRecordAdapter adapter;
 
@@ -155,7 +155,7 @@ public class MobilePayRecordListActivity
         float remain = 1232.30f;
         int i;
 
-        List<PaymentRecord> list = new ArrayList<>();
+        List<PaymentRecordEntity> list = new ArrayList<>();
         list.clear();
 
         PosInfoBean posInfoBean = getPosInfoBean();
@@ -174,7 +174,7 @@ public class MobilePayRecordListActivity
             posInfoBean.setAuditNo(posInfoBean.getAuditNo() + 1);
             amount = (float) (i * 0.11);
 
-            PaymentRecord record = new PaymentRecord(card, amount, posInfoBean);
+            PaymentRecordEntity record = new PaymentRecordEntity(card, amount, posInfoBean);
             list.add(record);
 
             card.setGremain(card.getGremain() - amount);
@@ -196,13 +196,13 @@ public class MobilePayRecordListActivity
             posInfoBean.setAuditNo(posInfoBean.getAuditNo() + 1);
             amount = (float) (i * 0.22);
 
-            PaymentRecord record = new PaymentRecord(card, amount, posInfoBean);
+            PaymentRecordEntity record = new PaymentRecordEntity(card, amount, posInfoBean);
             list.add(record);
 
             card.setGremain(card.getGremain() - amount);
         }
-        DBManager.getInstance().getPaymentRecordDao().deleteAll();
-        DBManager.getInstance().getPaymentRecordDao().saveInTx(list);
+        DBManager.getInstance().getPaymentRecordEntityDao().deleteAll();
+        DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(list);
         Log.d(TAG, "DONE");
     }
 
@@ -214,7 +214,7 @@ public class MobilePayRecordListActivity
 
         //  所有记录
         allRecords.clear();
-        List<PaymentRecord> records = DBManager.getInstance().getPaymentRecordDao().queryBuilder().list();
+        List<PaymentRecordEntity> records = DBManager.getInstance().getPaymentRecordEntityDao().queryBuilder().list();
         if (records.size() > 0) {
             Collections.reverse(records);
             allRecords.addAll(records);
@@ -233,7 +233,7 @@ public class MobilePayRecordListActivity
         Date tommorw = calnow.getTime();
 
         todayRecords.clear();
-        records = DBManager.getInstance().getPaymentRecordDao().queryBuilder()
+        records = DBManager.getInstance().getPaymentRecordEntityDao().queryBuilder()
                 .where(PaymentRecordDao.Properties.TransTime.ge(today))
                 .where(PaymentRecordDao.Properties.TransTime.lt(tommorw))
                 .list();
@@ -365,7 +365,7 @@ public class MobilePayRecordListActivity
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
 
-                        DBManager.getInstance().getPaymentRecordDao()
+                        DBManager.getInstance().getPaymentRecordEntityDao()
                                 .queryBuilder()
                                 .where(PaymentRecordDao.Properties.TransTime.lt(date))
                                 .where(PaymentRecordDao.Properties.UploadFlag.eq(1))

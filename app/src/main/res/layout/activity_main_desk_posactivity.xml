@@ -51,17 +51,17 @@
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_marginTop="5dp">
-       <LinearLayout
+        <LinearLayout
            android:layout_width="0dp"
            android:layout_weight="5"
            android:layout_height="match_parent">
            <TextView
                android:id="@+id/tvPosNo"
                android:layout_width="0dp"
-               android:layout_weight="1"
+               android:layout_weight="1.5"
                android:layout_height="match_parent"
                android:text="POS号：25001"
-               android:textSize="16sp"
+               android:textSize="14sp"
                android:layout_marginLeft="3dp"
                android:paddingLeft="2dp"
                android:textColor="@color/black"
@@ -74,62 +74,72 @@
                android:layout_weight="2"
                android:layout_height="match_parent"
                android:text="时间：2023-09-30 16:32:34"
-               android:textSize="16sp"
+               android:textSize="14sp"
                android:paddingLeft="5dp"
                android:textColor="@color/black"
                android:background="@drawable/seleted_status"
                android:gravity="center|left"/>
-
-       </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="4"
-            android:layout_height="match_parent">
-            <TextView
-                android:id="@+id/tvTotalCount"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:text="总数：235"
-                android:textSize="16sp"
-                android:paddingLeft="5dp"
-                android:textColor="@color/black"
-                android:background="@drawable/seleted_status"
-                android:gravity="center|left"/>
-
-            <TextView
-                android:id="@+id/tvTotalAmount"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:text="总金额：2304.00"
-                android:textSize="16sp"
-                android:paddingLeft="5dp"
-                android:textColor="@color/black"
-                android:background="@drawable/seleted_status"
-                android:gravity="center|left"/>
         </LinearLayout>
 
-
         <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="4"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/tvTotalCount"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:text="总数：235"
+            android:textSize="14sp"
+            android:paddingLeft="5dp"
+            android:textColor="@color/black"
+            android:background="@drawable/seleted_status"
+            android:gravity="center|left"/>
 
-            <TextView
-                android:id="@+id/tvExit"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:text="注销"
-                android:textSize="16sp"
-                android:textColor="@color/red"
-                android:background="@drawable/seleted_status"
-                android:gravity="center"/>
+        <TextView
+            android:id="@+id/tvTotalAmount"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:text="总金额：2304.00"
+            android:textSize="14sp"
+            android:paddingLeft="5dp"
+            android:textColor="@color/black"
+            android:background="@drawable/seleted_status"
+            android:gravity="center|left"/>
+
+        <ImageView
+            android:id="@+id/imgNetworkConnect"
+            android:layout_width="0dp"
+            android:layout_weight="0.2"
+            android:layout_height="wrap_content"
+            android:background="@drawable/network_connect"/>
+        <ImageView
+            android:id="@+id/imgNetworkDisconnect"
+            android:layout_width="0dp"
+            android:layout_weight="0.2"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:background="@drawable/network_disconnect"/>
         </LinearLayout>
 
+        <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent">
 
+        <TextView
+            android:id="@+id/tvExit"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:text="注销"
+            android:textSize="16sp"
+            android:textColor="@color/red"
+            android:background="@drawable/seleted_status"
+            android:gravity="center"/>
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -151,10 +161,11 @@
                 <TextView
                     android:id="@+id/tvSelectedTitle"
                     android:layout_width="match_parent"
-                    android:layout_height="20dp"
+                    android:layout_height="30dp"
                     android:gravity="center"
                     android:textStyle="bold"
                     android:background="@drawable/seleted_status"
+                    android:textSize="14sp"
                     android:text="选购内容"/>
                 <!-- 这里需要加个标题-->
 
@@ -168,16 +179,17 @@
                 <!-- 简单统计信息-->
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="20dp"
+                    android:layout_height="30dp"
                     android:background="@drawable/seleted_status"
                     android:orientation="horizontal">
                     <TextView
                         android:layout_height="match_parent"
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:gravity="left"
-                        android:paddingLeft="3dp"
+                        android:gravity="center"
+                        android:paddingLeft="1dp"
                         android:textStyle="bold"
+                        android:textSize="14sp"
                         android:text="数量："/>
                     <TextView
                         android:id="@+id/tvSubCount"
@@ -186,14 +198,16 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:textStyle="bold|italic"
+                        android:textSize="14sp"
                         android:text="1000"/>
                     <TextView
                         android:layout_height="match_parent"
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:gravity="left"
+                        android:gravity="center"
                         android:paddingLeft="2dp"
                         android:textStyle="bold"
+                        android:textSize="14sp"
                         android:text="小计："/>
                     <TextView
                         android:id="@+id/tvSubAmount"
@@ -203,6 +217,7 @@
                         android:gravity="center"
                         android:paddingLeft="2dp"
                         android:textStyle="bold|italic"
+                        android:textSize="14sp"
                         android:text="10076.23"/>
                 </LinearLayout>
             </LinearLayout>
@@ -273,13 +288,13 @@
             android:id="@+id/tipView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight="0.8"
             android:orientation="horizontal">
             <!-- 显示一些提示信息，比如时间等-->
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:layout_height="match_parent">
                 <TextView
                     android:id="@+id/tvClearSelected"
@@ -302,7 +317,23 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="match_parent"
-                    android:text="修改数量"
+                    android:text="数量"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    android:background="@drawable/btn_bg_semic"
+                    android:gravity="center"/>
+
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/btn_gray_normal" />
+
+                <TextView
+                    android:id="@+id/tvRefreshDishType"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:text="刷新"
                     android:textSize="16sp"
                     android:textColor="@color/white"
                     android:background="@drawable/btn_bg_semic"

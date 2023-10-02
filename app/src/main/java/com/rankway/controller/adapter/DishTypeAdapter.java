@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rankway.controller.R;
-import com.rankway.controller.persistence.entity.DishType;
+import com.rankway.controller.persistence.entity.DishTypeEntity;
 
 import java.util.List;
 
@@ -27,13 +27,13 @@ public class DishTypeAdapter
     extends RecyclerView.Adapter<DishTypeAdapter.DishTypeViewHolder>{
     private final String TAG ="DishTypeAdapter";
 
-    List<DishType> data;
+    List<DishTypeEntity> data;
     private OnItemClickListener onItemClickListener;
 
     private int selectedItem = -1;
     private Context mContext;
 
-    public DishTypeAdapter(Context context,List<DishType> types){
+    public DishTypeAdapter(Context context,List<DishTypeEntity> types){
         this.mContext = context;
         this.data = types;
     }
@@ -50,7 +50,7 @@ public class DishTypeAdapter
     @Override
     public void onBindViewHolder(@NonNull @androidx.annotation.NonNull DishTypeViewHolder holder, @SuppressLint("RecyclerView") int i) {
         holder.itemView.setSelected(i==selectedItem);
-        DishType item = data.get(i);
+        DishTypeEntity item = data.get(i);
         holder.tvDishType.setText(item.getDishTypeName().trim());
 
         holder.rootView.setOnClickListener(new View.OnClickListener() {

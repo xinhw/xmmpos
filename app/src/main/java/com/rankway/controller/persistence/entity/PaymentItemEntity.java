@@ -3,8 +3,8 @@ package com.rankway.controller.persistence.entity;
 import com.alibaba.fastjson.annotation.JSONField;
 
 import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
 
 /**
  * <pre>
@@ -16,7 +16,7 @@ import org.greenrobot.greendao.annotation.Generated;
  * </pre>
  */
 @Entity
-public class PaymentItem implements Comparable<PaymentItem>{
+public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
     @Id(autoincrement = true)
     Long id;
 
@@ -30,15 +30,10 @@ public class PaymentItem implements Comparable<PaymentItem>{
 
     @JSONField(serialize = false)
     long paymentTotalId;
-
-    public PaymentItem(){
-        timestamp = System.currentTimeMillis();
-    }
-
-    @Generated(hash = 2020225571)
-    public PaymentItem(Long id, int posSerialChild, String dishCode,
-            String dishName, int price, int quantity, int transMoney,
-            long timestamp, long paymentTotalId) {
+    
+    @Generated(hash = 53912319)
+    public PaymentItemEntity(Long id, int posSerialChild, String dishCode, String dishName,
+            int price, int quantity, int transMoney, long timestamp, long paymentTotalId) {
         this.id = id;
         this.posSerialChild = posSerialChild;
         this.dishCode = dishCode;
@@ -139,11 +134,26 @@ public class PaymentItem implements Comparable<PaymentItem>{
     }
 
     @Override
-    public int compareTo(PaymentItem o) {
+    public int compareTo(PaymentItemEntity o) {
         int ret = (int)(this.getPaymentTotalId()-o.getPaymentTotalId());
         if(ret!=0) return ret;
 
         ret = this.getPosSerialChild() - o.getPosSerialChild();
         return ret;
+    }
+
+    public PaymentItemEntity(int seqNo, long paymentTotalId, DishEntity dishEntity){
+        this.posSerialChild = seqNo;
+        this.dishCode = dishEntity.getDishCode().trim();
+        this.dishName = dishEntity.getDishName().trim();
+        this.price = dishEntity.getPrice();
+        this.quantity = dishEntity.getCount();
+        this.transMoney = dishEntity.getCount()* dishEntity.getPrice();
+        this.timestamp = System.currentTimeMillis();
+        this.paymentTotalId = paymentTotalId;
+    }
+
+    @Generated(hash = 558064288)
+    public PaymentItemEntity() {
     }
 }

@@ -26,10 +26,13 @@ import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.activity.project.eventbus.MessageEvent;
 import com.rankway.controller.activity.project.manager.DataCleanManager;
+import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.common.AppConstants;
+import com.rankway.controller.common.AppIntentString;
 import com.rankway.controller.common.SemiServerAddress;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
+import com.rankway.controller.utils.HttpUtil;
 import com.rankway.sommerlibrary.utils.ToastUtils;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -62,6 +65,7 @@ public class MobilePosSettingsActivity
     private TextView tvAuditNo;
     private TextView tvServerIP;
     private TextView tvServerPort;
+    private TextView tvHttpTimeout;
 
     private  boolean passAdvancedPassword = false;
 
@@ -80,7 +84,8 @@ public class MobilePosSettingsActivity
         int[] viewIds = {R.id.viewPosNo,R.id.viewUserCode,
                 R.id.viewServerIP,R.id.viewServerPort,
                 R.id.upload_log,R.id.about,
-                R.id.recover_data};
+                R.id.recover_data,
+                R.id.viewHTTPTimeout};
         setOnClickListener(viewIds);
 
         tvPosName = findViewById(R.id.posname);
@@ -89,6 +94,7 @@ public class MobilePosSettingsActivity
         tvAuditNo = findViewById(R.id.auditNo);
         tvServerIP = findViewById(R.id.serverIP);
         tvServerPort = findViewById(R.id.serverPort);
+        tvHttpTimeout = findViewById(R.id.tvHttpTimeout);
     }
 
     protected void setOnClickListener(int[] viewIds){
@@ -119,6 +125,12 @@ public class MobilePosSettingsActivity
             tvServerIP.setText(infoBean.getServerIP());
             tvServerPort.setText(infoBean.getPortNo()+"");
         }
+
+        //  通信超时
+        int ret = SpManager.getIntance().getSpInt(AppIntentString.HTTP_OVER_TIME);
+        if(ret<=0) ret = HttpUtil.DEFAULT_OVER_TIME;
+        tvHttpTimeout.setText(ret+"");
+
         return;
     }
 
@@ -152,6 +164,7 @@ public class MobilePosSettingsActivity
             case R.id.viewUserCode:
             case R.id.viewServerIP:
             case R.id.viewServerPort:
+            case R.id.tvHttpTimeout:
                 showAdvanedSetting(v.getId());
                 break;
 
@@ -455,6 +468,15 @@ public class MobilePosSettingsActivity
                         new InputFilter.LengthFilter(5)
                 });
                 break;
+
+            case R.id.tvHttpTimeout:
+                builder.setTitle("请通信超时时间(ms)：");
+                editMsg.setInputType(InputType.TYPE_CLASS_NUMBER);
+                editMsg.setFilters(new InputFilter[]{
+                        new InputFilter.LengthFilter(5)
+                });
+                break;
+
         }
 
         builder.setView(view);
@@ -488,6 +510,15 @@ public class MobilePosSettingsActivity
                     case R.id.viewServerPort:
                         tvServerPort.setText(msg);
                         bean.setPortNo(Integer.parseInt(msg));
+                        break;
+                    case R.id.tvHttpTimeout:
+                        tvHttpTimeout.setText(msg);
+                        try{
+                            int ret = Integer.parseInt(msg);
+                            SpManager.getIntance().saveSpInt(AppIntentString.HTTP_OVER_TIME,ret);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
                         break;
                 }
                 savePosInfoBean(bean);

@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rankway.controller.R;
-import com.rankway.controller.persistence.entity.Dish;
+import com.rankway.controller.persistence.entity.DishEntity;
 
 import java.util.List;
 
@@ -27,13 +27,13 @@ public class DishSelectedAdapter
         extends RecyclerView.Adapter<DishSelectedAdapter.DishSelectedViewHolder> {
     private final String TAG ="DishSelectedAdapter";
 
-    List<Dish> data;
+    List<DishEntity> data;
     private OnItemClickListener onItemClickListener;
 
     private int selectedItem = -1;
     private Context mContext;
 
-    public DishSelectedAdapter(Context context,List<Dish> records){
+    public DishSelectedAdapter(Context context,List<DishEntity> records){
         this.mContext = context;
         this.data = records;
     }
@@ -50,7 +50,7 @@ public class DishSelectedAdapter
     @Override
     public void onBindViewHolder(@NonNull @androidx.annotation.NonNull DishSelectedViewHolder holder, @SuppressLint("RecyclerView") int i) {
         holder.itemView.setSelected(i==selectedItem);
-        Dish item = data.get(i);
+        DishEntity item = data.get(i);
         holder.seqNo.setText((i+1)+"");
         holder.dishName.setText(item.getDishName().trim());
         holder.dishPrice.setText(String.format("%.2f",item.getPrice()*0.01));
