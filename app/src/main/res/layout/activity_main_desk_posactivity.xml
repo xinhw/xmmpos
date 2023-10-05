@@ -156,7 +156,7 @@
             <LinearLayout
                 android:layout_height="match_parent"
                 android:layout_width="0dp"
-                android:layout_weight="1.5"
+                android:layout_weight="1"
                 android:orientation="vertical">
                 <TextView
                     android:id="@+id/tvSelectedTitle"
@@ -169,6 +169,83 @@
                     android:text="选购内容"/>
                 <!-- 这里需要加个标题-->
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/seqNo"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.5"
+                        android:textColor="@color/black"
+                        android:gravity="center"
+                        android:textSize="14sp"
+                        android:text="序号" />
+
+                    <View
+                        android:layout_width="0.5dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/btn_gray_normal" />
+
+                    <TextView
+                        android:id="@+id/dishName"
+                        android:layout_width="0dp"
+                        android:padding="1dp"
+                        android:background="@null"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:textColor="@color/black"
+                        android:gravity="center"
+                        android:textSize="14sp"
+                        android:text="菜名" />
+
+                    <View
+                        android:layout_width="0.5dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/btn_gray_normal" />
+
+                    <TextView
+                        android:id="@+id/dishPrice"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:textColor="@color/black"
+                        android:gravity="center"
+                        android:textSize="14sp"
+                        android:text="单价" />
+
+                    <View
+                        android:layout_width="0.5dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/btn_gray_normal" />
+
+                    <TextView
+                        android:id="@+id/dishCount"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.5"
+                        android:textColor="@color/black"
+                        android:gravity="center"
+                        android:textSize="14sp"
+                        android:text="数量" />
+
+                    <View
+                        android:layout_width="0.5dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/btn_gray_normal" />
+
+                    <TextView
+                        android:id="@+id/dishAmount"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textColor="@color/black"
+                        android:gravity="center"
+                        android:textSize="14sp"
+                        android:text="金额" />
+
+                </LinearLayout>
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/selectedRecyclerView"
                     android:scrollbars="vertical"

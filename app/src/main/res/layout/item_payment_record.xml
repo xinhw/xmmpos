@@ -115,7 +115,21 @@
         android:gravity="center"
         android:text="时间" />
 
+    <View
+        android:layout_width="0.1dp"
+        android:layout_height="match_parent"
+        android:background="@color/btn_gray_normal" />
 
+    <TextView
+        android:id="@+id/uploadFlag"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="14sp"
+        android:padding="5dp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:text="方式" />
 
 </LinearLayout>
 

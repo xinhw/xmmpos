@@ -1,8 +1,5 @@
 package com.rankway.controller.activity.project;
 
-import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,7 +7,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.DatePicker;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -18,10 +14,9 @@ import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.adapter.MobliePosPayRecordAdapter;
 import com.rankway.controller.dto.PosInfoBean;
-import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
-import com.rankway.controller.persistence.gen.PaymentRecordDao;
+import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.webapi.cardInfo;
 
 import java.util.ArrayList;
@@ -234,8 +229,8 @@ public class MobilePayRecordListActivity
 
         todayRecords.clear();
         records = DBManager.getInstance().getPaymentRecordEntityDao().queryBuilder()
-                .where(PaymentRecordDao.Properties.TransTime.ge(today))
-                .where(PaymentRecordDao.Properties.TransTime.lt(tommorw))
+                .where(PaymentRecordEntityDao.Properties.TransTime.ge(today))
+                .where(PaymentRecordEntityDao.Properties.TransTime.lt(tommorw))
                 .list();
         if (records.size() > 0) {
             Collections.reverse(records);
@@ -308,78 +303,6 @@ public class MobilePayRecordListActivity
         popupWindow.showAtLocation(view, Gravity.RIGHT | Gravity.TOP, 0, location[1] + 25);
     }
 
-    /***
-     * 设置清理日期
-     */
-    private void selectCleanDate() {
-        Calendar c = Calendar.getInstance();
-        DatePickerDialog datePickerDialog = new DatePickerDialog(mContext, AlertDialog.THEME_HOLO_LIGHT,
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        Date date = new Date(year, month, dayOfMonth, 0, 0, 0);
-                        String s = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth);
-                        DetLog.writeLog(TAG, "清理日期之前记录：" + s);
 
-                        cleanDataPromptDialog(date, s);
-                    }
-
-                }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
-
-        datePickerDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
-            @Override
-            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                Log.d(TAG, "onKey " + keyCode);
-                if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                    dialog.dismiss();
-
-                    DatePicker datePicker = datePickerDialog.getDatePicker();
-                    Date date = new Date(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(), 0, 0, 0);
-                    String s = String.format("%04d-%02d-%02d", datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth());
-                    DetLog.writeLog(TAG, "清理日期之前记录：" + s);
-
-                    cleanDataPromptDialog(date, s);
-
-                    return true;
-                }
-
-                if (keyCode == KeyEvent.KEYCODE_BACK) {
-                    dialog.dismiss();
-                    return true;
-                }
-                return false;
-            }
-        });
-        datePickerDialog.show();
-    }
-
-    /***
-     * 清理确认对话框
-     * @param date
-     * @param strdate
-     */
-    private void cleanDataPromptDialog(Date date, String strdate) {
-        showDialogMessage("删除", String.format("是否清除%s之前的交易明细？", strdate),
-                "确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-
-                        DBManager.getInstance().getPaymentRecordEntityDao()
-                                .queryBuilder()
-                                .where(PaymentRecordDao.Properties.TransTime.lt(date))
-                                .where(PaymentRecordDao.Properties.UploadFlag.eq(1))
-                                .buildDelete()
-                                .executeDeleteWithoutDetachingEntities();
-                        playSound(true);
-                    }
-                },
-                "取消", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                }, null);
-    }
 
 }

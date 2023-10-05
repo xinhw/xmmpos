@@ -200,7 +200,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/seleted_status"
                 android:padding="8dp"
-                android:text="通信超时"
+                android:text="通信超时(毫秒)"
                 android:textStyle="bold"
                 android:textSize="16sp" />
             <TextView
@@ -211,6 +211,38 @@
                 android:background="@drawable/seleted_status"
                 android:padding="8dp"
                 android:text="15000"
+                android:maxLength="5"
+                android:inputType="number"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/btn_gray_normal" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content"
+                android:background="@drawable/seleted_status"
+                android:padding="8dp"
+                android:text="脱机支付最大金额(元)"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+            <TextView
+                android:id="@+id/tvOfflineMaxAmount"
+                android:layout_width="0dp"
+                android:layout_weight="1.5"
+                android:layout_height="wrap_content"
+                android:background="@drawable/seleted_status"
+                android:padding="8dp"
+                android:text="30"
                 android:maxLength="5"
                 android:inputType="number"
                 android:textStyle="bold"

@@ -28,9 +28,10 @@ public class HttpUtil {
     private final String TAG = "HttpUtil";
     private int responseCode;
 
-    public static int DEFAULT_OVER_TIME = 15000;
-
+    public static  final int DEFAULT_OVER_TIME = 5000;
     private int OVER_TIME_MS = DEFAULT_OVER_TIME;      //  ms
+
+    public static boolean isOnline = true;
 
     public HttpUtil(){
         //  通信超时
@@ -120,6 +121,7 @@ public class HttpUtil {
 
         }catch (Exception e){
             e.printStackTrace();
+            isOnline = false;
             return null;
         }
     }
@@ -185,10 +187,9 @@ public class HttpUtil {
                 Log.d(TAG,"msg:"+msg);
                 return msg;
             }
-
         }catch (IOException e){
             e.printStackTrace();
-//            Log.d(TAG,e.getMessage());
+            isOnline = false;
             return null;
         }
         return null;
@@ -279,6 +280,7 @@ public class HttpUtil {
             }
             return msg;
         }catch (Exception e){
+            isOnline = false;
             e.printStackTrace();
             return null;
         }

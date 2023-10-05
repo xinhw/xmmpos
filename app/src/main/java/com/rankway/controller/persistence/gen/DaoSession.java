@@ -8,24 +8,24 @@ import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.identityscope.IdentityScopeType;
 import org.greenrobot.greendao.internal.DaoConfig;
 
-import com.rankway.controller.persistence.entity.CardBlackListEntity;
 import com.rankway.controller.persistence.entity.DishEntity;
 import com.rankway.controller.persistence.entity.DishTypeEntity;
 import com.rankway.controller.persistence.entity.MessageDetail;
 import com.rankway.controller.persistence.entity.PaymentItemEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.persistence.entity.PaymentTotal;
+import com.rankway.controller.persistence.entity.PersonInfoEntity;
 import com.rankway.controller.persistence.entity.QrBlackListEntity;
 import com.rankway.controller.persistence.entity.SemiEventEntity;
 import com.rankway.controller.persistence.entity.UserInfoEntity;
 
-import com.rankway.controller.persistence.gen.CardBlackListEntityDao;
 import com.rankway.controller.persistence.gen.DishEntityDao;
 import com.rankway.controller.persistence.gen.DishTypeEntityDao;
 import com.rankway.controller.persistence.gen.MessageDetailDao;
 import com.rankway.controller.persistence.gen.PaymentItemEntityDao;
 import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.persistence.gen.PaymentTotalDao;
+import com.rankway.controller.persistence.gen.PersonInfoEntityDao;
 import com.rankway.controller.persistence.gen.QrBlackListEntityDao;
 import com.rankway.controller.persistence.gen.SemiEventEntityDao;
 import com.rankway.controller.persistence.gen.UserInfoEntityDao;
@@ -39,24 +39,24 @@ import com.rankway.controller.persistence.gen.UserInfoEntityDao;
  */
 public class DaoSession extends AbstractDaoSession {
 
-    private final DaoConfig cardBlackListEntityDaoConfig;
     private final DaoConfig dishEntityDaoConfig;
     private final DaoConfig dishTypeEntityDaoConfig;
     private final DaoConfig messageDetailDaoConfig;
     private final DaoConfig paymentItemEntityDaoConfig;
     private final DaoConfig paymentRecordEntityDaoConfig;
     private final DaoConfig paymentTotalDaoConfig;
+    private final DaoConfig personInfoEntityDaoConfig;
     private final DaoConfig qrBlackListEntityDaoConfig;
     private final DaoConfig semiEventEntityDaoConfig;
     private final DaoConfig userInfoEntityDaoConfig;
 
-    private final CardBlackListEntityDao cardBlackListEntityDao;
     private final DishEntityDao dishEntityDao;
     private final DishTypeEntityDao dishTypeEntityDao;
     private final MessageDetailDao messageDetailDao;
     private final PaymentItemEntityDao paymentItemEntityDao;
     private final PaymentRecordEntityDao paymentRecordEntityDao;
     private final PaymentTotalDao paymentTotalDao;
+    private final PersonInfoEntityDao personInfoEntityDao;
     private final QrBlackListEntityDao qrBlackListEntityDao;
     private final SemiEventEntityDao semiEventEntityDao;
     private final UserInfoEntityDao userInfoEntityDao;
@@ -64,9 +64,6 @@ public class DaoSession extends AbstractDaoSession {
     public DaoSession(Database db, IdentityScopeType type, Map<Class<? extends AbstractDao<?, ?>>, DaoConfig>
             daoConfigMap) {
         super(db);
-
-        cardBlackListEntityDaoConfig = daoConfigMap.get(CardBlackListEntityDao.class).clone();
-        cardBlackListEntityDaoConfig.initIdentityScope(type);
 
         dishEntityDaoConfig = daoConfigMap.get(DishEntityDao.class).clone();
         dishEntityDaoConfig.initIdentityScope(type);
@@ -86,6 +83,9 @@ public class DaoSession extends AbstractDaoSession {
         paymentTotalDaoConfig = daoConfigMap.get(PaymentTotalDao.class).clone();
         paymentTotalDaoConfig.initIdentityScope(type);
 
+        personInfoEntityDaoConfig = daoConfigMap.get(PersonInfoEntityDao.class).clone();
+        personInfoEntityDaoConfig.initIdentityScope(type);
+
         qrBlackListEntityDaoConfig = daoConfigMap.get(QrBlackListEntityDao.class).clone();
         qrBlackListEntityDaoConfig.initIdentityScope(type);
 
@@ -95,44 +95,40 @@ public class DaoSession extends AbstractDaoSession {
         userInfoEntityDaoConfig = daoConfigMap.get(UserInfoEntityDao.class).clone();
         userInfoEntityDaoConfig.initIdentityScope(type);
 
-        cardBlackListEntityDao = new CardBlackListEntityDao(cardBlackListEntityDaoConfig, this);
         dishEntityDao = new DishEntityDao(dishEntityDaoConfig, this);
         dishTypeEntityDao = new DishTypeEntityDao(dishTypeEntityDaoConfig, this);
         messageDetailDao = new MessageDetailDao(messageDetailDaoConfig, this);
         paymentItemEntityDao = new PaymentItemEntityDao(paymentItemEntityDaoConfig, this);
         paymentRecordEntityDao = new PaymentRecordEntityDao(paymentRecordEntityDaoConfig, this);
         paymentTotalDao = new PaymentTotalDao(paymentTotalDaoConfig, this);
+        personInfoEntityDao = new PersonInfoEntityDao(personInfoEntityDaoConfig, this);
         qrBlackListEntityDao = new QrBlackListEntityDao(qrBlackListEntityDaoConfig, this);
         semiEventEntityDao = new SemiEventEntityDao(semiEventEntityDaoConfig, this);
         userInfoEntityDao = new UserInfoEntityDao(userInfoEntityDaoConfig, this);
 
-        registerDao(CardBlackListEntity.class, cardBlackListEntityDao);
         registerDao(DishEntity.class, dishEntityDao);
         registerDao(DishTypeEntity.class, dishTypeEntityDao);
         registerDao(MessageDetail.class, messageDetailDao);
         registerDao(PaymentItemEntity.class, paymentItemEntityDao);
         registerDao(PaymentRecordEntity.class, paymentRecordEntityDao);
         registerDao(PaymentTotal.class, paymentTotalDao);
+        registerDao(PersonInfoEntity.class, personInfoEntityDao);
         registerDao(QrBlackListEntity.class, qrBlackListEntityDao);
         registerDao(SemiEventEntity.class, semiEventEntityDao);
         registerDao(UserInfoEntity.class, userInfoEntityDao);
     }
     
     public void clear() {
-        cardBlackListEntityDaoConfig.clearIdentityScope();
         dishEntityDaoConfig.clearIdentityScope();
         dishTypeEntityDaoConfig.clearIdentityScope();
         messageDetailDaoConfig.clearIdentityScope();
         paymentItemEntityDaoConfig.clearIdentityScope();
         paymentRecordEntityDaoConfig.clearIdentityScope();
         paymentTotalDaoConfig.clearIdentityScope();
+        personInfoEntityDaoConfig.clearIdentityScope();
         qrBlackListEntityDaoConfig.clearIdentityScope();
         semiEventEntityDaoConfig.clearIdentityScope();
         userInfoEntityDaoConfig.clearIdentityScope();
-    }
-
-    public CardBlackListEntityDao getCardBlackListEntityDao() {
-        return cardBlackListEntityDao;
     }
 
     public DishEntityDao getDishEntityDao() {
@@ -157,6 +153,10 @@ public class DaoSession extends AbstractDaoSession {
 
     public PaymentTotalDao getPaymentTotalDao() {
         return paymentTotalDao;
+    }
+
+    public PersonInfoEntityDao getPersonInfoEntityDao() {
+        return personInfoEntityDao;
     }
 
     public QrBlackListEntityDao getQrBlackListEntityDao() {

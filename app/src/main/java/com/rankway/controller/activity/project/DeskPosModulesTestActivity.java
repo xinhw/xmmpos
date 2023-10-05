@@ -322,4 +322,20 @@ public class DeskPosModulesTestActivity extends BaseActivity {
         return builder.toString();
     }
 
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Log.d(TAG,"onKeyDown "+keyCode);
+
+        //  右下角返回键
+        if (KeyEvent.KEYCODE_BACK == keyCode) {
+            return true;
+        }
+        if(KeyEvent.KEYCODE_HOME == keyCode){
+            return true;
+        }
+
+        return super.onKeyUp(keyCode, event);
+    }
+
 }

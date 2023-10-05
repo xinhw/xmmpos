@@ -119,7 +119,8 @@ public class AppService extends Service {
                 //  如果Wifi和Mobile data都没有打开
                 if (NetUtil.getNetType(mContext) < 0) continue;
 
-                baseActivity.uploadLocalData2WXSemicon();
+                //  上送离线消费交易
+//                baseActivity.uploadOfflineRecords();
             }
         }
     }

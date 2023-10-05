@@ -26,11 +26,18 @@ import android.widget.TextView;
 
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
+import com.rankway.controller.activity.project.manager.SpManager;
+import com.rankway.controller.common.AppIntentString;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.entity.PersonInfoEntity;
+import com.rankway.controller.persistence.entity.QrBlackListEntity;
+import com.rankway.controller.persistence.gen.PersonInfoEntityDao;
+import com.rankway.controller.persistence.gen.QrBlackListEntityDao;
 import com.rankway.controller.reader.ReaderFactory;
+import com.rankway.controller.utils.HttpUtil;
 import com.rankway.controller.webapi.cardInfo;
 import com.rankway.controller.webapi.decodeQRCode;
 import com.rankway.controller.webapi.payWebapi;
@@ -62,6 +69,7 @@ public class PaymentDialog
     private int nAmount = 0;
 
     private TextView tvPayMode;
+    private TextView tvPayAmount;
 
     private Handler mHandler = null;
     private Context mContext;
@@ -126,11 +134,21 @@ public class PaymentDialog
         tvPayMode = rootView.findViewById(R.id.tvPayMode);
         if(payMode==PAY_MODE_CARD){
             tvPayMode.setText("支付方式：IC卡");
-            readCardThread = new ReadCardThread();
-            readCardThread.start();
+
+            int ret = ReaderFactory.getReader(mContext).opneReader();
+            if(0!=ret){
+                ToastUtils.showLong(mContext,"读卡器打开失败，请检查连接!");
+                baseActivity.playSound(false);
+            }else {
+                readCardThread = new ReadCardThread();
+                readCardThread.start();
+            }
         }else{
             tvPayMode.setText("支付方式：二维码");
         }
+
+        tvPayAmount = rootView.findViewById(R.id.tvPayAmount);
+        tvPayAmount.setText(String.format("支付金额：%.2f",nAmount*0.01));
 
         return rootView;
     }
@@ -139,24 +157,27 @@ public class PaymentDialog
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.tvCancel:
-                if(null!=onPaymentResultListner) {
-                    if(null!=readCardThread){
-                        try {
-                            readCardThread.join();
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
+                if(null!=readCardThread){
+                    Log.d(TAG,"终止线程");
+                    try {
+                        readCardThread.interrupt();
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
-                    
-                    onPaymentResultListner.onPaymentCancel();
                 }
+                Log.d(TAG,"终止线程退出");
+
+                baseActivity.detSleep(200);
+
+                if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentCancel();
+                dismiss();
                 break;
         }
     }
 
 
     public interface OnPaymentResult{
-        void onPaymentSuccess(PaymentRecordEntity record);
+        void onPaymentSuccess(int flag,PaymentRecordEntity record);
         void onPaymentCancel();
     }
 
@@ -213,6 +234,7 @@ public class PaymentDialog
                 ToastUtils.showLong(mContext, "无效的二维码");
                 return;
             }
+            Log.d(TAG,"二维码："+qrcode);
 
             PutMessage(PAY_MODE_QRCODE,cardPaymentObj);
         }
@@ -222,26 +244,26 @@ public class PaymentDialog
     class ReadCardThread extends Thread{
         @Override
         public void run(){
-            while (true){
-                sleep(100);
-
+            cardInfo cardPaymentObj = null;
+            while (!isInterrupted()){
+                try {
+                    Thread.sleep(100);
+                }catch (Exception e){
+                    e.printStackTrace();
+                    break;
+                }
                 String sn = ReaderFactory.getReader(mContext).getCardNo();
+
                 if(sn==null) continue;
 
-                cardInfo cardPaymentObj = new cardInfo();
+                cardPaymentObj = new cardInfo();
                 cardPaymentObj.setGsno(sn);
-
-                PutMessage(PAY_MODE_CARD,cardPaymentObj);
                 break;
             }
-        }
 
-        private void sleep(int ms){
-            try{
-                Thread.sleep(ms);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+            ReaderFactory.getReader(mContext).closeReader();
+
+            if(null!=cardPaymentObj) PutMessage(PAY_MODE_CARD,cardPaymentObj);
         }
     }
 
@@ -280,6 +302,54 @@ public class PaymentDialog
 
         @Override
         protected Integer doInBackground(String... strings) {
+            int ret = -1;
+            if(HttpUtil.isOnline){
+                ret = onlinePayment();
+            }else{
+                ret = offlinePayment();
+            }
+            return ret;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+
+            missProDialog();
+
+            isPaying = false;
+
+            if (0 == integer) {
+                baseActivity.playSound(true);
+                DetLog.writeLog(TAG, "支付成功：" + cardPaymentObj.toString());
+
+                PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, famount, posInfoBean);
+                Log.d(TAG,"record: "+record.toString());
+
+                int flag = 0x01;
+                if(!HttpUtil.isOnline) flag = 0x00;
+                record.setUploadFlag(flag);
+                DBManager.getInstance().getPaymentRecordEntityDao().save(record);
+
+                if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentSuccess(flag,record);
+
+                //  支付成功，关闭对话框
+                dismiss();
+            } else {
+                baseActivity.playSound(false);
+
+                ToastUtils.showLong(mContext,errString);
+
+                DetLog.writeLog(TAG, "支付失败：" + errString);
+            }
+            return;
+        }
+
+        /***
+         * 在线支付
+         * @return
+         */
+        private int onlinePayment(){
             int ret = -1;
             payWebapi obj = payWebapi.getInstance();
 
@@ -326,52 +396,151 @@ public class PaymentDialog
             //  4. 支付
             cardPaymentObj = new cardInfo(cardInfoObj);
             if (payMode==PAY_MODE_CARD) {
-                // public int qrPayment(int auditNo,int systemId,int qrType,String userId,Date cdate,int cmoney){
-                ret = obj.qrPayment(posInfoBean.getAuditNo(), cardPaymentObj.getSystemId(), cardPaymentObj.getQrType(), cardPaymentObj.getUserId(), new Date(), (int) (famount * 100));
-                DetLog.writeLog(TAG, "qrPayment:" + ret);
-            } else {
                 // public int cardPayment(int auditNo,int cardno,Date cdate,int cmoney){
                 ret = obj.cardPayment(posInfoBean.getAuditNo(), cardPaymentObj.getCardno(), new Date(), (int) (famount * 100));
                 DetLog.writeLog(TAG, "cardPayment:" + ret);
+            } else {
+                // public int qrPayment(int auditNo,int systemId,int qrType,String userId,Date cdate,int cmoney){
+                ret = obj.qrPayment(posInfoBean.getAuditNo(), cardPaymentObj.getSystemId(), cardPaymentObj.getQrType(), cardPaymentObj.getUserId(), new Date(), (int) (famount * 100));
+                DetLog.writeLog(TAG, "qrPayment:" + ret);
             }
             if(ret!=0){
                 errString = obj.getErrMsg();
                 return ret;
             }
+            return 0;
+        }
+
+        /***
+         * 离线支付
+         * @return
+         */
+        private int offlinePayment(){
+            int ret = -1;
+            ret = SpManager.getIntance().getSpInt(AppIntentString.OFFLINE_MAX_AMOUNT);
+            if(ret<=0) ret = 30;
+            int MAX_OFFLINE_AMOUNT = ret;
+
+            // 1. 获取POS流水
+            int auditNo = posInfoBean.getAuditNo();
+            auditNo++;
+
+            //  设置POS流水号
+            posInfoBean.setAuditNo(auditNo);
+            baseActivity.savePosInfoBean(posInfoBean);
+
+            //  2. 查询凭证信息
+            cardInfo cardInfoObj = null;
+            if (payMode == PAY_MODE_CARD) {
+                //  在不在白名单内
+                DetLog.writeLog(TAG, "IC卡支付查询(离线)：");
+                cardInfoObj = isCardInWhiteList(cardPaymentObj.getGsno());
+                if(null==cardInfoObj){
+                    errString = "无效卡片，不能支付！";
+                    return -1;
+                }
+            } else {
+                //  在不在黑名单内
+                DetLog.writeLog(TAG, "二维码支付查询(离线)：");
+                cardInfoObj = isQrCodeInBlackList(cardPaymentObj.getSystemId(),cardPaymentObj.getQrType(),cardPaymentObj.getUserId());
+                if(null==cardInfoObj){
+                    errString = "二维码在黑名单内，不能支付！";
+                    return -1;
+                }
+            }
+
+            //  3. 比较余额
+            if(MAX_OFFLINE_AMOUNT<famount){
+                errString = "超过离线支付限制，无法支付";
+                return -1;
+            }
+
+            //  4. 支付
+            cardPaymentObj = new cardInfo(cardInfoObj);
 
             return 0;
         }
 
-        @Override
-        protected void onPostExecute(Integer integer) {
-            super.onPostExecute(integer);
+        /***
+         * 离线交易，判断卡唯一号是否在白名单内
+         * @param gsno
+         * @return
+         */
+        private cardInfo isCardInWhiteList(String gsno){
+            Log.d(TAG,"isCardInWhiteList "+gsno);
 
-            missProDialog();
-
-            isPaying = false;
-
-            if (0 == integer) {
-                baseActivity.playSound(true);
-                DetLog.writeLog(TAG, "支付成功：" + cardPaymentObj.toString());
-
-                PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, (int)(famount*100), posInfoBean);
-
-                record.setUploadFlag(0x01);
-                DBManager.getInstance().getPaymentRecordEntityDao().save(record);
-
-                if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentSuccess(record);
-
-            } else {
-                baseActivity.playSound(false);
-
-                ToastUtils.showLong(mContext,errString);
-
-                DetLog.writeLog(TAG, "支付失败：" + errString);
+            PersonInfoEntity person = DBManager.getInstance().getPersonInfoEntityDao()
+                    .queryBuilder()
+                    .where(PersonInfoEntityDao.Properties.Gsno.eq(gsno))
+                    .unique();
+            if(person==null){
+                DetLog.writeLog(TAG,String.format("未找到卡[%s]对应的人员信息",gsno));
+                return null;
             }
-            return;
+            Log.d(TAG,"person "+person.toString());
+
+            cardInfo obj = new cardInfo();
+            //  gremain
+            obj.setGremain(0.0f);
+            //  gno
+            obj.setGno(person.getGno());
+            //  gname
+            obj.setName(person.getGname());
+            //  StatusId
+            obj.setStatusid(person.getStatusId());
+            //  cardno
+            obj.setCardno(person.getCardno());
+
+            obj.setSystemId(0);
+            obj.setQrType(0);
+            obj.setUserId("");
+            return obj;
+        }
+
+        /***
+         * 离线二维码判断是否在黑名单内
+         * @param systemid
+         * @param qrtype
+         * @param userId
+         * @return
+         */
+        private cardInfo isQrCodeInBlackList(int systemid,int qrtype,String userId){
+            Log.d(TAG,"isQrCodeInBlackList "+String.format("(%d,%d,%s)", systemid,qrtype,userId));
+            QrBlackListEntity black = DBManager.getInstance().getQrBlackListEntityDao()
+                    .queryBuilder()
+                    .where(QrBlackListEntityDao.Properties.StatusId.eq(systemid))
+                    .where(QrBlackListEntityDao.Properties.QrType.eq(qrtype))
+                    .where(QrBlackListEntityDao.Properties.UserId.eq(userId))
+                    .unique();
+
+            if(black!=null){
+                DetLog.writeLog(TAG,String.format("(%d,%d,%s)二维码在黑名单内:%s",
+                        systemid,qrtype,userId,
+                        black.toString()));
+                return null;
+            }
+
+            //  {"gremain":567.39,"WorkNo":"00002203","Status":2,"Name":"杨欢","Cellphone":null,"CardNo":30943}
+            cardInfo obj = new cardInfo();
+
+            //  gremain
+            obj.setGremain(0.0f);
+            //  gno
+            obj.setGno("");
+            //  gname
+            obj.setName("");
+            //  StatusId
+            obj.setStatusid(2);
+            //  cardno
+            obj.setCardno(0);
+
+            obj.setSystemId(systemid);
+            obj.setQrType(qrtype);
+            obj.setUserId(userId);
+
+            return obj;
         }
     }
-
 
     private ProgressDialog progressDialog;
     protected void showProDialog(String msg) {

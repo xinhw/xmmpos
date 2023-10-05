@@ -32,7 +32,7 @@ import com.rankway.controller.hardware.util.DataConverter;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
-import com.rankway.controller.persistence.gen.PaymentRecordDao;
+import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.scan.ScannerBase;
 import com.rankway.controller.scan.ScannerFactory;
 import com.rankway.controller.utils.DateStringUtils;
@@ -767,8 +767,8 @@ public class MobliePosPayMainActivity
 
         listRecords.clear();
         List<PaymentRecordEntity> records = DBManager.getInstance().getPaymentRecordEntityDao().queryBuilder()
-                .where(PaymentRecordDao.Properties.TransTime.ge(today))
-                .where(PaymentRecordDao.Properties.TransTime.lt(tommorw))
+                .where(PaymentRecordEntityDao.Properties.TransTime.ge(today))
+                .where(PaymentRecordEntityDao.Properties.TransTime.lt(tommorw))
                 .list();
         if (records.size() > 0) {
             Collections.reverse(records);

@@ -48,7 +48,11 @@ public class PosInfoBean {
     }
 
     public void setAuditNo(int auditNo) {
-        this.auditNo = auditNo;
+        if(auditNo>this.auditNo){
+            this.auditNo = auditNo;
+        }else{
+            this.auditNo++;
+        }
     }
 
     public String getServerIP() {

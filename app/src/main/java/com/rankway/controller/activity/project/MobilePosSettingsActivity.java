@@ -66,6 +66,8 @@ public class MobilePosSettingsActivity
     private TextView tvServerIP;
     private TextView tvServerPort;
     private TextView tvHttpTimeout;
+    private TextView tvOfflineMaxAmount;
+
 
     private  boolean passAdvancedPassword = false;
 
@@ -85,7 +87,7 @@ public class MobilePosSettingsActivity
                 R.id.viewServerIP,R.id.viewServerPort,
                 R.id.upload_log,R.id.about,
                 R.id.recover_data,
-                R.id.viewHTTPTimeout};
+                R.id.tvHttpTimeout,R.id.tvOfflineMaxAmount};
         setOnClickListener(viewIds);
 
         tvPosName = findViewById(R.id.posname);
@@ -95,6 +97,7 @@ public class MobilePosSettingsActivity
         tvServerIP = findViewById(R.id.serverIP);
         tvServerPort = findViewById(R.id.serverPort);
         tvHttpTimeout = findViewById(R.id.tvHttpTimeout);
+        tvOfflineMaxAmount = findViewById(R.id.tvOfflineMaxAmount);
     }
 
     protected void setOnClickListener(int[] viewIds){
@@ -131,6 +134,11 @@ public class MobilePosSettingsActivity
         if(ret<=0) ret = HttpUtil.DEFAULT_OVER_TIME;
         tvHttpTimeout.setText(ret+"");
 
+        //  脱机消费最大金额
+        ret = SpManager.getIntance().getSpInt(AppIntentString.OFFLINE_MAX_AMOUNT);
+        if(ret<=0) ret = 30;
+        tvOfflineMaxAmount.setText(ret+"");
+
         return;
     }
 
@@ -165,6 +173,7 @@ public class MobilePosSettingsActivity
             case R.id.viewServerIP:
             case R.id.viewServerPort:
             case R.id.tvHttpTimeout:
+            case R.id.tvOfflineMaxAmount:
                 showAdvanedSetting(v.getId());
                 break;
 
@@ -477,6 +486,13 @@ public class MobilePosSettingsActivity
                 });
                 break;
 
+            case R.id.tvOfflineMaxAmount:
+                builder.setTitle("脱机消费最大金额(元)：");
+                editMsg.setInputType(InputType.TYPE_CLASS_NUMBER);
+                editMsg.setFilters(new InputFilter[]{
+                        new InputFilter.LengthFilter(3)
+                });
+                break;
         }
 
         builder.setView(view);
@@ -511,11 +527,21 @@ public class MobilePosSettingsActivity
                         tvServerPort.setText(msg);
                         bean.setPortNo(Integer.parseInt(msg));
                         break;
+
                     case R.id.tvHttpTimeout:
-                        tvHttpTimeout.setText(msg);
                         try{
                             int ret = Integer.parseInt(msg);
                             SpManager.getIntance().saveSpInt(AppIntentString.HTTP_OVER_TIME,ret);
+                            tvHttpTimeout.setText(msg);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+
+                    case R.id.tvOfflineMaxAmount:
+                        try{
+                            int ret = Integer.parseInt(msg);
+                            SpManager.getIntance().saveSpInt(AppIntentString.OFFLINE_MAX_AMOUNT,ret);
+                            tvOfflineMaxAmount.setText(msg);
                         }catch (Exception e){
                             e.printStackTrace();
                         }

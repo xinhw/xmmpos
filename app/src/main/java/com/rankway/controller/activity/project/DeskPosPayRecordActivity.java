@@ -2,6 +2,7 @@ package com.rankway.controller.activity.project;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.TextView;
@@ -31,9 +32,9 @@ public class DeskPosPayRecordActivity extends BaseActivity {
 
         initView();
 
-        initData();
-
         initAdapter();
+
+        initData();
     }
 
     private void initView() {
@@ -54,6 +55,8 @@ public class DeskPosPayRecordActivity extends BaseActivity {
     }
 
     private void initAdapter(){
+        Log.d(TAG,"initAdapter");
+
         adapter = new DeskPosPayRecordAdapter(mContext,listRecords);
         recyclerView.setAdapter(adapter);
         recyclerView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
@@ -103,5 +106,20 @@ public class DeskPosPayRecordActivity extends BaseActivity {
             onDataView.setVisibility(View.VISIBLE);
         }
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Log.d(TAG,"onKeyDown "+keyCode);
+
+        //  右下角返回键
+        if (KeyEvent.KEYCODE_BACK == keyCode) {
+            return true;
+        }
+        if(KeyEvent.KEYCODE_HOME == keyCode){
+            return true;
+        }
+
+        return super.onKeyUp(keyCode, event);
     }
 }

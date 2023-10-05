@@ -2,8 +2,8 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rootView"
-    android:layout_width="60dp"
-    android:layout_height="60dp"
+    android:layout_width="100dp"
+    android:layout_height="100dp"
     android:orientation="vertical"
     android:padding="5dp"
     android:layout_marginTop="8dp"
@@ -17,7 +17,7 @@
         android:layout_height="match_parent"
         android:text="大荤"
         android:textSize="14sp"
-        android:textColor="#333333"
+        android:textColor="@color/white"
         android:gravity="center"/>
 
 </LinearLayout>

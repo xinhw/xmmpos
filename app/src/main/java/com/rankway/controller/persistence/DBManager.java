@@ -3,7 +3,6 @@ package com.rankway.controller.persistence;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.rankway.controller.persistence.gen.CardBlackListEntityDao;
 import com.rankway.controller.persistence.gen.DaoMaster;
 import com.rankway.controller.persistence.gen.DaoSession;
 import com.rankway.controller.persistence.gen.DishEntityDao;
@@ -12,6 +11,7 @@ import com.rankway.controller.persistence.gen.MessageDetailDao;
 import com.rankway.controller.persistence.gen.PaymentItemEntityDao;
 import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.persistence.gen.PaymentTotalDao;
+import com.rankway.controller.persistence.gen.PersonInfoEntityDao;
 import com.rankway.controller.persistence.gen.QrBlackListEntityDao;
 import com.rankway.controller.persistence.gen.SemiEventEntityDao;
 import com.rankway.controller.persistence.gen.UserInfoEntityDao;
@@ -44,9 +44,7 @@ public class DBManager {
             mDBManager = new DBManager(context);
     }
 
-    public CardBlackListEntityDao getCardBlackListEntityDao(){
-        return mDaoSession.getCardBlackListEntityDao();
-    }
+
 
     public DishEntityDao getDishEntityDao(){
         return mDaoSession.getDishEntityDao();
@@ -84,8 +82,8 @@ public class DBManager {
         return mDaoSession.getUserInfoEntityDao();
     }
 
-
-
-
+    public PersonInfoEntityDao getPersonInfoEntityDao(){
+        return mDaoSession.getPersonInfoEntityDao();
+    }
 
 }

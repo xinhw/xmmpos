@@ -5,17 +5,19 @@ import android.util.Log;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
-import com.rankway.controller.persistence.entity.CardBlackListEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.entity.PersonInfoEntity;
 import com.rankway.controller.persistence.entity.QrBlackListEntity;
 import com.rankway.controller.persistence.entity.UserInfoEntity;
 import com.rankway.controller.utils.Base64Util;
 import com.rankway.controller.utils.HttpUtil;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +40,7 @@ public class payWebapi {
     private String clientId = "1234567887654321";
 
     private String serverIP = "119.3.3.227";
-    private int portNo = 8801;
+    private int portNo = 8803;
 
     private String cposno;
     private String cusercode;
@@ -288,6 +290,7 @@ public class payWebapi {
 
             //  gremain
             obj.setGremain((float)resp.getResult().getGremain());
+
             //  gno
             obj.setGno(resp.getResult().getGno());
 
@@ -1036,6 +1039,7 @@ public class payWebapi {
                     '}';
         }
     }
+
     public static class WebapiResponse{
         int error;
         String errmsg;
@@ -1075,41 +1079,6 @@ public class payWebapi {
         }
     }
 
-
-    /***
-     * 获取黑名单
-     * @return
-     */
-    public List<CardBlackListEntity> getCardBlackList(){
-        Log.d(TAG,"getBlackList");
-
-        String accessToken = accessToken();
-
-        String serverPort = String.format("http://%s:%d",serverIP,portNo);
-        String url = serverPort + String.format("/api/Personinfo/blacklist?accessToken=%s",accessToken);
-        Log.d(TAG,"URL:"+url);
-
-        try {
-            HttpUtil httpUtil = new HttpUtil();
-            String ret = httpUtil.httpGet(url);
-            Log.d(TAG,"ret:"+ret);
-
-            errCode = httpUtil.getResponseCode();
-            if(null==ret){
-                errMsg = "平台返回信息为空";
-                return null;
-            }
-
-            List<CardBlackListEntity> list = JSON.parseArray(ret, CardBlackListEntity.class);
-            return list;
-
-        } catch (Exception e) {
-            errMsg = e.getMessage();
-        }
-
-        return null;
-    }
-
     /***
      * 获取黑名单
      * @return
@@ -1120,7 +1089,7 @@ public class payWebapi {
         String accessToken = accessToken();
 
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
-        String url = serverPort + String.format("/api/Personinfo/blacklist?accessToken=%s",accessToken);
+        String url = serverPort + String.format("/api/Personinfo/BarCodeblacklist?accessToken=%s",accessToken);
         Log.d(TAG,"URL:"+url);
 
         try {
@@ -1133,6 +1102,8 @@ public class payWebapi {
                 errMsg = "平台返回信息为空";
                 return null;
             }
+
+            Log.d(TAG,"返回："+ret);
 
             List<QrBlackListEntity> list = JSON.parseArray(ret, QrBlackListEntity.class);
             return list;
@@ -1144,7 +1115,6 @@ public class payWebapi {
         return null;
     }
 
-
     /***
      * 获取操作员
      * @return
@@ -1155,7 +1125,7 @@ public class payWebapi {
         String accessToken = accessToken();
 
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
-        String url = serverPort + String.format("/api/Personinfo/blacklist?accessToken=%s",accessToken);
+        String url = serverPort + String.format("/api/userinfo?accessToken=%s",accessToken);
         Log.d(TAG,"URL:"+url);
 
         try {
@@ -1169,6 +1139,7 @@ public class payWebapi {
                 return null;
             }
 
+            Log.d(TAG,"返回："+ret);
             List<UserInfoEntity> list = JSON.parseArray(ret, UserInfoEntity.class);
             return list;
 
@@ -1180,18 +1151,57 @@ public class payWebapi {
     }
 
     /***
-     * 批量上送离线IC卡交易
-     * @param records
+     * 获取IC卡白名单信息
      * @return
      */
-    public int pushOfflineCardPaymentRecords(List<PaymentRecordEntity> records){
-        Log.d(TAG,"pushOfflineCardPaymentRecords "+records.size());
+    public List<PersonInfoEntity> getPersonInfoList(){
+        Log.d(TAG,"getPersonInfoList");
+
+        String accessToken = accessToken();
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + String.format("/api/Personinfo/whitelist?accessToken=%s",accessToken);
+        Log.d(TAG,"URL:"+url);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpGet(url);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return null;
+            }
+
+            Log.d(TAG,"返回："+ret);
+            List<PersonInfoEntity> list = JSON.parseArray(ret, PersonInfoEntity.class);
+            return list;
+
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+        }
+
+        return null;
+    }
+
+    /***
+     * 批量上送离线IC卡交易
+     * @param record
+     * @return
+     */
+    public int pushOfflineCardPaymentRecords(PaymentRecordEntity record){
+        Log.d(TAG,"pushOfflineCardPaymentRecords "+record.toString());
 
         String accessToken = accessToken();
 
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
         String url = serverPort + "/api/payinfoes/list?accessToken=" + accessToken;
         Log.d(TAG,"url:"+url);
+
+        PaymentApplyEntity pae = new PaymentApplyEntity(record);
+        List<PaymentApplyEntity> records = new ArrayList<>();
+        records.add(pae);
 
         String jsonData = JSON.toJSONString(records);
         Log.d(TAG,"jsonData:"+jsonData);
@@ -1213,9 +1223,17 @@ public class payWebapi {
                 return -1;
             }
 
-            //  需要填充内容
+            //  {"errcode":0,"errmsg":"ok"}
+            errCode = (int)Double.parseDouble(String.valueOf(responseBody.get("errcode")));
+            errMsg = String.valueOf(responseBody.get("errmsg"));
+            if (errCode == 0) return errCode;
 
-            return 0;
+            //  重复的返回
+            //  {"Result":{"cno":"47031425","cposno":"20001","cpostype":null,"cpayway":null,"cusercode":"90001","cardno":18985,"cdate":"2023-10-05T19:34:19.542+08:00",
+            //  "cmoney":1.2,"cremain":0.0,"cnote":null,"typeid":100,"localtime":null,"SystemID":0,"personinfo":null},"errcode":409,"errmsg":"数据冲突"}
+            if(errCode==409) return 0;
+
+            return errCode;
 
         } catch (Exception e) {
             errMsg = e.getMessage();
@@ -1226,11 +1244,11 @@ public class payWebapi {
 
     /***
      * 批量上送二维码交易
-     * @param records
+     * @param record
      * @return
      */
-    public int pushOfflineQRPaymentRecords(List<PaymentRecordEntity> records){
-        Log.d(TAG,"pushOfflineQRPaymentRecords "+records.size());
+    public int pushOfflineQRPaymentRecords(PaymentRecordEntity record){
+        Log.d(TAG,"pushOfflineQRPaymentRecords "+record.toString());
 
         String accessToken = accessToken();
 
@@ -1238,7 +1256,31 @@ public class payWebapi {
         String url = serverPort + "/api/qr/payinfoes/list?accessToken=" + accessToken;
         Log.d(TAG,"url:"+url);
 
+        PaymentApplyEntity pae = new PaymentApplyEntity(record);
+        List<PaymentApplyEntity> records = new ArrayList<>();
+        records.add(pae);
+
+        Date cdate = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        String reqTime = format.format(cdate);
+
         String jsonData = JSON.toJSONString(records);
+        Log.d(TAG,"jsonData:"+jsonData);
+
+        String reqParamsSet = Base64Util.EncodeString(jsonData);
+
+        String data = secret + clientId + reqParamsSet + cdate.getTime();
+        String mac = DigestUtils.md5Hex(data);
+
+        Log.d(TAG,String.format("离线消费（二维码）记录，mac前字符串:{%s}，mac后字符串:{%s}", data, mac));
+
+        Map body = new HashMap();
+        body.put("clientID", clientId);
+        body.put("reqTime", reqTime);
+        body.put("reqParamsSet", reqParamsSet);
+        body.put("mac", mac);
+
+        jsonData = JSON.toJSONString(body);
         Log.d(TAG,"jsonData:"+jsonData);
 
         try {
@@ -1252,15 +1294,42 @@ public class payWebapi {
                 return -1;
             }
 
+            //  {"Code":"200","Msg":"OK","respTime":"2023-10-05T19:53:37.0126618+08:00",
+            //  "respParamSet":"eyJlcnJjb2RlIjowLCJlcnJtc2ciOiJvayJ9","Mac":"94701a3c363a92d620b4166220b0bbe1"}
             HashMap responseBody = (HashMap) fromJsonString(ret, HashMap.class);
             if(null==responseBody){
                 errMsg = "后台返回信息格式出错";
                 return -1;
             }
 
-            //  需要填充内容
+            String respParamSet = (String) responseBody.get("respParamSet");
+            if(null==respParamSet){
+                errMsg = "后台返回信息respParamSet格式出错";
+                return -1;
+            }
 
-            return 0;
+            String responseParam = Base64Util.Decode2String(respParamSet);
+            if(null==respParamSet){
+                Log.d(TAG,"responseParam is null");
+                errMsg = "后台返回信息Base64解码出错";
+                return -1;
+            }
+
+            //  {{"errcode":0,"errmsg":"ok"}}
+            Log.d(TAG,String.format("对api返回的respParamSet进行JSON转换,内容:{%s}", responseParam));
+            HashMap respParam = (HashMap) fromJsonString(responseParam, HashMap.class);
+
+            //  需要填充内容
+            errCode = (int)Double.parseDouble(String.valueOf(respParam.get("errcode")));
+            errMsg = String.valueOf(respParam.get("errmsg"));
+            if (errCode == 0) return errCode;
+
+            //  重复的返回
+            //  {{"errcode":403,"errmsg":"设备交易流水已存在 caused by {\"cno\":\"47031428\",\"cposno\":\"20001\",\"cusercode\":\"90001\",
+            //  \"cdate\":\"2023-10-05T20:03:41.369+08:00\",\"cmoney\":1.0,\"SystemId\":1,\"QrType\":1,\"UserId\":\"737589\"}"}}
+            if (errCode == 403) return 0;
+
+            return errCode;
 
         } catch (Exception e) {
             errMsg = e.getMessage();
@@ -1270,4 +1339,14 @@ public class payWebapi {
     }
 
 
+    /***
+     * 获取菜品明细
+     * @param posno
+     * @return
+     */
+    public Result getDishType(String posno){
+        if(StringUtils.isEmpty(posno)) return null;
+
+        return null;
+    }
 }

@@ -27,7 +27,7 @@ public class DishTypeEntityDao extends AbstractDao<DishTypeEntity, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property DishTypeCode = new Property(1, String.class, "dishTypeCode", false, "DISH_TYPE_CODE");
         public final static Property DishTypeName = new Property(2, String.class, "dishTypeName", false, "DISH_TYPE_NAME");
-        public final static Property Satus = new Property(3, int.class, "satus", false, "SATUS");
+        public final static Property Status = new Property(3, int.class, "status", false, "STATUS");
         public final static Property Timestamp = new Property(4, long.class, "timestamp", false, "TIMESTAMP");
     }
 
@@ -50,7 +50,7 @@ public class DishTypeEntityDao extends AbstractDao<DishTypeEntity, Long> {
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"DISH_TYPE_CODE\" TEXT," + // 1: dishTypeCode
                 "\"DISH_TYPE_NAME\" TEXT," + // 2: dishTypeName
-                "\"SATUS\" INTEGER NOT NULL ," + // 3: satus
+                "\"STATUS\" INTEGER NOT NULL ," + // 3: status
                 "\"TIMESTAMP\" INTEGER NOT NULL );"); // 4: timestamp
     }
 
@@ -78,7 +78,7 @@ public class DishTypeEntityDao extends AbstractDao<DishTypeEntity, Long> {
         if (dishTypeName != null) {
             stmt.bindString(3, dishTypeName);
         }
-        stmt.bindLong(4, entity.getSatus());
+        stmt.bindLong(4, entity.getStatus());
         stmt.bindLong(5, entity.getTimestamp());
     }
 
@@ -100,7 +100,7 @@ public class DishTypeEntityDao extends AbstractDao<DishTypeEntity, Long> {
         if (dishTypeName != null) {
             stmt.bindString(3, dishTypeName);
         }
-        stmt.bindLong(4, entity.getSatus());
+        stmt.bindLong(4, entity.getStatus());
         stmt.bindLong(5, entity.getTimestamp());
     }
 
@@ -121,7 +121,7 @@ public class DishTypeEntityDao extends AbstractDao<DishTypeEntity, Long> {
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // dishTypeCode
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // dishTypeName
-            cursor.getInt(offset + 3), // satus
+            cursor.getInt(offset + 3), // status
             cursor.getLong(offset + 4) // timestamp
         );
         return entity;
@@ -132,7 +132,7 @@ public class DishTypeEntityDao extends AbstractDao<DishTypeEntity, Long> {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setDishTypeCode(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setDishTypeName(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setSatus(cursor.getInt(offset + 3));
+        entity.setStatus(cursor.getInt(offset + 3));
         entity.setTimestamp(cursor.getLong(offset + 4));
      }
     

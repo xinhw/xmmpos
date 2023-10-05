@@ -36,7 +36,7 @@ public class DishEntityDao extends AbstractDao<DishEntity, Long> {
         public final static Property Timestamp = new Property(6, long.class, "timestamp", false, "TIMESTAMP");
     }
 
-    private Query<DishEntity> dishTypeEntity_DishEntityTransRecordDataQuery;
+    private Query<DishEntity> dishTypeEntity_DishsQuery;
 
     public DishEntityDao(DaoConfig config) {
         super(config);
@@ -176,16 +176,16 @@ public class DishEntityDao extends AbstractDao<DishEntity, Long> {
         return true;
     }
     
-    /** Internal query to resolve the "dishEntityTransRecordData" to-many relationship of DishTypeEntity. */
-    public List<DishEntity> _queryDishTypeEntity_DishEntityTransRecordData(long typeId) {
+    /** Internal query to resolve the "dishs" to-many relationship of DishTypeEntity. */
+    public List<DishEntity> _queryDishTypeEntity_Dishs(long typeId) {
         synchronized (this) {
-            if (dishTypeEntity_DishEntityTransRecordDataQuery == null) {
+            if (dishTypeEntity_DishsQuery == null) {
                 QueryBuilder<DishEntity> queryBuilder = queryBuilder();
                 queryBuilder.where(Properties.TypeId.eq(null));
-                dishTypeEntity_DishEntityTransRecordDataQuery = queryBuilder.build();
+                dishTypeEntity_DishsQuery = queryBuilder.build();
             }
         }
-        Query<DishEntity> query = dishTypeEntity_DishEntityTransRecordDataQuery.forCurrentThread();
+        Query<DishEntity> query = dishTypeEntity_DishsQuery.forCurrentThread();
         query.setParameter(0, typeId);
         return query.list();
     }

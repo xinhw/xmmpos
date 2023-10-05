@@ -126,6 +126,7 @@ public class DeskPosPayRecordAdapter
         Log.d(TAG, " getGroupView"+String.format("(%d,%d)",groupPosition,selectedGroupItem));
         ParentHolder parentHolder;
         if (convertView == null) {
+            Log.d(TAG,"convertView is null");
             convertView = LayoutInflater.from(context).inflate(R.layout.item_payment_statistics,null);
             parentHolder = new ParentHolder();
             parentHolder.rootView = convertView.findViewById(R.id.rootView);
@@ -134,9 +135,13 @@ public class DeskPosPayRecordAdapter
             parentHolder.subCount = convertView.findViewById(R.id.subCount);
             parentHolder.subAmount = convertView.findViewById(R.id.subAmount);
             parentHolder.detail = convertView.findViewById(R.id.detail);
+            convertView.setTag(parentHolder);
         }else{
+            Log.d(TAG,"convertView "+convertView.toString());
             parentHolder = (ParentHolder) convertView.getTag();
         }
+        Log.d(TAG,"parentHolder "+parentHolder.toString());
+
         PaymentStatisticsRecordEntity row = dataEntity.get(groupPosition);
         parentHolder.seqNo.setText(row.getSeqNo()+"");
         parentHolder.transDate.setText(row.getCdate());
@@ -174,6 +179,7 @@ public class DeskPosPayRecordAdapter
         Log.d(TAG, " getChildView"+String.format("(%d,%d)",groupPosition,childPosition));
         final ChildrenHolder childrenHolder;
         if (convertView == null) {
+            Log.d(TAG,"convertView is null");
             convertView = LayoutInflater.from(context).inflate(R.layout.item_payment_record,null);
             childrenHolder = new ChildrenHolder();
             childrenHolder.rootView = convertView.findViewById(R.id.rootView);
@@ -184,9 +190,14 @@ public class DeskPosPayRecordAdapter
             childrenHolder.balance = convertView.findViewById(R.id.balance);
             childrenHolder.payWay = convertView.findViewById(R.id.payWay);
             childrenHolder.transTime = convertView.findViewById(R.id.transTime);
+            childrenHolder.uploadFlag = convertView.findViewById(R.id.uploadFlag);
+            convertView.setTag(childrenHolder);
         }else{
+            Log.d(TAG,"convertView "+convertView.toString());
             childrenHolder = (ChildrenHolder) convertView.getTag();
         }
+        Log.d(TAG,"childrenHolder "+childrenHolder.toString());
+
         //设置选中child时效果
         if(groupPosition == selectedGroupItem && childPosition == selectedChildItem)
         {
@@ -198,7 +209,7 @@ public class DeskPosPayRecordAdapter
             childrenHolder.rootView.setSelected(false);
         }
         PaymentRecordEntity item = dataEntity.get(groupPosition).getRecordList().get(childPosition);
-        childrenHolder.auditNo.setText(childPosition+"");
+        childrenHolder.auditNo.setText((childPosition+1)+"");
         childrenHolder.workNo.setText(item.getWorkNo().trim());
         childrenHolder.workName.setText(item.getWorkName().trim());
         childrenHolder.amount.setText(String.format("%.2f",item.getAmount()));
@@ -209,6 +220,13 @@ public class DeskPosPayRecordAdapter
             childrenHolder.payWay.setText("二维码");
         }
         childrenHolder.transTime.setText(DateStringUtils.dateToString(item.getTransTime()));
+        if(item.getUploadFlag()==0x01){
+            childrenHolder.uploadFlag.setText("已上传");
+            childrenHolder.uploadFlag.setTextColor(Color.BLACK);
+        }else{
+            childrenHolder.uploadFlag.setText("未上传");
+            childrenHolder.uploadFlag.setTextColor(Color.RED);
+        }
         childrenHolder.rootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -253,6 +271,7 @@ public class DeskPosPayRecordAdapter
         TextView balance;
         TextView payWay;
         TextView transTime;
+        TextView uploadFlag;
     }
 
     public interface OnItemClickListener{

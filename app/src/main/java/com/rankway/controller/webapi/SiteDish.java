@@ -21,7 +21,7 @@ public class SiteDish {
     String siteId;
     String siteDesc;
     String siteVersion;
-    List<DishTypeEntity> dishTypeEntities;
+    List<DishTypeEntity> dishTypes;
 
     public String getSiteId() {
         return siteId;
@@ -48,11 +48,11 @@ public class SiteDish {
     }
 
     public List<DishTypeEntity> getDishTypes() {
-        return dishTypeEntities;
+        return dishTypes;
     }
 
     public void setDishTypes(List<DishTypeEntity> dishTypeEntities) {
-        this.dishTypeEntities = dishTypeEntities;
+        this.dishTypes = dishTypeEntities;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class SiteDish {
                 "siteId='" + siteId + '\'' +
                 ", siteDesc='" + siteDesc + '\'' +
                 ", siteVersion='" + siteVersion + '\'' +
-                ", dishTypes=" + dishTypeEntities +
+                ", dishTypes=" + dishTypes +
                 '}';
     }
 }

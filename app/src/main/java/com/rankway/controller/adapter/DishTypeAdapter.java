@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +52,7 @@ public class DishTypeAdapter
     public void onBindViewHolder(@NonNull @androidx.annotation.NonNull DishTypeViewHolder holder, @SuppressLint("RecyclerView") int i) {
         holder.itemView.setSelected(i==selectedItem);
         DishTypeEntity item = data.get(i);
+        Log.d(TAG,"item:"+item.toString());
         holder.tvDishType.setText(item.getDishTypeName().trim());
 
         holder.rootView.setOnClickListener(new View.OnClickListener() {
@@ -64,6 +66,7 @@ public class DishTypeAdapter
 
     @Override
     public int getItemCount() {
+        Log.d(TAG,"getItemCount:"+data.size());
         return data.size();
     }
 

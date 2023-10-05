@@ -122,7 +122,7 @@ public class PaymentRecordEntity implements Comparable<PaymentRecordEntity>{
         this.workNo = card.getGno();
         this.workName = card.getName();
 
-        this.userCode = card.getUserId();
+        this.userId = card.getUserId();
         this.qrType = card.getQrType();
         this.systemId = card.getSystemId();
 

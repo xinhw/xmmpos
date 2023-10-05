@@ -4,6 +4,7 @@ package com.rankway.controller.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -33,11 +34,13 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -72,7 +75,8 @@ import com.rankway.controller.persistence.entity.DishTypeEntity;
 import com.rankway.controller.persistence.entity.MessageDetail;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.persistence.entity.SemiEventEntity;
-import com.rankway.controller.persistence.gen.DishDao;
+import com.rankway.controller.persistence.gen.DishEntityDao;
+import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.persistence.gen.SemiEventEntityDao;
 import com.rankway.controller.pushmessage.ETEKMessageProcess;
 import com.rankway.controller.utils.AppUtils;
@@ -80,6 +84,8 @@ import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.DateStringUtils;
 import com.rankway.controller.utils.UpdateAppUtils;
 import com.rankway.controller.utils.VibrateUtil;
+import com.rankway.controller.webapi.Result;
+import com.rankway.controller.webapi.payWebapi;
 import com.rankway.controller.widget.MyAlertDialog;
 import com.rankway.sommerlibrary.R;
 import com.rankway.sommerlibrary.common.ActivityCollector;
@@ -1341,27 +1347,77 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     /***
-     * 上报数据到无锡赛米垦拓云平台
+     * 上送离线消费交易数据
      */
-    public void uploadLocalData2WXSemicon() {
+    public void uploadOfflineRecords() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String str = "";
                 try {
-                    //  上报设备状态
-                    UploadHandsetInfo(str);
-
-                    //  上报设备事件
-                    uploadEventList(str);
-
+//                    //  上报设备状态
+//                    UploadHandsetInfo(str);
 //
+//                    //  上报设备事件
+//                    uploadEventList(str);
+
 //                    ///////////////////////////////////////////////////////////////////////////////////
 //                    //  是否可以自动上传
 //                    if (isAutoUploadDataAvailable()) {
 //                        autoUpdateData();
 //                    }
 //                    ///////////////////////////////////////////////////////////////////////////////////
+
+                    payWebapi obj = payWebapi.getInstance();
+
+                    //  上传离线交易数据
+                    //  5. 未上传的记录上传
+                    //  5.1 未上传的IC记录
+                    List<PaymentRecordEntity> listCardRecord = DBManager.getInstance().getPaymentRecordEntityDao()
+                            .queryBuilder()
+                            .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(0))
+                            .where(PaymentRecordEntityDao.Properties.QrType.eq(0))
+                            .list();
+                    if(listCardRecord.size()>0){
+                        int n = 0;
+                        for(PaymentRecordEntity record:listCardRecord){
+                            n++;
+                            int ret = obj.pushOfflineCardPaymentRecords(record);
+                            if(0!=ret){
+                                DetLog.writeLog(TAG,"IC卡离线记录上送失败："+record.toString());
+                            }else{
+                                DetLog.writeLog(TAG,"IC卡离线记录上送成功："+record.toString());
+                                record.setUploadFlag(0);
+                                record.setUploadTime(new Date());
+                                DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
+                            }
+                        }
+                    }
+
+
+                    //  5.2 未上传的QR记录
+                    List<PaymentRecordEntity> listQrRecord = DBManager.getInstance().getPaymentRecordEntityDao()
+                            .queryBuilder()
+                            .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(0))
+                            .where(PaymentRecordEntityDao.Properties.QrType.notEq(0))
+                            .list();
+                    if(listQrRecord.size()>0){
+                        int n = 0;
+                        for(PaymentRecordEntity record:listQrRecord){
+                            n++;
+                            int ret = obj.pushOfflineCardPaymentRecords(record);
+                            if(0!=ret){
+                                DetLog.writeLog(TAG,"二维码离线记录上送失败："+record.toString());
+                            }else{
+                                DetLog.writeLog(TAG,"二维码离线记录上送成功："+record.toString());
+
+                                record.setUploadFlag(0);
+                                record.setUploadTime(new Date());
+                                DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
+                            }
+                        }
+                    }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -1531,7 +1587,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
 
-    protected PosInfoBean getPosInfoBean(){
+    public PosInfoBean getPosInfoBean(){
         String str = getPreInfo(AppIntentString.POS_INFO_BEAN);
         Log.d(TAG,"getPosInfoBean "+str);
 
@@ -1657,7 +1713,7 @@ public class BaseActivity extends AppCompatActivity {
 
         List<DishEntity> list = DBManager.getInstance().getDishEntityDao()
                 .queryBuilder()
-                .where(DishDao.Properties.TypeId.eq(dishTypeEntity.getId()))
+                .where(DishEntityDao.Properties.TypeId.eq(dishTypeEntity.getId()))
                 .list();
         list.sort(new Comparator<DishEntity>() {
             @Override
@@ -1721,5 +1777,121 @@ public class BaseActivity extends AppCompatActivity {
             seqNo++;
         }
         return listStatistics;
+    }
+
+    /**
+     * 处理菜品类型和菜品信息
+     * @param result
+     */
+    protected void saveDishType(Result result){
+        Log.d(TAG,"saveDishType");
+
+        if(null==result) return;
+        if(40000!=result.getCode()){
+            DetLog.writeLog(TAG,String.format("同步菜品信息失败："+result.getMessage()));
+            return;
+        }
+
+        //  缓存菜品版本信息
+        String s = result.getResult().getSiteVersion();
+        SpManager.getIntance().saveSpString(AppIntentString.DISH_TYPE_VER,s);
+
+        //  清除数据库里的菜品类型和菜品
+        DBManager.getInstance().getDishEntityDao().deleteAll();
+        DBManager.getInstance().getDishTypeEntityDao().deleteAll();
+
+        //  按菜品类型逐一处理
+        for(DishTypeEntity dishType:result.getResult().getDishTypes()){
+            Log.d(TAG,"菜品类型："+dishType.getDishTypeName());
+
+            DishTypeEntity typeitem = new DishTypeEntity(dishType);
+            DBManager.getInstance().getDishTypeEntityDao().save(typeitem);
+
+            List<DishEntity> dishes = new ArrayList<>();
+            for(DishEntity dish:dishType.getDishs()){
+                DishEntity dishitem = new DishEntity(dish);
+                dishitem.setTypeId(typeitem.getId());
+                dishes.add(dish);
+            }
+            Log.d(TAG,"菜品明细个数："+dishes.size());
+
+            DBManager.getInstance().getDishEntityDao().saveInTx(dishes);
+        }
+        return;
+    }
+
+
+    /***
+     * 设置清理日期
+     */
+    protected void selectCleanDate() {
+        Calendar c = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(mContext, AlertDialog.THEME_HOLO_LIGHT,
+                new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        Date date = new Date(year, month, dayOfMonth, 0, 0, 0);
+                        String s = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth);
+                        DetLog.writeLog(TAG, "清理日期之前记录：" + s);
+
+                        cleanDataPromptDialog(date, s);
+                    }
+
+                }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+
+        datePickerDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                Log.d(TAG, "onKey " + keyCode);
+                if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                    dialog.dismiss();
+
+                    DatePicker datePicker = datePickerDialog.getDatePicker();
+                    Date date = new Date(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(), 0, 0, 0);
+                    String s = String.format("%04d-%02d-%02d", datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth());
+                    DetLog.writeLog(TAG, "清理日期之前记录：" + s);
+
+                    cleanDataPromptDialog(date, s);
+
+                    return true;
+                }
+
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    dialog.dismiss();
+                    return true;
+                }
+                return false;
+            }
+        });
+        datePickerDialog.show();
+    }
+
+    /***
+     * 清理确认对话框
+     * @param date
+     * @param strdate
+     */
+    private void cleanDataPromptDialog(Date date, String strdate) {
+        showDialogMessage("删除", String.format("是否清除%s之前的交易明细？", strdate),
+                "确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+
+                        DBManager.getInstance().getPaymentRecordEntityDao()
+                                .queryBuilder()
+                                .where(PaymentRecordEntityDao.Properties.TransTime.lt(date))
+                                .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(1))
+                                .buildDelete()
+                                .executeDeleteWithoutDetachingEntities();
+                        playSound(true);
+                    }
+                },
+                "取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }, null);
     }
 }

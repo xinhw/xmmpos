@@ -129,4 +129,28 @@ public class DishEntity {
                 ", timestamp=" + timestamp +
                 '}';
     }
+
+    public DishEntity(DishEntity obj){
+        this.dishCode = obj.getDishCode().trim();
+        this.dishName = obj.getDishName().trim();
+        this.price = obj.getPrice();
+        this.status = obj.getStatus();
+        this.count = 1;
+        this.timestamp = System.currentTimeMillis();
+    }
+
+    public DishEntity(String dishCode,String dishName,int price,long typeId){
+        this.dishCode = dishCode;
+        this.dishName = dishName;
+        this.price = price;
+        this.typeId = typeId;
+
+        this.status="2";
+        this.count = 1;
+        this.timestamp = System.currentTimeMillis();
+    }
+
+    public int getSubAmount(){
+        return this.count*this.price;
+    }
 }

@@ -46,32 +46,33 @@ public class PrinterUtils {
         s = "--------------------------------";
         printer.printString(s);
 
-        //  班次号
-        s = String.format(" 班次号：%s",posInfoBean.getShiftNo());
-        printer.printString(s);
+//        //  班次号
+//        s = String.format(" 班次号：%s",posInfoBean.getShiftNo());
+//        printer.printString(s);
 
         //  POS机号
-        s = String.format(" POS号：%s",posInfoBean.getCposno());
+        s =combinePrintLine(12," POS号：",posInfoBean.getCposno());
         printer.printString(s);
 
         //  流水号
-        s = String.format(" 流水号：%d",posInfoBean.getAuditNo());
+        s =combinePrintLine(12," 流水号：",posInfoBean.getAuditNo()+"");
         printer.printString(s);
 
         //  工号
-        s = String.format(" 工号：%s",record.getWorkNo());
+        s =combinePrintLine(12," 工号：",record.getWorkNo());
         printer.printString(s);
 
         //  支付方式
         if(record.getQrType()==0){
-            s = " 方式：IC卡";
+            s = "IC卡";
         }else{
-            s = " 方式：二维码";
+            s = "二维码";
         }
+        s = combinePrintLine(12," 方式：",s);
         printer.printString(s);
 
         //  时间
-        s = String.format(" 时间：%s",DateStringUtils.dateToString(record.getTransTime()));
+        s = combinePrintLine(12," 时间：",DateStringUtils.dateToString(record.getTransTime()));
         printer.printString(s);
 
         s = "--------------------------------";
@@ -105,10 +106,13 @@ public class PrinterUtils {
         s = padRightSpace("消费金额：",10);
         printer.printString(" " + s+samount);
 
-        f = record.getRemain() - f;
-        samount = padLeftSpace(String.format("%.2f",f),11);
-        s = padRightSpace("剩余金额：",10);
-        printer.printString(" " + s+samount);
+        //  仅仅在线交易打印余额
+        if(record.getUploadFlag()==0x01) {
+            f = record.getRemain() - f;
+            samount = padLeftSpace(String.format("%.2f", f), 11);
+            s = padRightSpace("剩余金额：", 10);
+            printer.printString(" " + s + samount);
+        }
 
         //  走纸3行
         printer.printBytes(PrinterFormatUtils.getFeedCommand(3));
@@ -158,20 +162,20 @@ public class PrinterUtils {
         s = "--------------------------------";
         printer.printString(s);
 
-        //  班次号
-        s = String.format(" 班次号：%s",posInfoBean.getShiftNo());
-        printer.printString(s);
+//        //  班次号
+//        s = String.format(" 班次号：%s",posInfoBean.getShiftNo());
+//        printer.printString(s);
 
         //  POS机号
-        s = String.format(" POS号：%s",posInfoBean.getCposno());
+        s =combinePrintLine(12," POS号：",posInfoBean.getCposno());
         printer.printString(s);
 
         //  收银员
-        s = String.format(" 收银员：%d",posInfoBean.getUsercode());
+        s = combinePrintLine(12," 收银员：",posInfoBean.getUsercode());
         printer.printString(s);
 
         //  起始时间
-        s = String.format(" 起始时间：%s",DateStringUtils.dateToString(posInfoBean.getStartTime()));
+        s = combinePrintLine(12," 起始时间：",DateStringUtils.dateToString(posInfoBean.getStartTime()));
         printer.printString(s);
 
         //  结束时间
@@ -211,5 +215,24 @@ public class PrinterUtils {
             sb.append(' ');
         }
         return s+sb.toString();
+    }
+
+    private String combinePrintLine(int str1len,String str1,String str2){
+        String s1 = str1;
+        try {
+            s1 = new String(str1.getBytes("GB2312"), "ISO-8859-1");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        int n = s1.length();
+        if(n>=str1len){
+            return str1 + str2;
+        }
+        StringBuilder sb = new StringBuilder();
+        while(sb.length()<(str1len-n)){
+            sb.append(' ');
+        }
+        return str1+sb.toString()+str2;
     }
 }

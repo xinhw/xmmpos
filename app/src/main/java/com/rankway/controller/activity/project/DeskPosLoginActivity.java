@@ -4,6 +4,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -13,20 +15,21 @@ import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.common.AppIntentString;
+import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
-import com.rankway.controller.persistence.entity.CardBlackListEntity;
-import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.entity.DishEntity;
+import com.rankway.controller.persistence.entity.DishTypeEntity;
+import com.rankway.controller.persistence.entity.PersonInfoEntity;
 import com.rankway.controller.persistence.entity.QrBlackListEntity;
 import com.rankway.controller.persistence.entity.UserInfoEntity;
-import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.persistence.gen.UserInfoEntityDao;
 import com.rankway.controller.utils.ClickUtil;
+import com.rankway.controller.webapi.Result;
 import com.rankway.controller.webapi.payWebapi;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Date;
 import java.util.List;
 
 public class DeskPosLoginActivity
@@ -51,6 +54,7 @@ public class DeskPosLoginActivity
         initData();
 
         DetLog.writeLog(TAG,"程序启动");
+        newTestDish();
     }
 
     private void initView() {
@@ -66,6 +70,21 @@ public class DeskPosLoginActivity
         textView.setOnClickListener(this);
         textView = findViewById(R.id.tvExit);
         textView.setOnClickListener(this);
+
+        etUserCode.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                etPassword.setText("");
+            }
+        });
     }
 
     private void initData() {
@@ -87,7 +106,12 @@ public class DeskPosLoginActivity
         }else{
             etUserCode.setText(str);
         }
-
+        str = SpManager.getIntance().getSpString(AppIntentString.LAST_LOGIN_PASSWORD);
+        if(StringUtils.isEmpty(str)){
+            etPassword.setText("");
+        }else{
+            etPassword.setText(str);
+        }
         tvProcess.setText("");
 
         beginSyncDataTask();
@@ -134,6 +158,14 @@ public class DeskPosLoginActivity
         }
         String strpassword = etPassword.getText().toString();
 
+        //  超级用户
+        if((struserid.equalsIgnoreCase("99521"))
+                &&(isAdvancedPasswordRight(strpassword))){
+            DetLog.writeLog(TAG,"Admin用户登录");
+            return true;
+        }
+
+        //  普通用户
         UserInfoEntity user = DBManager.getInstance().getUserInfoEntityDao()
                 .queryBuilder()
                 .where(UserInfoEntityDao.Properties.UserCode.eq(struserid))
@@ -144,6 +176,12 @@ public class DeskPosLoginActivity
         }
 
         if(user.getUserPassword().equalsIgnoreCase(strpassword)){
+            //  缓存登录用户名和密码
+            SpManager.getIntance().saveSpString(AppIntentString.LAST_LOGIN_USER,
+                    etUserCode.getText().toString().trim());
+            SpManager.getIntance().saveSpString(AppIntentString.LAST_LOGIN_PASSWORD,
+                    etPassword.getText().toString().trim());
+
             return true;
         }
         showToast("操作员代码或密码错误");
@@ -161,11 +199,10 @@ public class DeskPosLoginActivity
 
     /***
      * 后台同步数据的异步任务
-     * 		操作员信息
-     * 		菜品种类和菜品明细（只下载上架的菜品）
-     * 		IC卡黑名单
-     * 		二维码黑名单
-     * 		未上传的记录上传
+     * 		1.操作员信息
+     * 		2.菜品种类和菜品明细（只下载上架的菜品）
+     * 		3.IC卡黑名单
+     * 		4.二维码黑名单
      */
     private class AsynSyncData extends AsyncTask<String, Integer, Integer> {
         @Override
@@ -176,7 +213,15 @@ public class DeskPosLoginActivity
 
         @Override
         protected Integer doInBackground(String... strings) {
+            int n = 0;
+
             payWebapi obj = payWebapi.getInstance();
+            PosInfoBean posInfoBean = getPosInfoBean();
+            if(null!=posInfoBean){
+                obj.setServerIP(posInfoBean.getServerIP());
+                obj.setPortNo(posInfoBean.getPortNo());
+            }
+
             //  1. 操作员信息
             sendProccessMessage("同步 操作员信息，请稍等...");
             List<UserInfoEntity> listUserInfo = obj.getUserInfoList();
@@ -184,21 +229,36 @@ public class DeskPosLoginActivity
                 sendProccessMessage("同步 操作员信息 失败");
             }else{
                 sendProccessMessage("同步 操作员信息 成功");
+                Log.d(TAG,"操作员个数："+listUserInfo.size());
                 DBManager.getInstance().getUserInfoEntityDao().deleteAll();
                 DBManager.getInstance().getUserInfoEntityDao().saveInTx(listUserInfo);
+                n++;
             }
 
             //  2. 菜品种类和菜品明细（只下载上架的菜品）
-
-            //  3. IC卡黑名单
-            sendProccessMessage("同步 IC卡黑名单信息，请稍等...");
-            List<CardBlackListEntity> listCardBlacklist = obj.getCardBlackList();
-            if(null==listCardBlacklist){
-                sendProccessMessage("同步 IC卡黑名单信息 失败");
+            String posno = "";
+            if(null!=posInfoBean) posno = posInfoBean.getCposno();
+            sendProccessMessage("同步 菜品信息，请稍等...");
+            Result result = obj.getDishType(posno);
+            if(null==result){
+                sendProccessMessage("同步 菜品信息 失败");
             }else{
-                sendProccessMessage("同步 IC卡黑名单信息 成功");
-                DBManager.getInstance().getCardBlackListEntityDao().deleteAll();
-                DBManager.getInstance().getCardBlackListEntityDao().saveInTx(listCardBlacklist);
+                sendProccessMessage("同步 菜品信息 成功");
+                saveDishType(result);
+                n++;
+            }
+
+            //  3. IC卡白名单
+            sendProccessMessage("同步 IC卡白名单信息，请稍等...");
+            List<PersonInfoEntity> listCardBlist = obj.getPersonInfoList();
+            if(null==listCardBlist){
+                sendProccessMessage("同步 IC卡白名单信息 失败");
+            }else{
+                sendProccessMessage("同步 IC卡白名单信息 成功");
+                Log.d(TAG,"IC卡白名单个数："+listCardBlist.size());
+                DBManager.getInstance().getPersonInfoEntityDao().deleteAll();
+                DBManager.getInstance().getPersonInfoEntityDao().saveInTx(listCardBlist);
+                n++;
             }
 
             //  4. 二维码黑名单
@@ -208,54 +268,17 @@ public class DeskPosLoginActivity
                 sendProccessMessage("同步 二维码黑名单信息 失败");
             }else{
                 sendProccessMessage("同步 二维码黑名单信息 成功");
+                Log.d(TAG,"二维码黑名单个数："+listQrBlacklist.size());
                 DBManager.getInstance().getQrBlackListEntityDao().deleteAll();
                 DBManager.getInstance().getQrBlackListEntityDao().saveInTx(listQrBlacklist);
+                n++;
             }
 
-            //  5. 未上传的记录上传
-            //  5.1 未上传的IC记录
-            List<PaymentRecordEntity> listCardRecord = DBManager.getInstance().getPaymentRecordEntityDao()
-                    .queryBuilder()
-                    .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(0))
-                    .where(PaymentRecordEntityDao.Properties.QrType.eq(0))
-                    .list();
-            if(listCardRecord.size()>0){
-                sendProccessMessage("上传 IC卡离线交易，请稍等...");
-                int ret = obj.pushOfflineCardPaymentRecords(listCardRecord);
-                if(0!=ret){
-                    sendProccessMessage("上传 IC卡离线交易 失败");
-                }else{
-                    sendProccessMessage("上传 IC卡离线交易 成功");
-                    for(PaymentRecordEntity record:listCardRecord){
-                        record.setUploadFlag(0);
-                        record.setUploadTime(new Date());
-                    }
-                    DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
-                }
+            //  上次同步时间
+            if(4==n) {
+                sendProccessMessage("同步 完成");
+                setLongInfo(AppIntentString.LAST_SYNC_TIME, System.currentTimeMillis());
             }
-
-
-            //  5.2 未上传的QR记录
-            List<PaymentRecordEntity> listQrRecord = DBManager.getInstance().getPaymentRecordEntityDao()
-                    .queryBuilder()
-                    .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(0))
-                    .where(PaymentRecordEntityDao.Properties.QrType.notEq(0))
-                    .list();
-            if(listQrRecord.size()>0){
-                sendProccessMessage("上传 二维码离线交易，请稍等...");
-                int ret = obj.pushOfflineQRPaymentRecords(listQrRecord);
-                if(0!=ret){
-                    sendProccessMessage("上传 二维码离线交易 失败");
-                }else{
-                    sendProccessMessage("上传 二维码离线交易 成功");
-                    for(PaymentRecordEntity record:listQrRecord){
-                        record.setUploadFlag(0);
-                        record.setUploadTime(new Date());
-                    }
-                    DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listQrRecord);
-                }
-            }
-
             return 0;
         }
 
@@ -265,7 +288,6 @@ public class DeskPosLoginActivity
             missProDialog();
         }
     }
-
 
     private void sendProccessMessage(String msg){
         Message message = new Message();
@@ -293,5 +315,104 @@ public class DeskPosLoginActivity
             }
         }
     };
+
+
+    /**
+     * 生成测试擦品种类和菜品
+     */
+    private void newTestDish(){
+        Log.d(TAG,"newTestDish");
+
+        DBManager.getInstance().getDishEntityDao().deleteAll();
+        DBManager.getInstance().getDishTypeEntityDao().deleteAll();
+
+        //  荤菜
+        DishTypeEntity dishTypeEntity = new DishTypeEntity("10001","大荤");
+        DBManager.getInstance().getDishTypeEntityDao().save(dishTypeEntity);
+
+        DishEntity dishEntity = new DishEntity("10001-01","虾仁豆腐炖蛋",190,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("10001-02","砂锅鱼头煲",180,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("10001-03","农家小炒肉",170,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("10001-04","蛤蜊炖蛋",160,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("10001-05","海鲜毛血旺",110,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("10001-06","香煎鲍鱼",300,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("10001-07","炸里脊",250,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("10001-08","鱼香茄子",200,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("10001-09","红烧肉",210,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("10001-10","回锅肉",120,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("10001-11","清蒸鲈鱼",210,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        //  小荤
+        dishTypeEntity = new DishTypeEntity("20001","小荤");
+        DBManager.getInstance().getDishTypeEntityDao().save(dishTypeEntity);
+
+        dishEntity = new DishEntity("20001-01","西红柿炒鸡蛋",110,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("20001-02","干锅花菜",120,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("20001-03","千叶豆腐",130,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        //  素菜
+        dishTypeEntity = new DishTypeEntity("30001","素菜");
+        DBManager.getInstance().getDishTypeEntityDao().save(dishTypeEntity);
+
+        dishEntity = new DishEntity("30001-01","蒜蓉菠菜",50,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("30001-02","清炒鸡毛菜",40,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("30001-03","红烧土豆",70,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        //  主食
+        dishTypeEntity = new DishTypeEntity("40001","主食");
+        DBManager.getInstance().getDishTypeEntityDao().save(dishTypeEntity);
+
+        dishEntity = new DishEntity("40001-01","米饭",10,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("40001-02","馒头",5,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("40001-03","葱油拌面",50,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        //  汤
+        dishTypeEntity = new DishTypeEntity("50001","汤");
+        DBManager.getInstance().getDishTypeEntityDao().save(dishTypeEntity);
+
+        dishEntity = new DishEntity("50001-01","西红柿蛋汤",150,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+        dishEntity = new DishEntity("50001-02","榨菜紫菜汤",100,dishTypeEntity.getId());
+        DBManager.getInstance().getDishEntityDao().save(dishEntity);
+
+    }
+
 
 }

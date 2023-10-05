@@ -48,6 +48,7 @@
 
     </LinearLayout>
 
+    <include layout="@layout/item_payment_record" />
 
     <RelativeLayout
         android:layout_gravity="center"
@@ -58,8 +59,7 @@
         <com.rankway.controller.activity.project.view.RankwayExpandableListView
             android:id="@+id/recycleView"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
             android:groupIndicator="@null"/>
 
         <LinearLayout

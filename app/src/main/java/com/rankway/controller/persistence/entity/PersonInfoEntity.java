@@ -8,17 +8,17 @@ import org.greenrobot.greendao.annotation.Generated;
  * <pre>
  *   author : Xin Hongwei
  *   e-mail : xinhw@wxsemicon.com
- *   time  : 2023/10/01
- *   desc  : IC卡黑名单
+ *   time  : 2023/10/03
+ *   desc  :
  *   version: 1.0
  * </pre>
  */
 @Entity
-public class CardBlackListEntity {
+public class PersonInfoEntity {
     @Id(autoincrement = true)
     Long id;
 
-    int cardNo;
+    int cardno;
     String gsno;
     String gname;
     String gsex;
@@ -26,13 +26,15 @@ public class CardBlackListEntity {
     String deptId;
     int StatusId;
     String gno;
+
     long timestamp;
 
-    @Generated(hash = 1936596024)
-    public CardBlackListEntity(Long id, int cardNo, String gsno, String gname, String gsex,
-            String gdeptname, String deptId, int StatusId, String gno, long timestamp) {
+    @Generated(hash = 1367480891)
+    public PersonInfoEntity(Long id, int cardno, String gsno, String gname,
+            String gsex, String gdeptname, String deptId, int StatusId, String gno,
+            long timestamp) {
         this.id = id;
-        this.cardNo = cardNo;
+        this.cardno = cardno;
         this.gsno = gsno;
         this.gname = gname;
         this.gsex = gsex;
@@ -43,8 +45,8 @@ public class CardBlackListEntity {
         this.timestamp = timestamp;
     }
 
-    @Generated(hash = 1988478540)
-    public CardBlackListEntity() {
+    @Generated(hash = 958033728)
+    public PersonInfoEntity() {
     }
 
     public Long getId() {
@@ -55,12 +57,12 @@ public class CardBlackListEntity {
         this.id = id;
     }
 
-    public int getCardNo() {
-        return cardNo;
+    public int getCardno() {
+        return cardno;
     }
 
-    public void setCardNo(int cardNo) {
-        this.cardNo = cardNo;
+    public void setCardno(int cardno) {
+        this.cardno = cardno;
     }
 
     public String getGsno() {
@@ -69,22 +71,6 @@ public class CardBlackListEntity {
 
     public void setGsno(String gsno) {
         this.gsno = gsno;
-    }
-
-    public int getStatusId() {
-        return StatusId;
-    }
-
-    public void setStatusId(int statusId) {
-        this.StatusId = statusId;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
     }
 
     public String getGname() {
@@ -119,6 +105,14 @@ public class CardBlackListEntity {
         this.deptId = deptId;
     }
 
+    public int getStatusId() {
+        return StatusId;
+    }
+
+    public void setStatusId(int statusId) {
+        StatusId = statusId;
+    }
+
     public String getGno() {
         return gno;
     }
@@ -127,11 +121,20 @@ public class CardBlackListEntity {
         this.gno = gno;
     }
 
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+
     @Override
     public String toString() {
-        return "BlackListEntity{" +
+        return "PersonInfoEntity{" +
                 "id=" + id +
-                ", cardNo=" + cardNo +
+                ", cardno=" + cardno +
                 ", gsno='" + gsno + '\'' +
                 ", gname='" + gname + '\'' +
                 ", gsex='" + gsex + '\'' +

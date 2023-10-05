@@ -1,14 +1,26 @@
 package com.rankway.controller.activity.project;
 
+import android.app.AlertDialog;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbEndpoint;
+import android.hardware.usb.UsbInterface;
+import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -23,6 +35,7 @@ import com.google.android.flexbox.JustifyContent;
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.activity.project.dialog.PaymentDialog;
+import com.rankway.controller.activity.service.AppService;
 import com.rankway.controller.adapter.DishAdapter;
 import com.rankway.controller.adapter.DishSelectedAdapter;
 import com.rankway.controller.adapter.DishTypeAdapter;
@@ -37,9 +50,12 @@ import com.rankway.controller.printer.PrinterFactory;
 import com.rankway.controller.printer.PrinterUtils;
 import com.rankway.controller.utils.ClickUtil;
 import com.rankway.controller.utils.DateStringUtils;
+import com.rankway.controller.utils.HttpUtil;
 import com.rankway.sommerlibrary.utils.ToastUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class DeskPosPayMainActivity
@@ -77,8 +93,9 @@ public class DeskPosPayMainActivity
     private TextView tvTime;
     private TextView tvTotalCount;
     private TextView tvTotalAmount;
+    float fTotalAmount = 0;
 
-    private List<PaymentRecordEntity> records = new ArrayList<>();
+    private List<PaymentRecordEntity> payRecords = new ArrayList<>();
 
     private PaymentDialog paymentDialog = null;
 
@@ -86,7 +103,8 @@ public class DeskPosPayMainActivity
     private PaymentRecordEntity printPayRecord = null;
     private List<DishEntity> listPrintDishEntities = new ArrayList<>();
 
-    private PrinterBase printer = null;
+    private ImageView imgNetworkConnect;
+    private ImageView imgNetworkDisconnect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +161,9 @@ public class DeskPosPayMainActivity
         tvTime = findViewById(R.id.tvTime);
         tvTotalCount = findViewById(R.id.tvTotalCount);
         tvTotalAmount = findViewById(R.id.tvTotalAmount);
+
+        imgNetworkConnect = findViewById(R.id.imgNetworkConnect);
+        imgNetworkDisconnect = findViewById(R.id.imgNetworkDisconnect);
     }
 
     private void findViewIdSetOnClickListener(int[] ids){
@@ -155,19 +176,19 @@ public class DeskPosPayMainActivity
     private void initData() {
         Log.d(TAG,"initData");
 
-        listDishTypeEntities.clear();
-        listDishTypeEntities = getLocalDishType();
-        dishTypeAdapter.notifyDataSetChanged();
-
-        listDishEntities.clear();
-        if(listDishTypeEntities.size()>0){
-            listDishEntities = getLocalDish(listDishTypeEntities.get(0));
-        }
-        dishAdapter.notifyDataSetChanged();
-
         listSelectedDishEntities.clear();
         selectedAdapter.notifyDataSetChanged();
         refreshSubTotal();
+
+        tvTime.setText(String.format("时间：%s", DateStringUtils.getCurrentTime()));
+        mHandler.sendEmptyMessageDelayed(121,1000);
+
+        startAppService();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         posInfoBean = getPosInfoBean();
         if (null == posInfoBean) {
@@ -175,18 +196,61 @@ public class DeskPosPayMainActivity
             startActivity(MobilePosSettingsActivity.class);
             return;
         }
-
         tvPosNo.setText(String.format("POS号：%s",posInfoBean.getCposno()));
 
-        tvTime.setText(String.format("时间：%s", DateStringUtils.getCurrentTime()));
-        mHandler.sendEmptyMessageDelayed(121,1000);
+        //  菜品种类
+        listDishTypeEntities.clear();
+        List<DishTypeEntity> dishTypeList = getLocalDishType();
+        Log.d(TAG,"dishTypeList "+dishTypeList.size());
+        if(dishTypeList.size()>0) listDishTypeEntities.addAll(dishTypeList);
+        dishTypeAdapter.notifyDataSetChanged();
 
-        printer = PrinterFactory.getPrinter(mContext);
-        int ret = printer.openPrinter();
-        if(0!=ret){
-            playSound(false);
-            showLongToast("打印机初始化失败，请检查连接");
+        //  菜品明细（选中第一个）
+        listDishEntities.clear();
+        if(listDishTypeEntities.size()>0){
+            List<DishEntity> dishList = getLocalDish(listDishTypeEntities.get(0));
+            if(dishList.size()>0) listDishEntities.addAll(dishList);
         }
+        if(listDishEntities.size()>0){
+            dishRecyclerView.setVisibility(View.VISIBLE);
+            noDishView.setVisibility(View.GONE);
+            dishAdapter.notifyDataSetChanged();
+        }else{
+            dishRecyclerView.setVisibility(View.GONE);
+            noDishView.setVisibility(View.VISIBLE);
+        }
+
+        //  刷新合计
+        fTotalAmount = 0;
+        for(PaymentRecordEntity record:payRecords) fTotalAmount = fTotalAmount + record.getAmount();
+        refreshTotalCount();
+
+        //  在线，离线标志
+        if(HttpUtil.isOnline){
+            imgNetworkConnect.setVisibility(View.VISIBLE);
+            imgNetworkDisconnect.setVisibility(View.GONE);
+        }else{
+            imgNetworkConnect.setVisibility(View.GONE);
+            imgNetworkDisconnect.setVisibility(View.VISIBLE);
+
+            showLongToast("设备离线运行，请检查网络！");
+            playSound(false);
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Log.d(TAG,"onKeyDown "+keyCode);
+
+        //  右下角返回键
+        if (KeyEvent.KEYCODE_BACK == keyCode) {
+            return true;
+        }
+        if(KeyEvent.KEYCODE_HOME == keyCode){
+            return true;
+        }
+
+        return super.onKeyUp(keyCode, event);
     }
 
     private void setLayoutManager(RecyclerView mRecyclerView){
@@ -206,9 +270,12 @@ public class DeskPosPayMainActivity
     protected void onDestroy() {
         super.onDestroy();
 
-        //  关闭打印机
-        if(null!=printer) printer.closePrinter();
-        printer = null;
+        //  停止服务
+        stopAppService();
+
+        detSleep(100);
+
+        System.exit(0);
     }
 
 
@@ -221,7 +288,7 @@ public class DeskPosPayMainActivity
 
         switch (v.getId()){
             case R.id.tvExit:
-                finish();
+                finishPrompt();
                 break;
 
             case R.id.tvClearSelected:
@@ -234,25 +301,31 @@ public class DeskPosPayMainActivity
                 if(listSelectedDishEntities.size()==0) return;
                 if(selectedDishPosition==-1) return;
 
-                setDishQuatityDialog("请输入菜品数量:",selectedDishPosition);
+                setDishQuatityDialog("请输入[%s]数量:",selectedDishPosition);
                 break;
 
             case R.id.tvCardPay:
-                paymentDialog = new PaymentDialog(mContext,this,posInfoBean,PaymentDialog.PAY_MODE_CARD,0);
-                paymentDialog.setOnPaymentResultListner(this);
-                paymentDialog.show(getSupportFragmentManager(),"iccard pay");
+                if(listSelectedDishEntities.size()==0) return;
+                showPaymentDialog(PaymentDialog.PAY_MODE_CARD);
                 break;
 
             case R.id.tvQRPay:
-                paymentDialog = new PaymentDialog(mContext,this,posInfoBean,PaymentDialog.PAY_MODE_QRCODE,0);
-                paymentDialog.setOnPaymentResultListner(this);
-                paymentDialog.show(getSupportFragmentManager(),"qrcode pay");
+                if(listSelectedDishEntities.size()==0) return;
+                showPaymentDialog(PaymentDialog.PAY_MODE_QRCODE);
                 break;
 
             case R.id.tvPrintAgain:
-                if(null!=printPayRecord){
+                if(null==printPayRecord) break;
+
+                PrinterBase printer = PrinterFactory.getPrinter(mContext);
+                int ret = printer.openPrinter();
+                if(0!=ret){
+                    playSound(false);
+                    showLongToast("打印机初始化失败，请检查连接");
+                }else {
                     PrinterUtils printerUtils = new PrinterUtils();
-                    printerUtils.printPayItem(printer,posInfoBean,printPayRecord, listPrintDishEntities);
+                    printerUtils.printPayItem(printer, posInfoBean, printPayRecord, listPrintDishEntities);
+                    printer.closePrinter();
                 }
                 break;
 
@@ -261,6 +334,7 @@ public class DeskPosPayMainActivity
                 break;
         }
     }
+
 
     @Override
     public void onDishTypeItemClick(View view, int position) {
@@ -271,10 +345,12 @@ public class DeskPosPayMainActivity
 
         DishTypeEntity dishTypeEntity = listDishTypeEntities.get(position);
         listDishEntities.clear();
-        listDishEntities = getLocalDish(dishTypeEntity);
-        if(listDishEntities.size()>0){
+
+        List<DishEntity> dishList = getLocalDish(dishTypeEntity);
+        if(dishList.size()>0){
             dishRecyclerView.setVisibility(View.VISIBLE);
             noDishView.setVisibility(View.GONE);
+            listDishEntities.addAll(dishList);
         }else{
             dishRecyclerView.setVisibility(View.GONE);
             noDishView.setVisibility(View.VISIBLE);
@@ -287,11 +363,14 @@ public class DeskPosPayMainActivity
         Log.d(TAG,"onDishItemClick "+ position);
         DishEntity dishEntity = listDishEntities.get(position);
 
+        dishEntity.setCount(1);
         listSelectedDishEntities.add(dishEntity);
 
         dishRecyclerView.scrollToPosition(listSelectedDishEntities.size()-1);
         selectedAdapter.setSelectedItem(listSelectedDishEntities.size()-1);
         selectedAdapter.notifyDataSetChanged();
+
+        selectedDishPosition = selectedAdapter.getSelectedItem();
 
         refreshSubTotal();
     }
@@ -343,7 +422,7 @@ public class DeskPosPayMainActivity
         int[] location = new int[2];
         view.getLocationInWindow(location);
         View popuView = getLayoutInflater().inflate(R.layout.popuwindow_view, null, false);
-        PopupWindow popupWindow = new PopupWindow(popuView, 400, 800);
+        PopupWindow popupWindow = new PopupWindow(popuView, 200, 300);
         popupWindow.setFocusable(true);
 
         TextView vw = popuView.findViewById(R.id.delete_item);
@@ -357,6 +436,7 @@ public class DeskPosPayMainActivity
                     popupWindow.dismiss();
                 }
                 listSelectedDishEntities.remove(index);
+                selectedAdapter.notifyDataSetChanged();
 
                 refreshSubTotal();
 
@@ -374,7 +454,7 @@ public class DeskPosPayMainActivity
                 // 设置数量
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
-                    setDishQuatityDialog("请输入菜品数量:",index);
+                    setDishQuatityDialog("请输入[%s]数量:",index);
                 }
             }
         });
@@ -391,46 +471,60 @@ public class DeskPosPayMainActivity
     private void setDishQuatityDialog(String title,int position){
         Log.d(TAG,"setDishQuatityDialog");
 
-        View view = getLayoutInflater().inflate(R.layout.input_dialog_view,null,false);
-        TextView textView = view.findViewById(R.id.tvTitle);
-        textView.setText(title);
-        EditText editText =view.findViewById(R.id.inputEditText);
+        DishEntity dishEntity = null;
+
+        try {
+            dishEntity = listSelectedDishEntities.get(position);
+        }catch (Exception e){
+            e.printStackTrace();
+            return;
+        }
+        if(dishEntity==null) return;
+
+        // 展示提示框，进行数据输入
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.input_dialog_view, null);
+        TextView tvTitle = view.findViewById(R.id.tvTitle);
+        tvTitle.setText(String.format(title,dishEntity.getDishName()));
+
+        EditText editText = view.findViewById(R.id.inputEditText);
         editText.setInputType(EditorInfo.TYPE_CLASS_NUMBER);
         editText.setFilters(new InputFilter[]{
                 new InputFilter.LengthFilter(2)
         });
 
-        showDialogMessage(null, null,
-                "确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String str = editText.getText().toString().trim();
-                        int count = 0;
-                        try {
-                            count = Integer.parseInt(str);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            ToastUtils.showShort(mContext, "输入无效！");
-                            playSound(false);
-                            return;
-                        }
-                        dialog.dismiss();
+        builder.setView(view);
+        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String str = editText.getText().toString().trim();
+                int count = 0;
+                try {
+                    count = Integer.parseInt(str);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    ToastUtils.showShort(mContext, "输入无效！");
+                    playSound(false);
+                    return;
+                }
+                dialog.dismiss();
 
-                        DishEntity dishEntity = listSelectedDishEntities.get(position);
-                        dishEntity.setCount(count);
-                        selectedAdapter.notifyDataSetChanged();
+                DishEntity item = listSelectedDishEntities.get(position);
+                item.setCount(count);
+                selectedAdapter.notifyDataSetChanged();
 
-                        refreshSubTotal();
-                    }
-                },
-                "取消", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                },
-                view);
+                refreshSubTotal();
+                playSound(true);
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
 
+        builder.create().show();
     }
 
 
@@ -449,7 +543,7 @@ public class DeskPosPayMainActivity
     };
 
     @Override
-    public void onPaymentSuccess(PaymentRecordEntity record) {
+    public void onPaymentSuccess(int flag,PaymentRecordEntity record) {
         Log.d(TAG,"onPaymentSuccess "+record.toString());
         int n = 1;
 
@@ -461,25 +555,196 @@ public class DeskPosPayMainActivity
         }
         DBManager.getInstance().getPaymentItemEntityDao().saveInTx(items);
 
-        //  清除缓存信息
-        listSelectedDishEntities.clear();
-        selectedAdapter.notifyDataSetChanged();
-
-        refreshSubTotal();
-
         //  缓存打印信息
         printPayRecord = record;
         listPrintDishEntities.clear();
         listPrintDishEntities.addAll(listSelectedDishEntities);
 
+        //  清除缓存信息
+        listSelectedDishEntities.clear();
+        selectedAdapter.notifyDataSetChanged();
+        refreshSubTotal();
+
         //  打印
-        PrinterUtils printerUtils = new PrinterUtils();
-        printerUtils.printPayItem(printer,posInfoBean,printPayRecord, listPrintDishEntities);
+        PrinterBase printer = PrinterFactory.getPrinter(mContext);
+        int ret = printer.openPrinter();
+        if(0!=ret){
+            playSound(false);
+            showLongToast("打印机初始化失败，请检查连接");
+        }else{
+            //  打印
+            PrinterUtils printerUtils = new PrinterUtils();
+            printerUtils.printPayItem(printer,posInfoBean,printPayRecord, listPrintDishEntities);
+            detSleep(100);
+            printer.closePrinter();
+        }
+
+        if(HttpUtil.isOnline){
+            imgNetworkConnect.setVisibility(View.VISIBLE);
+            imgNetworkDisconnect.setVisibility(View.GONE);
+        }else{
+            imgNetworkConnect.setVisibility(View.GONE);
+            imgNetworkDisconnect.setVisibility(View.VISIBLE);
+        }
+
+        //  缓存
+        payRecords.add(record);
+
+        fTotalAmount = fTotalAmount + record.getAmount();
+        refreshTotalCount();
     }
 
+    private void refreshTotalCount(){
+        tvTotalCount.setText("总数："+payRecords.size());
+        tvTotalAmount.setText(String.format("总金额：%.2f",fTotalAmount));
+    }
     @Override
     public void onPaymentCancel() {
         Log.d(TAG,"onPaymentCancel 取消支付");
         playSound(false);
+    }
+
+
+    private AppService appService = null;
+    /***
+     * 服务回调函数
+     */
+    private ServiceConnection appServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(TAG, "AppService服务连接");
+            AppService.AppBinder appBinder = (AppService.AppBinder) service;
+            if (null == appBinder) return;
+
+            appService = appBinder.getService();
+            if (null == appService) return;
+
+            appService.setObjects(mContext, DeskPosPayMainActivity.this);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.d(TAG, "AppService服务停止");
+        }
+    };
+
+    /***
+     * 启动本地服务AppService
+     */
+    private void startAppService() {
+        Log.d(TAG, "startAppService");
+        Intent intentService = new Intent(this, AppService.class);
+        intentService.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intentService.setAction("scott");
+        //  绑定启动服务
+        //  onCreate()->onBind()->onStartCommand()
+        bindService(intentService, appServiceConnection, BIND_AUTO_CREATE);
+        startService(intentService);
+    }
+
+    /***
+     * 停止本地服务AppService
+     */
+    private void stopAppService() {
+        Log.d(TAG, "stopAppService");
+        Intent intentService = new Intent(DeskPosPayMainActivity.this, AppService.class);
+        //  解绑停止服务
+        //  onBind()->onDestroy()
+        if (appService != null) {
+            appService = null;
+            unbindService(appServiceConnection);
+        }
+        stopService(intentService);
+    }
+
+
+    private void enumAllUsbDevice(){
+        Log.d(TAG,"enumAllUsbDevice");
+
+        UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
+        Log.d(TAG,"UsbDeviceCount: "+deviceList.size());
+
+        Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
+        while(deviceIterator.hasNext()) {
+            UsbDevice device = deviceIterator.next();
+            if(null!=device) Log.d(TAG,devicesString(device));
+
+            //获取设备接口
+            for (int i = 0; i < device.getInterfaceCount(); ) {
+                // 一般来说一个设备都是一个接口，你可以通过getInterfaceCount()查看接口的个数
+                // 这个接口上有两个端点，分别对应OUT 和 IN
+                UsbInterface usbInterface = device.getInterface(i);
+                if(null==usbInterface) continue;
+
+                Log.d(TAG,"UsbInterface Id:"+usbInterface.getId()+" Name:"+usbInterface.getName()
+                        + " Class:"+usbInterface.getClass()+" Procotocol:"+usbInterface.getInterfaceProtocol()
+                        +" EndPointCount:"+usbInterface.getEndpointCount());
+
+                for(int j=0;j< usbInterface.getEndpointCount();j++){
+                    UsbEndpoint endpoint = usbInterface.getEndpoint(j);
+                    if(endpoint==null) continue;
+
+                    Log.d(TAG,"UsbEndpoint Address:"+endpoint.getAddress() +
+                            " Attributes:"+endpoint.getAttributes() +
+                            " Direction:"+endpoint.getDirection());
+                }
+                break;
+            }
+        }
+    }
+
+    private String devicesString(UsbDevice device){
+        StringBuilder builder = new StringBuilder("UsbDevice Name=" + device.getDeviceName() +
+                " VendorId=" + device.getVendorId() + " ProductId=" + device.getProductId() +
+                " mClass=" + device.getClass() + " mSubclass=" + device.getDeviceSubclass() +
+                " mProtocol=" + device.getDeviceProtocol() + " mManufacturerName=" +" mSerialNumber=" +
+                " InterfaceCount="+device.getInterfaceCount() +
+                "  ");
+        return builder.toString();
+    }
+
+    /***
+     * 显示支付对话框
+     * @param type
+     */
+    private void showPaymentDialog(int type){
+        Log.d(TAG,"showPaymentDialog");
+
+        int nAmount = 0;
+        for(DishEntity dishEntity:listSelectedDishEntities){
+            nAmount = nAmount + dishEntity.getSubAmount();
+        }
+
+        paymentDialog = new PaymentDialog(mContext,this,posInfoBean,type,nAmount);
+        paymentDialog.setOnPaymentResultListner(this);
+        if(type==PaymentDialog.PAY_MODE_QRCODE) {
+            paymentDialog.show(getSupportFragmentManager(), "qrcode pay");
+        }else{
+            paymentDialog.show(getSupportFragmentManager(),"iccard pay");
+        }
+    }
+
+    /***
+     * 询问是否退出APP
+     */
+    private void finishPrompt() {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setCancelable(false);
+        builder.setMessage("是否要退出APP？");
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+        builder.create().show();
+        return;
     }
 }
