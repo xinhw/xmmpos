@@ -278,7 +278,6 @@ public class DeskPosPayMainActivity
         System.exit(0);
     }
 
-
     @Override
     public void onClick(View v) {
         if(ClickUtil.isFastDoubleClick(v.getId())){
@@ -335,7 +334,6 @@ public class DeskPosPayMainActivity
         }
     }
 
-
     @Override
     public void onDishTypeItemClick(View view, int position) {
         Log.d(TAG,"onDishTypeItemClick "+ position);
@@ -391,7 +389,6 @@ public class DeskPosPayMainActivity
         tvSubCount.setText(listSelectedDishEntities.size()+"");
         tvSubAmount.setText(String.format("%.2f",totoalAmount*0.01));
     }
-
 
     @Override
     public void onSelectedDishItemClick(View view, int position) {
@@ -527,7 +524,6 @@ public class DeskPosPayMainActivity
         builder.create().show();
     }
 
-
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -603,7 +599,6 @@ public class DeskPosPayMainActivity
         Log.d(TAG,"onPaymentCancel 取消支付");
         playSound(false);
     }
-
 
     private AppService appService = null;
     /***

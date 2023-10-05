@@ -54,7 +54,6 @@ public class DeskPosLoginActivity
         initData();
 
         DetLog.writeLog(TAG,"程序启动");
-        newTestDish();
     }
 
     private void initView() {
@@ -195,7 +194,6 @@ public class DeskPosLoginActivity
         AsynSyncData task = new AsynSyncData();
         task.execute();
     }
-
 
     /***
      * 后台同步数据的异步任务

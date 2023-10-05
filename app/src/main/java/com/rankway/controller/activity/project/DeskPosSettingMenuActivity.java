@@ -91,6 +91,4 @@ public class DeskPosSettingMenuActivity
 
         return super.onKeyUp(keyCode, event);
     }
-
-
 }

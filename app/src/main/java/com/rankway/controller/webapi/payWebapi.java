@@ -1231,6 +1231,7 @@ public class payWebapi {
             //  重复的返回
             //  {"Result":{"cno":"47031425","cposno":"20001","cpostype":null,"cpayway":null,"cusercode":"90001","cardno":18985,"cdate":"2023-10-05T19:34:19.542+08:00",
             //  "cmoney":1.2,"cremain":0.0,"cnote":null,"typeid":100,"localtime":null,"SystemID":0,"personinfo":null},"errcode":409,"errmsg":"数据冲突"}
+            //  需要比较一下cardno,cdate,cmoney是否一样，如果一样就认为成功
             if(errCode==409) return 0;
 
             return errCode;

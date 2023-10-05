@@ -1,5 +1,6 @@
 package com.rankway.controller.activity.project;
 
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -96,6 +97,9 @@ public class DeskPosAuxillaryMenuActivity
         }
     }
 
+    /***
+     * 同步服务端信息
+     */
     private class AsynSyncData extends AsyncTask<String, Integer, Integer> {
         @Override
         protected void onPreExecute() {
@@ -180,7 +184,12 @@ public class DeskPosAuxillaryMenuActivity
     }
 
 
+    /***
+     * 上传离线交易数据异步任务
+     */
     private class AsynUploadTask extends AsyncTask<String, Integer, Integer> {
+        int cardOfflineCount = 0,cardOfflineSuccess=0;
+        int qrOfflineCount = 0,qrOfflineSuccess=0;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -205,7 +214,9 @@ public class DeskPosAuxillaryMenuActivity
                     .where(PaymentRecordEntityDao.Properties.QrType.eq(0))
                     .list();
             if(listCardRecord.size()>0){
-                Log.d(TAG,"未上传IC卡离线交易个数："+listCardRecord.size());
+                cardOfflineCount = listCardRecord.size();
+                Log.d(TAG,"未上传IC卡离线交易个数："+cardOfflineCount);
+                cardOfflineSuccess = 0;
 
                 int n = 0;
                 sendProccessMessage("上传 IC卡离线交易，请稍等...");
@@ -222,10 +233,11 @@ public class DeskPosAuxillaryMenuActivity
                         record.setUploadFlag(1);
                         record.setUploadTime(new Date());
                         DBManager.getInstance().getPaymentRecordEntityDao().save(record);
+
+                        cardOfflineCount++;
                     }
                 }
             }
-
 
             //  5.2 未上传的QR记录
             List<PaymentRecordEntity> listQrRecord = DBManager.getInstance().getPaymentRecordEntityDao()
@@ -234,7 +246,9 @@ public class DeskPosAuxillaryMenuActivity
                     .where(PaymentRecordEntityDao.Properties.QrType.notEq(0))
                     .list();
             if(listQrRecord.size()>0){
-                Log.d(TAG,"未上传二维码离线交易个数："+listQrRecord.size());
+                qrOfflineCount = listQrRecord.size();
+                Log.d(TAG,"未上传二维码离线交易个数："+qrOfflineCount);
+                qrOfflineSuccess = 0;
                 int n = 0;
                 sendProccessMessage("上传 二维码离线交易，请稍等...");
                 for(PaymentRecordEntity record:listQrRecord){
@@ -250,6 +264,8 @@ public class DeskPosAuxillaryMenuActivity
                         record.setUploadFlag(1);
                         record.setUploadTime(new Date());
                         DBManager.getInstance().getPaymentRecordEntityDao().save(record);
+
+                        qrOfflineSuccess++;
                     }
                 }
             }
@@ -261,6 +277,33 @@ public class DeskPosAuxillaryMenuActivity
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
             missProDialog();
+
+            //  显示上送信息
+            if((cardOfflineCount+qrOfflineCount)>0){
+                int n = cardOfflineCount+qrOfflineCount;
+                int m = cardOfflineSuccess+qrOfflineSuccess;
+
+                if(m>0){
+                    playSound(true);
+                }else{
+                    playSound(false);
+                }
+
+                String msg = String.format("共计 %d 离线交易，成功上传 %d",n,m);
+                showDialogMessage("上送", msg,
+                        "确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        },
+                        "取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+            }
         }
     }
 

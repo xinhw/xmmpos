@@ -1,5 +1,6 @@
 package com.rankway.sommerlibrary.exception;
 
+
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -16,8 +17,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MyCrashHandler implements Thread.UncaughtExceptionHandler {
-    private final String TAG="MyCrashHandler";
-
     @Override
     public void uncaughtException(Thread t, Throwable e) {
         Log.e("程序出现异常了", "Thread = " + t.getName() + "\nThrowable = " + e.getMessage());
@@ -25,7 +24,7 @@ public class MyCrashHandler implements Thread.UncaughtExceptionHandler {
         Log.e("stackTraceInfo", stackTraceInfo);
         saveThrowableMessage(stackTraceInfo);
     }
-   /**
+    /**
      * 获取错误的信息
      *
      * @param throwable
@@ -65,13 +64,45 @@ public class MyCrashHandler implements Thread.UncaughtExceptionHandler {
         }
     }
 
-
     private void writeStringToFile(final String errorMessage, final File file) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG,"崩溃日志："+logFilePath+"\t内容："+errorMessage);
-
+//                FileOutputStream outputStream = null;
+//                try {
+//                    ByteArrayInputStream inputStream = new ByteArrayInputStream(errorMessage.getBytes());
+//
+//                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+//                    Date dtnow = new Date();
+//                    String filename = String.format("Semicon_%s.log",simpleDateFormat.format(dtnow));
+////                    outputStream = new FileOutputStream(new File(file, System.currentTimeMillis() + ".txt"));
+//                    outputStream = new FileOutputStream(new File(file, filename));
+//
+//                    simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//                    String error = "Crash发生在："+simpleDateFormat.format(dtnow);
+//                    byte[] arrerror = error.getBytes();
+//                    outputStream.write(arrerror);
+//
+//                    int len = 0;
+//                    byte[] bytes = new byte[1024];
+//                    while ((len = inputStream.read(bytes)) != -1) {
+//                        outputStream.write(bytes, 0, len);
+//                    }
+//                    outputStream.flush();
+//                    Log.e("程序出异常了", "写入本地文件成功：" + file.getAbsolutePath());
+//                } catch (FileNotFoundException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                } finally {
+//                    if (outputStream != null) {
+//                        try {
+//                            outputStream.close();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
                 writeCrashLog(errorMessage);
             }
 

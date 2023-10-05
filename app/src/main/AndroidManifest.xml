@@ -85,18 +85,6 @@
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".activity.project.PayActivity"
-            android:exported="true">
-
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-            <!-- <action android:name="android.nfc.action.TECH_DISCOVERED" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
-        </activity>
-        <activity
             android:name=".activity.project.MobilePosSettingMenuActivity"
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBar" />
