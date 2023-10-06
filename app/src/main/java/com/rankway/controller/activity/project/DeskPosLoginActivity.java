@@ -25,7 +25,7 @@ import com.rankway.controller.persistence.entity.QrBlackListEntity;
 import com.rankway.controller.persistence.entity.UserInfoEntity;
 import com.rankway.controller.persistence.gen.UserInfoEntityDao;
 import com.rankway.controller.utils.ClickUtil;
-import com.rankway.controller.webapi.Result;
+import com.rankway.controller.webapi.menu.Result;
 import com.rankway.controller.webapi.payWebapi;
 
 import org.apache.commons.lang3.StringUtils;
@@ -218,6 +218,9 @@ public class DeskPosLoginActivity
             if(null!=posInfoBean){
                 obj.setServerIP(posInfoBean.getServerIP());
                 obj.setPortNo(posInfoBean.getPortNo());
+
+                obj.setMenuServerIP(posInfoBean.getMenuServerIP());
+                obj.setMenuPortNo(posInfoBean.getMenuPortNo());
             }
 
             //  1. 操作员信息

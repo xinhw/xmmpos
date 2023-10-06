@@ -51,6 +51,25 @@
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_marginTop="5dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvExit"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
+                android:text="注销"
+                android:textSize="16sp"
+                android:textColor="@color/red"
+                android:background="@color/lightskyblue"
+                android:gravity="center"/>
+        </LinearLayout>
+
         <LinearLayout
            android:layout_width="0dp"
            android:layout_weight="5"
@@ -82,64 +101,49 @@
         </LinearLayout>
 
         <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="4"
-        android:layout_height="match_parent">
-        <TextView
-            android:id="@+id/tvTotalCount"
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:text="总数：235"
-            android:textSize="14sp"
-            android:paddingLeft="5dp"
-            android:textColor="@color/black"
-            android:background="@drawable/seleted_status"
-            android:gravity="center|left"/>
+            android:layout_weight="4"
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/imgNetworkConnect"
+                android:layout_width="0dp"
+                android:layout_weight="0.2"
+                android:layout_height="wrap_content"
+                android:background="@drawable/network_connect"/>
+            <ImageView
+                android:id="@+id/imgNetworkDisconnect"
+                android:layout_width="0dp"
+                android:layout_weight="0.2"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:background="@drawable/network_disconnect"/>
 
-        <TextView
-            android:id="@+id/tvTotalAmount"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:text="总金额：2304.00"
-            android:textSize="14sp"
-            android:paddingLeft="5dp"
-            android:textColor="@color/black"
-            android:background="@drawable/seleted_status"
-            android:gravity="center|left"/>
+            <TextView
+                android:id="@+id/tvTotalCount"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:text="总数：235"
+                android:textSize="14sp"
+                android:paddingLeft="5dp"
+                android:textColor="@color/black"
+                android:background="@drawable/seleted_status"
+                android:gravity="center|left"/>
 
-        <ImageView
-            android:id="@+id/imgNetworkConnect"
-            android:layout_width="0dp"
-            android:layout_weight="0.2"
-            android:layout_height="wrap_content"
-            android:background="@drawable/network_connect"/>
-        <ImageView
-            android:id="@+id/imgNetworkDisconnect"
-            android:layout_width="0dp"
-            android:layout_weight="0.2"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:background="@drawable/network_disconnect"/>
+            <TextView
+                android:id="@+id/tvTotalAmount"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:text="总金额：2304.00"
+                android:textSize="14sp"
+                android:paddingLeft="5dp"
+                android:textColor="@color/black"
+                android:background="@drawable/seleted_status"
+                android:gravity="center|left"/>
         </LinearLayout>
 
-        <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/tvExit"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:text="注销"
-            android:textSize="16sp"
-            android:textColor="@color/red"
-            android:background="@drawable/seleted_status"
-            android:gravity="center"/>
-        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -184,7 +188,7 @@
                         android:text="序号" />
 
                     <View
-                        android:layout_width="0.5dp"
+                        android:layout_width="0.2dp"
                         android:layout_height="match_parent"
                         android:background="@color/btn_gray_normal" />
 
@@ -201,7 +205,7 @@
                         android:text="菜名" />
 
                     <View
-                        android:layout_width="0.5dp"
+                        android:layout_width="0.2dp"
                         android:layout_height="match_parent"
                         android:background="@color/btn_gray_normal" />
 
@@ -216,7 +220,7 @@
                         android:text="单价" />
 
                     <View
-                        android:layout_width="0.5dp"
+                        android:layout_width="0.2dp"
                         android:layout_height="match_parent"
                         android:background="@color/btn_gray_normal" />
 
@@ -231,7 +235,7 @@
                         android:text="数量" />
 
                     <View
-                        android:layout_width="0.5dp"
+                        android:layout_width="0.2dp"
                         android:layout_height="match_parent"
                         android:background="@color/btn_gray_normal" />
 

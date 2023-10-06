@@ -67,7 +67,8 @@ public class MobilePosSettingsActivity
     private TextView tvServerPort;
     private TextView tvHttpTimeout;
     private TextView tvOfflineMaxAmount;
-
+    private TextView menuServerIP;
+    private TextView menuServerPort;
 
     private  boolean passAdvancedPassword = false;
 
@@ -87,7 +88,8 @@ public class MobilePosSettingsActivity
                 R.id.viewServerIP,R.id.viewServerPort,
                 R.id.upload_log,R.id.about,
                 R.id.recover_data,
-                R.id.tvHttpTimeout,R.id.tvOfflineMaxAmount};
+                R.id.tvHttpTimeout,R.id.tvOfflineMaxAmount,
+                R.id.menuServerIP,R.id.menuServerPort};
         setOnClickListener(viewIds);
 
         tvPosName = findViewById(R.id.posname);
@@ -98,6 +100,9 @@ public class MobilePosSettingsActivity
         tvServerPort = findViewById(R.id.serverPort);
         tvHttpTimeout = findViewById(R.id.tvHttpTimeout);
         tvOfflineMaxAmount = findViewById(R.id.tvOfflineMaxAmount);
+
+        menuServerIP = findViewById(R.id.menuServerIP);
+        menuServerPort = findViewById(R.id.menuServerPort);
     }
 
     protected void setOnClickListener(int[] viewIds){
@@ -120,6 +125,8 @@ public class MobilePosSettingsActivity
             tvAuditNo.setText(str);
             tvServerIP.setText(str);
             tvServerPort.setText(str);
+            menuServerIP.setText("");
+            menuServerPort.setText("");
         }else{
             tvPosName.setText(infoBean.getCposno());
             tvPosNo.setText(infoBean.getCposno());
@@ -127,6 +134,8 @@ public class MobilePosSettingsActivity
             tvAuditNo.setText(infoBean.getAuditNo()+"");
             tvServerIP.setText(infoBean.getServerIP());
             tvServerPort.setText(infoBean.getPortNo()+"");
+            menuServerIP.setText(infoBean.getMenuServerIP());
+            menuServerPort.setText(infoBean.getMenuPortNo()+"");
         }
 
         //  通信超时
@@ -174,6 +183,8 @@ public class MobilePosSettingsActivity
             case R.id.viewServerPort:
             case R.id.tvHttpTimeout:
             case R.id.tvOfflineMaxAmount:
+            case R.id.menuServerIP:
+            case R.id.menuServerPort:
                 showAdvanedSetting(v.getId());
                 break;
 
@@ -409,7 +420,7 @@ public class MobilePosSettingsActivity
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_intput, null);
         EditText editPossword = view.findViewById(R.id.edit_msg);
-        editPossword.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+        editPossword.setInputType(InputType.TYPE_CLASS_NUMBER);
         builder.setView(view);
         builder.setTitle("请输入设置密码:");
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -478,6 +489,24 @@ public class MobilePosSettingsActivity
                 });
                 break;
 
+            case R.id.menuServerIP:
+                builder.setTitle("请设置服务器IP：");
+                editMsg.setInputType(InputType.TYPE_CLASS_TEXT);
+                String digits1 = "0123456789.";
+                editMsg.setKeyListener(DigitsKeyListener.getInstance(digits1));
+                editMsg.setFilters(new InputFilter[]{
+                        new InputFilter.LengthFilter(15)
+                });
+                break;
+
+            case R.id.menuServerPort:
+                builder.setTitle("请设置服务器端口：");
+                editMsg.setInputType(InputType.TYPE_CLASS_NUMBER);
+                editMsg.setFilters(new InputFilter[]{
+                        new InputFilter.LengthFilter(5)
+                });
+                break;
+
             case R.id.tvHttpTimeout:
                 builder.setTitle("请通信超时时间(ms)：");
                 editMsg.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -526,6 +555,16 @@ public class MobilePosSettingsActivity
                     case R.id.viewServerPort:
                         tvServerPort.setText(msg);
                         bean.setPortNo(Integer.parseInt(msg));
+                        break;
+
+                    case R.id.menuServerIP:
+                        menuServerIP.setText(msg);
+                        bean.setMenuServerIP(msg);
+                        break;
+
+                    case R.id.menuServerPort:
+                        menuServerPort.setText(msg);
+                        bean.setMenuPortNo(Integer.parseInt(msg));
                         break;
 
                     case R.id.tvHttpTimeout:

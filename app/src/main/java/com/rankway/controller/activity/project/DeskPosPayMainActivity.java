@@ -40,10 +40,8 @@ import com.rankway.controller.adapter.DishAdapter;
 import com.rankway.controller.adapter.DishSelectedAdapter;
 import com.rankway.controller.adapter.DishTypeAdapter;
 import com.rankway.controller.dto.PosInfoBean;
-import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.DishEntity;
 import com.rankway.controller.persistence.entity.DishTypeEntity;
-import com.rankway.controller.persistence.entity.PaymentItemEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.printer.PrinterBase;
 import com.rankway.controller.printer.PrinterFactory;
@@ -541,15 +539,6 @@ public class DeskPosPayMainActivity
     @Override
     public void onPaymentSuccess(int flag,PaymentRecordEntity record) {
         Log.d(TAG,"onPaymentSuccess "+record.toString());
-        int n = 1;
-
-        List<PaymentItemEntity> items = new ArrayList<>();
-        for(DishEntity dishEntity : listSelectedDishEntities){
-            PaymentItemEntity item = new PaymentItemEntity(n,record.getId(), dishEntity);
-            items.add(item);
-            n++;
-        }
-        DBManager.getInstance().getPaymentItemEntityDao().saveInTx(items);
 
         //  缓存打印信息
         printPayRecord = record;
@@ -713,6 +702,7 @@ public class DeskPosPayMainActivity
 
         paymentDialog = new PaymentDialog(mContext,this,posInfoBean,type,nAmount);
         paymentDialog.setOnPaymentResultListner(this);
+        paymentDialog.setListDishes(listSelectedDishEntities);
         if(type==PaymentDialog.PAY_MODE_QRCODE) {
             paymentDialog.show(getSupportFragmentManager(), "qrcode pay");
         }else{

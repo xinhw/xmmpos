@@ -73,18 +73,24 @@ import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.DishEntity;
 import com.rankway.controller.persistence.entity.DishTypeEntity;
 import com.rankway.controller.persistence.entity.MessageDetail;
+import com.rankway.controller.persistence.entity.PaymentItemEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.persistence.entity.SemiEventEntity;
 import com.rankway.controller.persistence.gen.DishEntityDao;
 import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
+import com.rankway.controller.persistence.gen.PaymentTotalDao;
 import com.rankway.controller.persistence.gen.SemiEventEntityDao;
 import com.rankway.controller.pushmessage.ETEKMessageProcess;
 import com.rankway.controller.utils.AppUtils;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.DateStringUtils;
+import com.rankway.controller.utils.HttpUtil;
 import com.rankway.controller.utils.UpdateAppUtils;
 import com.rankway.controller.utils.VibrateUtil;
-import com.rankway.controller.webapi.Result;
+import com.rankway.controller.webapi.menu.Dish;
+import com.rankway.controller.webapi.menu.DishType;
+import com.rankway.controller.webapi.menu.Result;
 import com.rankway.controller.webapi.payWebapi;
 import com.rankway.controller.widget.MyAlertDialog;
 import com.rankway.sommerlibrary.R;
@@ -1350,6 +1356,8 @@ public class BaseActivity extends AppCompatActivity {
      * 上送离线消费交易数据
      */
     public void uploadOfflineRecords() {
+        Log.d(TAG,"uploadOfflineRecords");
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -1367,57 +1375,9 @@ public class BaseActivity extends AppCompatActivity {
 //                        autoUpdateData();
 //                    }
 //                    ///////////////////////////////////////////////////////////////////////////////////
+                    //  uploadPaymentRecords
 
-                    payWebapi obj = payWebapi.getInstance();
-
-                    //  上传离线交易数据
-                    //  5. 未上传的记录上传
-                    //  5.1 未上传的IC记录
-                    List<PaymentRecordEntity> listCardRecord = DBManager.getInstance().getPaymentRecordEntityDao()
-                            .queryBuilder()
-                            .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(0))
-                            .where(PaymentRecordEntityDao.Properties.QrType.eq(0))
-                            .list();
-                    if(listCardRecord.size()>0){
-                        int n = 0;
-                        for(PaymentRecordEntity record:listCardRecord){
-                            n++;
-                            int ret = obj.pushOfflineCardPaymentRecords(record);
-                            if(0!=ret){
-                                DetLog.writeLog(TAG,"IC卡离线记录上送失败："+record.toString());
-                            }else{
-                                DetLog.writeLog(TAG,"IC卡离线记录上送成功："+record.toString());
-                                record.setUploadFlag(0);
-                                record.setUploadTime(new Date());
-                                DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
-                            }
-                        }
-                    }
-
-
-                    //  5.2 未上传的QR记录
-                    List<PaymentRecordEntity> listQrRecord = DBManager.getInstance().getPaymentRecordEntityDao()
-                            .queryBuilder()
-                            .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(0))
-                            .where(PaymentRecordEntityDao.Properties.QrType.notEq(0))
-                            .list();
-                    if(listQrRecord.size()>0){
-                        int n = 0;
-                        for(PaymentRecordEntity record:listQrRecord){
-                            n++;
-                            int ret = obj.pushOfflineCardPaymentRecords(record);
-                            if(0!=ret){
-                                DetLog.writeLog(TAG,"二维码离线记录上送失败："+record.toString());
-                            }else{
-                                DetLog.writeLog(TAG,"二维码离线记录上送成功："+record.toString());
-
-                                record.setUploadFlag(0);
-                                record.setUploadTime(new Date());
-                                DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
-                            }
-                        }
-                    }
-
+                    uploadPaymentItems();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -1425,6 +1385,111 @@ public class BaseActivity extends AppCompatActivity {
         }).start();
 
         return;
+    }
+
+    /***
+     * 自动上传支付明细
+     */
+    public void uploadPaymentItems(){
+        Log.d(TAG,"uploadPaymentItems");
+        List<PaymentTotal> items = DBManager.getInstance().getPaymentTotalDao()
+                .queryBuilder()
+                .where(PaymentTotalDao.Properties.UploadFlag.eq(0))
+                .list();
+
+        if(items==null) return;
+        if(items.size()==0) return;
+
+        PosInfoBean posInfoBean = getPosInfoBean();
+        payWebapi obj = payWebapi.getInstance();
+        if(null!=posInfoBean){
+            obj.setServerIP(posInfoBean.getServerIP());
+            obj.setPortNo(posInfoBean.getPortNo());
+
+            obj.setMenuServerIP(posInfoBean.getMenuServerIP());
+            obj.setMenuPortNo(posInfoBean.getMenuPortNo());
+        }
+
+        boolean b = HttpUtil.isOnline;
+        for(PaymentTotal item:items){
+            int ret = obj.uploadPaymentItems(item);
+            if(ret==0){
+                item.setUploadFlag(1);
+                DetLog.writeLog(TAG,"自动上传成功："+JSON.toJSONString(item));
+            }else{
+                DetLog.writeLog(TAG,"自动上传失败："+JSON.toJSONString(item));
+            }
+        }
+        HttpUtil.isOnline = b;
+
+        DBManager.getInstance().getPaymentTotalDao().saveInTx(items);
+        return;
+    }
+
+
+    /***
+     * 自动上传支付记录
+     */
+    public void uploadPaymentRecords(){
+        Log.d(TAG,"uploadPaymentRecords");
+
+        PosInfoBean posInfoBean = getPosInfoBean();
+        payWebapi obj = payWebapi.getInstance();
+        if(null!=posInfoBean){
+            obj.setServerIP(posInfoBean.getServerIP());
+            obj.setPortNo(posInfoBean.getPortNo());
+
+            obj.setMenuServerIP(posInfoBean.getMenuServerIP());
+            obj.setMenuPortNo(posInfoBean.getMenuPortNo());
+        }
+
+        //  上传离线交易数据
+        //  5. 未上传的记录上传
+        //  5.1 未上传的IC记录
+        List<PaymentRecordEntity> listCardRecord = DBManager.getInstance().getPaymentRecordEntityDao()
+                .queryBuilder()
+                .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(0))
+                .where(PaymentRecordEntityDao.Properties.QrType.eq(0))
+                .list();
+        if(listCardRecord.size()>0){
+            int n = 0;
+            for(PaymentRecordEntity record:listCardRecord){
+                n++;
+                int ret = obj.pushOfflineCardPaymentRecords(record);
+                if(0!=ret){
+                    DetLog.writeLog(TAG,"IC卡离线记录上送失败："+record.toString());
+                }else{
+                    DetLog.writeLog(TAG,"IC卡离线记录上送成功："+record.toString());
+                    record.setUploadFlag(0);
+                    record.setUploadTime(new Date());
+                    DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
+                }
+            }
+        }
+
+
+        //  5.2 未上传的QR记录
+        List<PaymentRecordEntity> listQrRecord = DBManager.getInstance().getPaymentRecordEntityDao()
+                .queryBuilder()
+                .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(0))
+                .where(PaymentRecordEntityDao.Properties.QrType.notEq(0))
+                .list();
+        if(listQrRecord.size()>0){
+            int n = 0;
+            for(PaymentRecordEntity record:listQrRecord){
+                n++;
+                int ret = obj.pushOfflineCardPaymentRecords(record);
+                if(0!=ret){
+                    DetLog.writeLog(TAG,"二维码离线记录上送失败："+record.toString());
+                }else{
+                    DetLog.writeLog(TAG,"二维码离线记录上送成功："+record.toString());
+
+                    record.setUploadFlag(0);
+                    record.setUploadTime(new Date());
+                    DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
+                }
+            }
+        }
     }
 
 
@@ -1794,6 +1859,14 @@ public class BaseActivity extends AppCompatActivity {
 
         //  缓存菜品版本信息
         String s = result.getResult().getSiteVersion();
+        if(s==null) return;
+
+        String s1 = SpManager.getIntance().getSpString(AppIntentString.DISH_TYPE_VER);
+        if(s.compareTo(s1)<=0){
+            Log.d(TAG,String.format("版本%s低于或等于%s，不更新",s,s1));
+            return;
+        }
+
         SpManager.getIntance().saveSpString(AppIntentString.DISH_TYPE_VER,s);
 
         //  清除数据库里的菜品类型和菜品
@@ -1801,17 +1874,17 @@ public class BaseActivity extends AppCompatActivity {
         DBManager.getInstance().getDishTypeEntityDao().deleteAll();
 
         //  按菜品类型逐一处理
-        for(DishTypeEntity dishType:result.getResult().getDishTypes()){
+        for(DishType dishType:result.getResult().getDishTypes()){
             Log.d(TAG,"菜品类型："+dishType.getDishTypeName());
 
             DishTypeEntity typeitem = new DishTypeEntity(dishType);
             DBManager.getInstance().getDishTypeEntityDao().save(typeitem);
 
             List<DishEntity> dishes = new ArrayList<>();
-            for(DishEntity dish:dishType.getDishs()){
+            for(Dish dish:dishType.getDishs()){
                 DishEntity dishitem = new DishEntity(dish);
                 dishitem.setTypeId(typeitem.getId());
-                dishes.add(dish);
+                dishes.add(dishitem);
             }
             Log.d(TAG,"菜品明细个数："+dishes.size());
 
@@ -1884,7 +1957,23 @@ public class BaseActivity extends AppCompatActivity {
                                 .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(1))
                                 .buildDelete()
                                 .executeDeleteWithoutDetachingEntities();
+
+                        List<PaymentTotal> paymentTotals = DBManager.getInstance().getPaymentTotalDao()
+                                .queryBuilder()
+                                .where(PaymentTotalDao.Properties.UploadFlag.eq(1))
+                                .where(PaymentTotalDao.Properties.Timestamp.lt(date.getTime()))
+                                .list();
+
+                        if(paymentTotals.size()>0){
+                            for(PaymentTotal paymentTotal:paymentTotals) {
+                                List<PaymentItemEntity> items = paymentTotal.getDishTransRecordDatas();
+                                DBManager.getInstance().getPaymentItemEntityDao().deleteInTx(items);
+                            }
+                            DBManager.getInstance().getPaymentTotalDao().deleteInTx(paymentTotals);
+                        }
                         playSound(true);
+
+
                     }
                 },
                 "取消", new DialogInterface.OnClickListener() {

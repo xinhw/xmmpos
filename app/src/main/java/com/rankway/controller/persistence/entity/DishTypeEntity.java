@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.rankway.controller.persistence.gen.DaoSession;
 import com.rankway.controller.persistence.gen.DishEntityDao;
 import com.rankway.controller.persistence.gen.DishTypeEntityDao;
+import com.rankway.controller.webapi.menu.DishType;
 
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
@@ -185,6 +186,13 @@ public class DishTypeEntity {
     }
 
     public DishTypeEntity(DishTypeEntity obj){
+        this.dishTypeCode = obj.getDishTypeCode().trim();
+        this.dishTypeName = obj.getDishTypeName().trim();
+        this.status = obj.getStatus();
+        this.timestamp = System.currentTimeMillis();
+    }
+
+    public DishTypeEntity(DishType obj){
         this.dishTypeCode = obj.getDishTypeCode().trim();
         this.dishTypeName = obj.getDishTypeName().trim();
         this.status = obj.getStatus();

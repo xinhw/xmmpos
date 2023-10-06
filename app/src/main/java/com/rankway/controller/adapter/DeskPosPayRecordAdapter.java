@@ -186,8 +186,8 @@ public class DeskPosPayRecordAdapter
             childrenHolder.auditNo = convertView.findViewById(R.id.auditNo);
             childrenHolder.workNo = convertView.findViewById(R.id.workNo);
             childrenHolder.workName = convertView.findViewById(R.id.workName);
-            childrenHolder.amount = convertView.findViewById(R.id.amount);
             childrenHolder.balance = convertView.findViewById(R.id.balance);
+            childrenHolder.amount = convertView.findViewById(R.id.amount);
             childrenHolder.payWay = convertView.findViewById(R.id.payWay);
             childrenHolder.transTime = convertView.findViewById(R.id.transTime);
             childrenHolder.uploadFlag = convertView.findViewById(R.id.uploadFlag);
@@ -212,8 +212,8 @@ public class DeskPosPayRecordAdapter
         childrenHolder.auditNo.setText((childPosition+1)+"");
         childrenHolder.workNo.setText(item.getWorkNo().trim());
         childrenHolder.workName.setText(item.getWorkName().trim());
+        childrenHolder.balance.setText(String.format("%.2f",item.getRemain()));
         childrenHolder.amount.setText(String.format("%.2f",item.getAmount()));
-        childrenHolder.balance.setText(String.format("%.2f",item.getBalance()));
         if(item.getQrType()==0){
             childrenHolder.payWay.setText("IC卡");
         }else{

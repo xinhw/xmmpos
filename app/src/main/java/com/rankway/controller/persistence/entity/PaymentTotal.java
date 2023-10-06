@@ -11,6 +11,7 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToMany;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -24,6 +25,7 @@ import java.util.List;
  */
 @Entity
 public class PaymentTotal implements Comparable<PaymentTotal>{
+    @JSONField(serialize = false)
     @Id(autoincrement = true)
     Long id;
 
@@ -226,5 +228,16 @@ public class PaymentTotal implements Comparable<PaymentTotal>{
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getPaymentTotalDao() : null;
+    }
+
+    public PaymentTotal(PaymentRecordEntity record,String siteVersion){
+        this.posNo = record.getPosNo();
+        this.posSerial = record.getAuditNo();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        this.transLocalTime = format.format(record.getTransTime());
+        this.siteVersion = siteVersion;
+
+        timestamp = System.currentTimeMillis();
+        uploadFlag = 0;
     }
 }

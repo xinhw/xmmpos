@@ -6,11 +6,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.persistence.entity.PersonInfoEntity;
 import com.rankway.controller.persistence.entity.QrBlackListEntity;
 import com.rankway.controller.persistence.entity.UserInfoEntity;
 import com.rankway.controller.utils.Base64Util;
 import com.rankway.controller.utils.HttpUtil;
+import com.rankway.controller.webapi.menu.Result;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +53,9 @@ public class payWebapi {
     private int errCode;
     private String errMsg;
 
+    private String menuServerIP = "121.36.16.185";
+    private int menuPortNo = 6602;
+
     private static int continuosErrCount = 0;           //  通信连续失败次数
     private static boolean isConnected = false;         //  连接状态
 
@@ -68,6 +73,22 @@ public class payWebapi {
 
     public void setErrMsg(String errMsg) {
         this.errMsg = errMsg;
+    }
+
+    public String getMenuServerIP() {
+        return menuServerIP;
+    }
+
+    public void setMenuServerIP(String menuServerIP) {
+        this.menuServerIP = menuServerIP;
+    }
+
+    public int getMenuPortNo() {
+        return menuPortNo;
+    }
+
+    public void setMenuPortNo(int menuPortNo) {
+        this.menuPortNo = menuPortNo;
     }
 
     public static payWebapi getInstance(){
@@ -1346,8 +1367,82 @@ public class payWebapi {
      * @return
      */
     public Result getDishType(String posno){
+        Log.d(TAG,"getDishType "+posno);
         if(StringUtils.isEmpty(posno)) return null;
 
+        String serverPort = String.format("http://%s:%d",menuServerIP,menuPortNo);
+        String url = serverPort + String.format("/dishes/findByPosno?posno=%s",posno);
+        Log.d(TAG,"URL:"+url);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpGet(url);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return null;
+            }
+
+            Log.d(TAG,"返回："+ret);
+            Result result = JSON.parseObject(ret,Result.class);
+
+            Log.d(TAG,"请求结果：" + result.getMessage());
+            Log.d(TAG,"code:"+result.getCode());
+
+            //  code必须是：40000
+            if(40000!=result.getCode()) return null;
+
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            errMsg = e.getMessage();
+        }
         return null;
+    }
+
+    /***
+     * 上送支付明细
+     * @param paymentTotal
+     * @return
+     */
+    public int uploadPaymentItems(PaymentTotal paymentTotal){
+        Log.d(TAG,"uploadPaymentItems ");
+
+        // http://121.36.16.185:6062/transRecords/upload
+        String serverPort = String.format("http://%s:%d",menuServerIP,menuPortNo);
+        String url = serverPort + "/transRecords/upload";
+        Log.d(TAG,"URL:"+url);
+
+        String jsondata = JSON.toJSONString(paymentTotal);
+        Log.d(TAG,"JSON:"+jsondata);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpPost(url,CONTENT_TYPE_JSON,jsondata);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return -1;
+            }
+
+            Log.d(TAG,"返回："+ret);
+            Result result = JSON.parseObject(ret,Result.class);
+
+            Log.d(TAG,"请求结果：" + result.getMessage());
+            Log.d(TAG,"code:"+result.getCode());
+
+            //  code必须是：40000
+            if(40000!=result.getCode()) return result.getCode();
+
+            return 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            errMsg = e.getMessage();
+        }
+        return -2;
     }
 }

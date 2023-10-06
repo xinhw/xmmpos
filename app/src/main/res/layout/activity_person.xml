@@ -138,7 +138,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/seleted_status"
                 android:padding="8dp"
-                android:text="服务器IP"
+                android:text="支付服务器IP"
                 android:textStyle="bold"
                 android:textSize="16sp" />
             <TextView
@@ -169,7 +169,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/seleted_status"
                 android:padding="8dp"
-                android:text="服务器端口"
+                android:text="支付服务器端口"
                 android:textStyle="bold"
                 android:textSize="16sp" />
             <TextView
@@ -184,6 +184,67 @@
                 android:textSize="16sp" />
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/btn_gray_normal" />
+
+        <LinearLayout
+            android:id="@+id/viewMenuServerIP"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content"
+                android:background="@drawable/seleted_status"
+                android:padding="8dp"
+                android:text="菜品服务器IP"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+            <TextView
+                android:id="@+id/menuServerIP"
+                android:layout_width="0dp"
+                android:layout_weight="1.5"
+                android:layout_height="wrap_content"
+                android:background="@drawable/seleted_status"
+                android:padding="8dp"
+                android:text="121.36.16.185"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/btn_gray_normal" />
+
+        <LinearLayout
+            android:id="@+id/viewMenuServerPort"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content"
+                android:background="@drawable/seleted_status"
+                android:padding="8dp"
+                android:text="菜品服务器端口"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+            <TextView
+                android:id="@+id/menuServerPort"
+                android:layout_width="0dp"
+                android:layout_weight="1.5"
+                android:layout_height="wrap_content"
+                android:background="@drawable/seleted_status"
+                android:padding="8dp"
+                android:text="6062"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+        </LinearLayout>
         <View
             android:layout_width="match_parent"
             android:layout_height="2dp"

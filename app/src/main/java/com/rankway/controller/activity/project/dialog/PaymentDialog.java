@@ -31,7 +31,10 @@ import com.rankway.controller.common.AppIntentString;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
+import com.rankway.controller.persistence.entity.DishEntity;
+import com.rankway.controller.persistence.entity.PaymentItemEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.persistence.entity.PersonInfoEntity;
 import com.rankway.controller.persistence.entity.QrBlackListEntity;
 import com.rankway.controller.persistence.gen.PersonInfoEntityDao;
@@ -44,7 +47,9 @@ import com.rankway.controller.webapi.payWebapi;
 import com.rankway.controller.webapi.posAudit;
 import com.rankway.sommerlibrary.utils.ToastUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <pre>
@@ -78,6 +83,8 @@ public class PaymentDialog
     private boolean isPaying = false;
 
     private PosInfoBean posInfoBean = null;
+
+    private List<DishEntity> listDishes = new ArrayList<>();
 
     @SuppressLint("ValidFragment")
     public PaymentDialog(Context context,
@@ -326,8 +333,11 @@ public class PaymentDialog
                 PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, famount, posInfoBean);
                 Log.d(TAG,"record: "+record.toString());
 
-                int flag = 0x01;
-                if(!HttpUtil.isOnline) flag = 0x00;
+                int flag = 0x00;
+                if(HttpUtil.isOnline) flag = 0x01;
+
+                uploadPaymentItems(HttpUtil.isOnline,posInfoBean,record);
+
                 record.setUploadFlag(flag);
                 DBManager.getInstance().getPaymentRecordEntityDao().save(record);
 
@@ -540,6 +550,50 @@ public class PaymentDialog
 
             return obj;
         }
+
+        /***
+         * 上传支付明细
+         * @param isOnline
+         * @param posInfoBean
+         * @param record
+         */
+        private void uploadPaymentItems(boolean isOnline,PosInfoBean posInfoBean,PaymentRecordEntity record) {
+            Log.d(TAG,"uploadPaymentItems");
+
+            String s1 = SpManager.getIntance().getSpString(AppIntentString.DISH_TYPE_VER);
+            PaymentTotal paymentTotal = new PaymentTotal(record,s1);
+            if(!isOnline){
+                paymentTotal.setUploadFlag(0);
+            }else{
+                paymentTotal.setUploadFlag(1);
+            }
+            DBManager.getInstance().getPaymentTotalDao().save(paymentTotal);
+
+            int n = 1;
+            List<PaymentItemEntity> items = new ArrayList<>();
+            for(DishEntity dishEntity : listDishes){
+                PaymentItemEntity item = new PaymentItemEntity(n,paymentTotal.getId(), dishEntity);
+                items.add(item);
+                n++;
+            }
+            DBManager.getInstance().getPaymentItemEntityDao().saveInTx(items);
+            Log.d(TAG,"items "+items.size());
+
+            if(!isOnline) return;
+
+            payWebapi obj = payWebapi.getInstance();
+            if(null!=posInfoBean){
+                obj.setServerIP(posInfoBean.getServerIP());
+                obj.setPortNo(posInfoBean.getPortNo());
+
+                obj.setMenuServerIP(posInfoBean.getMenuServerIP());
+                obj.setMenuPortNo(posInfoBean.getMenuPortNo());
+            }
+
+            boolean b = HttpUtil.isOnline;
+            obj.uploadPaymentItems(paymentTotal);
+            HttpUtil.isOnline = b;
+        }
     }
 
     private ProgressDialog progressDialog;
@@ -557,4 +611,15 @@ public class PaymentDialog
         }
         progressDialog = null;
     }
+
+
+    public List<DishEntity> getListDishes() {
+        return listDishes;
+    }
+
+    public void setListDishes(List<DishEntity> listDishes) {
+        this.listDishes = listDishes;
+    }
+
+
 }

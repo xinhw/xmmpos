@@ -120,7 +120,7 @@ public class AppService extends Service {
                 if (NetUtil.getNetType(mContext) < 0) continue;
 
                 //  上送离线消费交易
-//                baseActivity.uploadOfflineRecords();
+                baseActivity.uploadOfflineRecords();
             }
         }
     }

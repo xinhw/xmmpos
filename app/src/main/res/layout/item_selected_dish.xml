@@ -12,15 +12,13 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.5"
-        android:padding="1dp"
-        android:layout_marginLeft="5dp"
         android:textColor="@color/black"
         android:gravity="center"
         android:textSize="16sp"
         android:text="序号" />
 
     <View
-        android:layout_width="0.5dp"
+        android:layout_width="0.2dp"
         android:layout_height="match_parent"
         android:background="@color/btn_gray_normal" />
 
@@ -28,18 +26,16 @@
         android:id="@+id/dishName"
         android:layout_width="0dp"
         android:padding="1dp"
-        android:lines="1"
         android:background="@null"
         android:layout_height="match_parent"
         android:layout_weight="2"
         android:textColor="@color/black"
-        android:layout_marginLeft="1dp"
         android:gravity="left|center"
         android:textSize="16sp"
         android:text="菜名" />
 
     <View
-        android:layout_width="0.5dp"
+        android:layout_width="0.2dp"
         android:layout_height="match_parent"
         android:background="@color/btn_gray_normal" />
 
@@ -48,15 +44,13 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:padding="1dp"
         android:textColor="@color/black"
-        android:layout_marginLeft="1dp"
         android:gravity="center|right"
         android:textSize="16sp"
         android:text="单价" />
 
     <View
-        android:layout_width="0.5dp"
+        android:layout_width="0.2dp"
         android:layout_height="match_parent"
         android:background="@color/btn_gray_normal" />
 
@@ -65,15 +59,13 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.5"
-        android:padding="1dp"
         android:textColor="@color/black"
-        android:layout_marginLeft="1dp"
         android:gravity="center"
         android:textSize="16sp"
         android:text="数量" />
 
     <View
-        android:layout_width="0.5dp"
+        android:layout_width="0.2dp"
         android:layout_height="match_parent"
         android:background="@color/btn_gray_normal" />
 
@@ -82,12 +74,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:padding="1dp"
         android:textColor="@color/black"
-        android:layout_marginRight="5dp"
+        android:layout_marginRight="1dp"
         android:gravity="center|right"
         android:textSize="16sp"
         android:text="金额" />
-
-
 </LinearLayout>

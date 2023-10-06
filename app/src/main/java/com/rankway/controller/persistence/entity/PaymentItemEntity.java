@@ -17,6 +17,7 @@ import org.greenrobot.greendao.annotation.Id;
  */
 @Entity
 public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
+    @JSONField(serialize = false)
     @Id(autoincrement = true)
     Long id;
 
@@ -26,6 +27,8 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
     int price;
     int quantity;
     int transMoney;
+
+    @JSONField(serialize = false)
     long timestamp;
 
     @JSONField(serialize = false)

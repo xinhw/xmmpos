@@ -1,12 +1,12 @@
 package com.rankway.controller.persistence.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.rankway.controller.webapi.menu.Dish;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.Transient;
-import org.greenrobot.greendao.annotation.Generated;
 
 /**
  * <pre>
@@ -152,5 +152,15 @@ public class DishEntity {
 
     public int getSubAmount(){
         return this.count*this.price;
+    }
+
+
+    public DishEntity(Dish obj){
+        this.dishCode = obj.getDishCode().trim();
+        this.dishName = obj.getDishName().trim();
+        this.price = obj.getPrice();
+        this.status = obj.getStatus();
+        this.count = 1;
+        this.timestamp = System.currentTimeMillis();
     }
 }

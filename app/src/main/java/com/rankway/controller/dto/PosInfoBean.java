@@ -17,6 +17,9 @@ public class PosInfoBean {
     int auditNo;
     String serverIP;
     int portNo;
+    String menuServerIP;
+    int menuPortNo;
+
 
     String shiftNo;     //  班次号
 
@@ -103,6 +106,22 @@ public class PosInfoBean {
         this.settleTime = settleTime;
     }
 
+    public String getMenuServerIP() {
+        return menuServerIP;
+    }
+
+    public void setMenuServerIP(String menuServerIP) {
+        this.menuServerIP = menuServerIP;
+    }
+
+    public int getMenuPortNo() {
+        return menuPortNo;
+    }
+
+    public void setMenuPortNo(int menuPortNo) {
+        this.menuPortNo = menuPortNo;
+    }
+
     @Override
     public String toString() {
         return "PosInfoBean{" +
@@ -111,6 +130,8 @@ public class PosInfoBean {
                 ", auditNo=" + auditNo +
                 ", serverIP='" + serverIP + '\'' +
                 ", portNo=" + portNo +
+                ", menuServerIP='" + menuServerIP + '\'' +
+                ", menuPortNo=" + menuPortNo +
                 ", shiftNo='" + shiftNo + '\'' +
                 ", status=" + status +
                 ", startTime=" + startTime +

@@ -22,7 +22,7 @@ import com.rankway.controller.persistence.entity.QrBlackListEntity;
 import com.rankway.controller.persistence.entity.UserInfoEntity;
 import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.utils.ClickUtil;
-import com.rankway.controller.webapi.Result;
+import com.rankway.controller.webapi.menu.Result;
 import com.rankway.controller.webapi.payWebapi;
 
 import java.util.Date;

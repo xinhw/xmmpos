@@ -1,4 +1,4 @@
-package com.rankway.controller.webapi;
+package com.rankway.controller.webapi.menu;
 
 /**
  * <pre>
