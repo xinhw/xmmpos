@@ -341,6 +341,7 @@ public class DeskPosAuxillaryMenuActivity
 
         //  右下角返回键
         if (KeyEvent.KEYCODE_BACK == keyCode) {
+            finish();
             return true;
         }
         if(KeyEvent.KEYCODE_HOME == keyCode){

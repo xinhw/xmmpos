@@ -2,14 +2,9 @@ package com.rankway.controller.activity.project;
 
 import android.app.AlertDialog;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbEndpoint;
-import android.hardware.usb.UsbInterface;
-import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -40,6 +35,7 @@ import com.rankway.controller.adapter.DishAdapter;
 import com.rankway.controller.adapter.DishSelectedAdapter;
 import com.rankway.controller.adapter.DishTypeAdapter;
 import com.rankway.controller.dto.PosInfoBean;
+import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.entity.DishEntity;
 import com.rankway.controller.persistence.entity.DishTypeEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
@@ -52,8 +48,6 @@ import com.rankway.controller.utils.HttpUtil;
 import com.rankway.sommerlibrary.utils.ToastUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 public class DeskPosPayMainActivity
@@ -291,6 +285,9 @@ public class DeskPosPayMainActivity
             case R.id.tvClearSelected:
                 listSelectedDishEntities.clear();
                 selectedAdapter.notifyDataSetChanged();
+
+                refreshSubTotal();
+
                 playSound(true);
                 break;
 
@@ -357,8 +354,8 @@ public class DeskPosPayMainActivity
     @Override
     public void onDishItemClick(View view, int position) {
         Log.d(TAG,"onDishItemClick "+ position);
-        DishEntity dishEntity = listDishEntities.get(position);
 
+        DishEntity dishEntity = new DishEntity(listDishEntities.get(position));
         dishEntity.setCount(1);
         listSelectedDishEntities.add(dishEntity);
 
@@ -430,6 +427,7 @@ public class DeskPosPayMainActivity
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
                 }
+                DetLog.writeLog(TAG,"删除："+listSelectedDishEntities.get(index).toString());
                 listSelectedDishEntities.remove(index);
                 selectedAdapter.notifyDataSetChanged();
 
@@ -464,7 +462,7 @@ public class DeskPosPayMainActivity
      * @param position
      */
     private void setDishQuatityDialog(String title,int position){
-        Log.d(TAG,"setDishQuatityDialog");
+        Log.d(TAG,"setDishQuatityDialog "+position);
 
         DishEntity dishEntity = null;
 
@@ -504,9 +502,12 @@ public class DeskPosPayMainActivity
                 }
                 dialog.dismiss();
 
+                Log.d(TAG,"修改数量："+position);
                 DishEntity item = listSelectedDishEntities.get(position);
                 item.setCount(count);
                 selectedAdapter.notifyDataSetChanged();
+
+                DetLog.writeLog(TAG,"修改数量："+item.toString());
 
                 refreshSubTotal();
                 playSound(true);
@@ -639,53 +640,6 @@ public class DeskPosPayMainActivity
             unbindService(appServiceConnection);
         }
         stopService(intentService);
-    }
-
-
-    private void enumAllUsbDevice(){
-        Log.d(TAG,"enumAllUsbDevice");
-
-        UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
-        Log.d(TAG,"UsbDeviceCount: "+deviceList.size());
-
-        Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
-        while(deviceIterator.hasNext()) {
-            UsbDevice device = deviceIterator.next();
-            if(null!=device) Log.d(TAG,devicesString(device));
-
-            //获取设备接口
-            for (int i = 0; i < device.getInterfaceCount(); ) {
-                // 一般来说一个设备都是一个接口，你可以通过getInterfaceCount()查看接口的个数
-                // 这个接口上有两个端点，分别对应OUT 和 IN
-                UsbInterface usbInterface = device.getInterface(i);
-                if(null==usbInterface) continue;
-
-                Log.d(TAG,"UsbInterface Id:"+usbInterface.getId()+" Name:"+usbInterface.getName()
-                        + " Class:"+usbInterface.getClass()+" Procotocol:"+usbInterface.getInterfaceProtocol()
-                        +" EndPointCount:"+usbInterface.getEndpointCount());
-
-                for(int j=0;j< usbInterface.getEndpointCount();j++){
-                    UsbEndpoint endpoint = usbInterface.getEndpoint(j);
-                    if(endpoint==null) continue;
-
-                    Log.d(TAG,"UsbEndpoint Address:"+endpoint.getAddress() +
-                            " Attributes:"+endpoint.getAttributes() +
-                            " Direction:"+endpoint.getDirection());
-                }
-                break;
-            }
-        }
-    }
-
-    private String devicesString(UsbDevice device){
-        StringBuilder builder = new StringBuilder("UsbDevice Name=" + device.getDeviceName() +
-                " VendorId=" + device.getVendorId() + " ProductId=" + device.getProductId() +
-                " mClass=" + device.getClass() + " mSubclass=" + device.getDeviceSubclass() +
-                " mProtocol=" + device.getDeviceProtocol() + " mManufacturerName=" +" mSerialNumber=" +
-                " InterfaceCount="+device.getInterfaceCount() +
-                "  ");
-        return builder.toString();
     }
 
     /***

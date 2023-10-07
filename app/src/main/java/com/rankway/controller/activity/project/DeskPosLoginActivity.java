@@ -1,5 +1,7 @@
 package com.rankway.controller.activity.project;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -52,8 +54,6 @@ public class DeskPosLoginActivity
         initView();
 
         initData();
-
-        DetLog.writeLog(TAG,"程序启动");
     }
 
     private void initView() {
@@ -114,6 +114,17 @@ public class DeskPosLoginActivity
         tvProcess.setText("");
 
         beginSyncDataTask();
+
+        int nDBVer = DBManager.getInstance().getDatabaseVerion();
+        String nAppVer = "";
+        try {
+            PackageManager manager = getPackageManager();
+            PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
+            nAppVer = info.versionName;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        DetLog.writeLog(TAG,"启动程序，版本号：1.0." + nAppVer + " 数据版本号：" + nDBVer);
     }
 
     @Override

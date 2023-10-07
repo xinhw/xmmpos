@@ -86,4 +86,7 @@ public class DBManager {
         return mDaoSession.getPersonInfoEntityDao();
     }
 
+    public int getDatabaseVerion(){
+        return DaoMaster.SCHEMA_VERSION;
+    }
 }

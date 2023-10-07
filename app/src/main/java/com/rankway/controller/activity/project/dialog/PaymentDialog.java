@@ -318,42 +318,6 @@ public class PaymentDialog
             return ret;
         }
 
-        @Override
-        protected void onPostExecute(Integer integer) {
-            super.onPostExecute(integer);
-
-            missProDialog();
-
-            isPaying = false;
-
-            if (0 == integer) {
-                baseActivity.playSound(true);
-                DetLog.writeLog(TAG, "支付成功：" + cardPaymentObj.toString());
-
-                PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, famount, posInfoBean);
-                Log.d(TAG,"record: "+record.toString());
-
-                int flag = 0x00;
-                if(HttpUtil.isOnline) flag = 0x01;
-
-                uploadPaymentItems(HttpUtil.isOnline,posInfoBean,record);
-
-                record.setUploadFlag(flag);
-                DBManager.getInstance().getPaymentRecordEntityDao().save(record);
-
-                if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentSuccess(flag,record);
-
-                //  支付成功，关闭对话框
-                dismiss();
-            } else {
-                baseActivity.playSound(false);
-
-                ToastUtils.showLong(mContext,errString);
-
-                DetLog.writeLog(TAG, "支付失败：" + errString);
-            }
-            return;
-        }
 
         /***
          * 在线支付
@@ -394,12 +358,14 @@ public class PaymentDialog
             }
             if (null == cardInfoObj){
                 errString = obj.getErrMsg();
+                DetLog.writeLog(TAG,"查询失败："+errString);
                 return -1;
             }
 
             //  3. 比较余额
             if(cardInfoObj.getGremain()<famount){
                 errString = "余额不足，无法支付";
+                DetLog.writeLog(TAG,String.format("余额不足，无法支付：%.2f,%.2f",cardInfoObj.getGremain(),famount));
                 return -1;
             }
 
@@ -447,6 +413,7 @@ public class PaymentDialog
                 cardInfoObj = isCardInWhiteList(cardPaymentObj.getGsno());
                 if(null==cardInfoObj){
                     errString = "无效卡片，不能支付！";
+                    DetLog.writeLog(TAG,"失败："+errString);
                     return -1;
                 }
             } else {
@@ -455,6 +422,7 @@ public class PaymentDialog
                 cardInfoObj = isQrCodeInBlackList(cardPaymentObj.getSystemId(),cardPaymentObj.getQrType(),cardPaymentObj.getUserId());
                 if(null==cardInfoObj){
                     errString = "二维码在黑名单内，不能支付！";
+                    DetLog.writeLog(TAG,"失败："+errString);
                     return -1;
                 }
             }
@@ -462,6 +430,7 @@ public class PaymentDialog
             //  3. 比较余额
             if(MAX_OFFLINE_AMOUNT<famount){
                 errString = "超过离线支付限制，无法支付";
+                DetLog.writeLog(TAG,String.format("余额不足，无法支付：%.2f,%.2f",cardInfoObj.getGremain(),famount));
                 return -1;
             }
 
@@ -562,11 +531,6 @@ public class PaymentDialog
 
             String s1 = SpManager.getIntance().getSpString(AppIntentString.DISH_TYPE_VER);
             PaymentTotal paymentTotal = new PaymentTotal(record,s1);
-            if(!isOnline){
-                paymentTotal.setUploadFlag(0);
-            }else{
-                paymentTotal.setUploadFlag(1);
-            }
             DBManager.getInstance().getPaymentTotalDao().save(paymentTotal);
 
             int n = 1;
@@ -590,9 +554,42 @@ public class PaymentDialog
                 obj.setMenuPortNo(posInfoBean.getMenuPortNo());
             }
 
-            boolean b = HttpUtil.isOnline;
             obj.uploadPaymentItems(paymentTotal);
-            HttpUtil.isOnline = b;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+
+            missProDialog();
+
+            isPaying = false;
+
+            if (0 == integer) {
+                baseActivity.playSound(true);
+                DetLog.writeLog(TAG, "支付成功：" + cardPaymentObj.toString());
+
+                PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, famount, posInfoBean);
+                Log.d(TAG,"record: "+record.toString());
+
+                int flag = 0x00;
+                if(HttpUtil.isOnline) flag = 0x01;
+
+                uploadPaymentItems(HttpUtil.isOnline,posInfoBean,record);
+
+                record.setUploadFlag(flag);
+                DBManager.getInstance().getPaymentRecordEntityDao().save(record);
+
+                if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentSuccess(flag,record);
+
+                //  支付成功，关闭对话框
+                dismiss();
+            } else {
+                baseActivity.playSound(false);
+
+                ToastUtils.showLong(mContext,errString);
+            }
+            return;
         }
     }
 
@@ -620,6 +617,4 @@ public class PaymentDialog
     public void setListDishes(List<DishEntity> listDishes) {
         this.listDishes = listDishes;
     }
-
-
 }

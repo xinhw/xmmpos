@@ -21,10 +21,10 @@ import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.printer.PrinterBase;
 import com.rankway.controller.printer.PrinterFactory;
+import com.rankway.controller.printer.PrinterFormatUtils;
 import com.rankway.controller.reader.ReaderBase;
 import com.rankway.controller.reader.ReaderFactory;
 import com.rankway.controller.utils.DateStringUtils;
-import com.rankway.controller.printer.PrinterFormatUtils;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -230,8 +230,6 @@ public class DeskPosModulesTestActivity extends BaseActivity {
         String s = "";
 
         //  走纸5行
-//        printBytes(PrinterFormatUtils.getFeedCommand(2));
-
         s = "--------------------------------";
         printString(s);
 
@@ -248,19 +246,16 @@ public class DeskPosModulesTestActivity extends BaseActivity {
 
         s = " 红烧带鱼    1   5.00";
         printString(s);
-        s = " 炒青菜    1   3.00";
+        s = " 炒 青 菜    1   3.00";
         printString(s);
-        s = " 米饭    1   1.00";
+        s = " 米    饭    1   1.00";
         printString(s);
-        s = " 汤    1   0.50";
+        s = " 汤          1   0.50";
         printString(s);
         s = "--------------------------------";
         printString(s);
         printString("合计：       9.50");
         printString("时间： "+DateStringUtils.getCurrentTime());
-
-//        s = String.format("%s %s",DateStringUtils.getCurrentTime(),msg);
-//        printString(s);
 
         printBytes(PrinterFormatUtils.getFeedCommand(3));
     }
@@ -329,6 +324,7 @@ public class DeskPosModulesTestActivity extends BaseActivity {
 
         //  右下角返回键
         if (KeyEvent.KEYCODE_BACK == keyCode) {
+            finish();
             return true;
         }
         if(KeyEvent.KEYCODE_HOME == keyCode){

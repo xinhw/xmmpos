@@ -262,7 +262,7 @@ public class MobilePosSettingsActivity
             long lastmillis = c.getTimeInMillis();
             Date dtlast = new Date(lastmillis);
 
-            String fileName = path + String.format("ETEK%s.txt", simpleDateFormat.format(dtlast));
+            String fileName = path + String.format("WXPOS%s.txt", simpleDateFormat.format(dtlast));
             File logfile = new File(fileName);
             if (logfile.exists()) {
                 Log.d(TAG, "日志文件：" + fileName);
@@ -361,11 +361,12 @@ public class MobilePosSettingsActivity
      * @param logfile
      */
     private void postLogFile(final ArrayList<String> logfiles, final File logfile) {
-        //  起爆器编号
-        String strsno = getPreInfo(getString(com.rankway.controller.R.string.controller_sno));
-        if (TextUtils.isEmpty(strsno))
-            strsno = "F00A8000000";
-        Log.d("LOG", String.format("起爆器编号：%s", strsno));
+        String strsno = "00000";
+        PosInfoBean posInfoBean = getPosInfoBean();
+
+        if(posInfoBean!=null){
+            if(!TextUtils.isEmpty(posInfoBean.getCposno())) strsno = posInfoBean.getCposno();
+        }
 
         //  上传地址
         String url = String.format(SemiServerAddress.getUploadLogURL() + "/%s", strsno);

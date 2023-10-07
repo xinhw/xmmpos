@@ -21,12 +21,12 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
     @Id(autoincrement = true)
     Long id;
 
-    int posSerialChild;
+    String posSerialChild;
     String dishCode;
     String dishName;
-    int price;
+    float price;
     int quantity;
-    int transMoney;
+    float transMoney;
 
     @JSONField(serialize = false)
     long timestamp;
@@ -34,9 +34,9 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
     @JSONField(serialize = false)
     long paymentTotalId;
     
-    @Generated(hash = 53912319)
-    public PaymentItemEntity(Long id, int posSerialChild, String dishCode, String dishName,
-            int price, int quantity, int transMoney, long timestamp, long paymentTotalId) {
+    @Generated(hash = 1343734876)
+    public PaymentItemEntity(Long id, String posSerialChild, String dishCode, String dishName,
+            float price, int quantity, float transMoney, long timestamp, long paymentTotalId) {
         this.id = id;
         this.posSerialChild = posSerialChild;
         this.dishCode = dishCode;
@@ -56,11 +56,11 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
         this.id = id;
     }
 
-    public int getPosSerialChild() {
+    public String getPosSerialChild() {
         return posSerialChild;
     }
 
-    public void setPosSerialChild(int posSerialChild) {
+    public void setPosSerialChild(String posSerialChild) {
         this.posSerialChild = posSerialChild;
     }
 
@@ -80,11 +80,11 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
         this.dishName = dishName;
     }
 
-    public int getPrice() {
+    public float getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(float price) {
         this.price = price;
     }
 
@@ -96,11 +96,11 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
         this.quantity = quantity;
     }
 
-    public int getTransMoney() {
+    public float getTransMoney() {
         return transMoney;
     }
 
-    public void setTransMoney(int transMoney) {
+    public void setTransMoney(float transMoney) {
         this.transMoney = transMoney;
     }
 
@@ -141,12 +141,12 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
         int ret = (int)(this.getPaymentTotalId()-o.getPaymentTotalId());
         if(ret!=0) return ret;
 
-        ret = this.getPosSerialChild() - o.getPosSerialChild();
+        ret = (int)(this.getId() - o.getId());
         return ret;
     }
 
     public PaymentItemEntity(int seqNo, long paymentTotalId, DishEntity dishEntity){
-        this.posSerialChild = seqNo;
+        this.posSerialChild = seqNo+"";
         this.dishCode = dishEntity.getDishCode().trim();
         this.dishName = dishEntity.getDishName().trim();
         this.price = dishEntity.getPrice();
@@ -159,4 +159,15 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
     @Generated(hash = 558064288)
     public PaymentItemEntity() {
     }
+
+    public PaymentItemEntity(int subSeqNo,String dishCode,String dishName,int quantity,float price) {
+        this.posSerialChild = subSeqNo+"";
+        this.dishCode = dishCode;
+        this.dishName = dishName;
+        this.price = price;
+        this.quantity = quantity;
+        this.transMoney = price*quantity;
+        this.timestamp = System.currentTimeMillis();
+    }
+
 }

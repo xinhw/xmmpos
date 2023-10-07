@@ -26,7 +26,7 @@ public class PaymentTotalDao extends AbstractDao<PaymentTotal, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property PosNo = new Property(1, String.class, "posNo", false, "POS_NO");
-        public final static Property PosSerial = new Property(2, long.class, "posSerial", false, "POS_SERIAL");
+        public final static Property PosSerial = new Property(2, String.class, "posSerial", false, "POS_SERIAL");
         public final static Property TransLocalTime = new Property(3, String.class, "transLocalTime", false, "TRANS_LOCAL_TIME");
         public final static Property SiteVersion = new Property(4, String.class, "siteVersion", false, "SITE_VERSION");
         public final static Property RecordId = new Property(5, long.class, "recordId", false, "RECORD_ID");
@@ -52,7 +52,7 @@ public class PaymentTotalDao extends AbstractDao<PaymentTotal, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"PAYMENT_TOTAL\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"POS_NO\" TEXT," + // 1: posNo
-                "\"POS_SERIAL\" INTEGER NOT NULL ," + // 2: posSerial
+                "\"POS_SERIAL\" TEXT," + // 2: posSerial
                 "\"TRANS_LOCAL_TIME\" TEXT," + // 3: transLocalTime
                 "\"SITE_VERSION\" TEXT," + // 4: siteVersion
                 "\"RECORD_ID\" INTEGER NOT NULL ," + // 5: recordId
@@ -79,7 +79,11 @@ public class PaymentTotalDao extends AbstractDao<PaymentTotal, Long> {
         if (posNo != null) {
             stmt.bindString(2, posNo);
         }
-        stmt.bindLong(3, entity.getPosSerial());
+ 
+        String posSerial = entity.getPosSerial();
+        if (posSerial != null) {
+            stmt.bindString(3, posSerial);
+        }
  
         String transLocalTime = entity.getTransLocalTime();
         if (transLocalTime != null) {
@@ -108,7 +112,11 @@ public class PaymentTotalDao extends AbstractDao<PaymentTotal, Long> {
         if (posNo != null) {
             stmt.bindString(2, posNo);
         }
-        stmt.bindLong(3, entity.getPosSerial());
+ 
+        String posSerial = entity.getPosSerial();
+        if (posSerial != null) {
+            stmt.bindString(3, posSerial);
+        }
  
         String transLocalTime = entity.getTransLocalTime();
         if (transLocalTime != null) {
@@ -140,7 +148,7 @@ public class PaymentTotalDao extends AbstractDao<PaymentTotal, Long> {
         PaymentTotal entity = new PaymentTotal( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // posNo
-            cursor.getLong(offset + 2), // posSerial
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // posSerial
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // transLocalTime
             cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // siteVersion
             cursor.getLong(offset + 5), // recordId
@@ -154,7 +162,7 @@ public class PaymentTotalDao extends AbstractDao<PaymentTotal, Long> {
     public void readEntity(Cursor cursor, PaymentTotal entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setPosNo(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setPosSerial(cursor.getLong(offset + 2));
+        entity.setPosSerial(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
         entity.setTransLocalTime(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setSiteVersion(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
         entity.setRecordId(cursor.getLong(offset + 5));

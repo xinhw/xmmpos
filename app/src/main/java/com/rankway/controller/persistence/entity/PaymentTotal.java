@@ -30,7 +30,7 @@ public class PaymentTotal implements Comparable<PaymentTotal>{
     Long id;
 
     String posNo;
-    long posSerial;
+    String posSerial;
     String transLocalTime;
     String siteVersion;
 
@@ -59,10 +59,9 @@ public class PaymentTotal implements Comparable<PaymentTotal>{
         uploadFlag = 0;
     }
 
-    @Generated(hash = 1357667251)
-    public PaymentTotal(Long id, String posNo, long posSerial,
-            String transLocalTime, String siteVersion, long recordId,
-            int uploadFlag, long timestamp) {
+    @Generated(hash = 1996898081)
+    public PaymentTotal(Long id, String posNo, String posSerial, String transLocalTime,
+            String siteVersion, long recordId, int uploadFlag, long timestamp) {
         this.id = id;
         this.posNo = posNo;
         this.posSerial = posSerial;
@@ -89,11 +88,11 @@ public class PaymentTotal implements Comparable<PaymentTotal>{
         this.posNo = posNo;
     }
 
-    public long getPosSerial() {
+    public String getPosSerial() {
         return posSerial;
     }
 
-    public void setPosSerial(long posSerial) {
+    public void setPosSerial(String posSerial) {
         this.posSerial = posSerial;
     }
 
@@ -232,8 +231,9 @@ public class PaymentTotal implements Comparable<PaymentTotal>{
 
     public PaymentTotal(PaymentRecordEntity record,String siteVersion){
         this.posNo = record.getPosNo();
-        this.posSerial = record.getAuditNo();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        this.posSerial = record.getAuditNo()+"";
+        //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         this.transLocalTime = format.format(record.getTransTime());
         this.siteVersion = siteVersion;
 

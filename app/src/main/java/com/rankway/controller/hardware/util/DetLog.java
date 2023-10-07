@@ -24,7 +24,7 @@ public class DetLog {
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");// HH:mm:ss //获取当前时间
         Date date = new Date(System.currentTimeMillis());
-        String fileName = String.format("ETEK%s.txt",simpleDateFormat.format(date));
+        String fileName = String.format("WXPOS%s.txt",simpleDateFormat.format(date));
 
         String path = Environment.getExternalStorageDirectory() + "/Log/"; //文件路径
         FileWriter writer = null;

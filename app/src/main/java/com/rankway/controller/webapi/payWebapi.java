@@ -5,11 +5,14 @@ import android.util.Log;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
+import com.rankway.controller.hardware.util.DetLog;
+import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.persistence.entity.PersonInfoEntity;
 import com.rankway.controller.persistence.entity.QrBlackListEntity;
 import com.rankway.controller.persistence.entity.UserInfoEntity;
+import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.Base64Util;
 import com.rankway.controller.utils.HttpUtil;
 import com.rankway.controller.webapi.menu.Result;
@@ -17,6 +20,7 @@ import com.rankway.controller.webapi.menu.Result;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,6 +28,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 
 /**
@@ -1418,31 +1426,21 @@ public class payWebapi {
         String jsondata = JSON.toJSONString(paymentTotal);
         Log.d(TAG,"JSON:"+jsondata);
 
-        try {
-            HttpUtil httpUtil = new HttpUtil();
-            String ret = httpUtil.httpPost(url,CONTENT_TYPE_JSON,jsondata);
-            Log.d(TAG,"ret:"+ret);
-
-            errCode = httpUtil.getResponseCode();
-            if(null==ret){
-                errMsg = "平台返回信息为空";
-                return -1;
+        AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
+        asyncHttpCilentUtil.httpPostJson(url, jsondata, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                DetLog.writeLog(TAG,"上传消费明细失败："+e.getMessage());
+                return;
             }
 
-            Log.d(TAG,"返回："+ret);
-            Result result = JSON.parseObject(ret,Result.class);
-
-            Log.d(TAG,"请求结果：" + result.getMessage());
-            Log.d(TAG,"code:"+result.getCode());
-
-            //  code必须是：40000
-            if(40000!=result.getCode()) return result.getCode();
-
-            return 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            errMsg = e.getMessage();
-        }
-        return -2;
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                DetLog.writeLog(TAG,"上传明细成功："+JSON.toJSONString(paymentTotal));
+                paymentTotal.setUploadFlag(1);
+                DBManager.getInstance().getPaymentTotalDao().save(paymentTotal);
+            }
+        });
+        return 0;
     }
 }

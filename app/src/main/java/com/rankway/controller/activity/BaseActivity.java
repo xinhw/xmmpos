@@ -85,7 +85,6 @@ import com.rankway.controller.pushmessage.ETEKMessageProcess;
 import com.rankway.controller.utils.AppUtils;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.DateStringUtils;
-import com.rankway.controller.utils.HttpUtil;
 import com.rankway.controller.utils.UpdateAppUtils;
 import com.rankway.controller.utils.VibrateUtil;
 import com.rankway.controller.webapi.menu.Dish;
@@ -1092,7 +1091,7 @@ public class BaseActivity extends AppCompatActivity {
             long lastmillis = c.getTimeInMillis();
             Date dtlast = new Date(lastmillis);
 
-            String fileName = path + String.format("ETEK%s.txt", simpleDateFormat.format(dtlast));
+            String fileName = path + String.format("WXPOS%s.txt", simpleDateFormat.format(dtlast));
             File logfile = new File(fileName);
             if (logfile.exists()) {
                 Log.d("LOG", "合并日志：" + fileName);
@@ -1410,19 +1409,10 @@ public class BaseActivity extends AppCompatActivity {
             obj.setMenuPortNo(posInfoBean.getMenuPortNo());
         }
 
-        boolean b = HttpUtil.isOnline;
         for(PaymentTotal item:items){
-            int ret = obj.uploadPaymentItems(item);
-            if(ret==0){
-                item.setUploadFlag(1);
-                DetLog.writeLog(TAG,"自动上传成功："+JSON.toJSONString(item));
-            }else{
-                DetLog.writeLog(TAG,"自动上传失败："+JSON.toJSONString(item));
-            }
+            obj.uploadPaymentItems(item);
+            detSleep(100);
         }
-        HttpUtil.isOnline = b;
-
-        DBManager.getInstance().getPaymentTotalDao().saveInTx(items);
         return;
     }
 

@@ -2,6 +2,8 @@ package com.rankway.controller.utils;
 
 import android.app.Activity;
 
+import com.rankway.controller.activity.project.manager.SpManager;
+import com.rankway.controller.common.AppIntentString;
 import com.rankway.controller.hardware.callback.HttpCallback;
 
 import java.io.File;
@@ -31,13 +33,23 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 
-
-
 /**
  * Created by Sommer on 2015/10/28.
  */
 public class AsyncHttpCilentUtil {
- 
+
+    private final String TAG = "AsyncHttpCilentUtil";
+
+    private int timeOut = 5;       //  5秒
+
+    public AsyncHttpCilentUtil(){
+        //  通信超时
+        int ret = SpManager.getIntance().getSpInt(AppIntentString.HTTP_OVER_TIME);
+        if(ret<=0) ret = timeOut;
+        timeOut = ret;
+    }
+
+
     /**
      * Post请求 异步
      * 使用 Callback 回调可返回子线程中获得的网络数据
@@ -50,7 +62,9 @@ public class AsyncHttpCilentUtil {
             HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(new HttpLogger());
             logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .connectTimeout(timeOut, TimeUnit.SECONDS)
+                    .readTimeout(timeOut,TimeUnit.SECONDS)
+                    .writeTimeout(timeOut,TimeUnit.SECONDS)
                     .addNetworkInterceptor(logInterceptor)
                     .build();
             FormBody.Builder formBodyBuilder = new FormBody.Builder();
@@ -73,12 +87,14 @@ public class AsyncHttpCilentUtil {
         }).start();
     }
 
-    public void httpPostNew(Activity activity,final String url, final Map<String, String> params, final HttpCallback callback) {
+    public void httpPostNew(Activity activity, final String url, final Map<String, String> params, final HttpCallback callback) {
         new Thread(() -> {
             HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(new HttpLogger());
             logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .connectTimeout(timeOut, TimeUnit.SECONDS)
+                    .readTimeout(timeOut,TimeUnit.SECONDS)
+                    .writeTimeout(timeOut,TimeUnit.SECONDS)
                     .addNetworkInterceptor(logInterceptor)
                     .build();
             FormBody.Builder formBodyBuilder = new FormBody.Builder();
@@ -131,7 +147,9 @@ public class AsyncHttpCilentUtil {
             HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(new HttpLogger());
             logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .connectTimeout(timeOut, TimeUnit.SECONDS)
+                    .readTimeout(timeOut,TimeUnit.SECONDS)
+                    .writeTimeout(timeOut,TimeUnit.SECONDS)
                     .hostnameVerifier(new TrustAllHostnameVerifier())
                     .sslSocketFactory(createSSLSocketFactory())
                     .addNetworkInterceptor(logInterceptor)
@@ -156,7 +174,9 @@ public class AsyncHttpCilentUtil {
             HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(new HttpLogger());
             logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .connectTimeout(timeOut, TimeUnit.SECONDS)
+                    .readTimeout(timeOut,TimeUnit.SECONDS)
+                    .writeTimeout(timeOut,TimeUnit.SECONDS)
                     .addNetworkInterceptor(logInterceptor)
                     .build();
 
@@ -219,7 +239,9 @@ public class AsyncHttpCilentUtil {
             logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .connectTimeout(timeOut, TimeUnit.SECONDS)
+                    .readTimeout(timeOut,TimeUnit.SECONDS)
+                    .writeTimeout(timeOut,TimeUnit.SECONDS)
                     .hostnameVerifier(new TrustAllHostnameVerifier())
                     .sslSocketFactory(createSSLSocketFactory())
                     .addNetworkInterceptor(logInterceptor)
@@ -272,7 +294,9 @@ public class AsyncHttpCilentUtil {
             HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(new HttpLogger());
             logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .connectTimeout(timeOut, TimeUnit.SECONDS)
+                    .readTimeout(timeOut,TimeUnit.SECONDS)
+                    .writeTimeout(timeOut,TimeUnit.SECONDS)
                     .hostnameVerifier(new TrustAllHostnameVerifier())
                     .sslSocketFactory(createSSLSocketFactory())
                     .addNetworkInterceptor(logInterceptor)
@@ -298,11 +322,13 @@ public class AsyncHttpCilentUtil {
      * @param callback
      */
     public void httpsPostFile(final String url,
-                                     final Map<String, String> map,
-                                     final String keyname, final File file,
-                                     final Callback callback) {
+                              final Map<String, String> map,
+                              final String keyname, final File file,
+                              final Callback callback) {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
+                .connectTimeout(timeOut, TimeUnit.SECONDS)
+                .readTimeout(timeOut,TimeUnit.SECONDS)
+                .writeTimeout(timeOut,TimeUnit.SECONDS)
                 .hostnameVerifier(new TrustAllHostnameVerifier())
                 .sslSocketFactory(createSSLSocketFactory())
                 .build();
