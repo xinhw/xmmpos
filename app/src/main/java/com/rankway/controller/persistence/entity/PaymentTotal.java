@@ -232,12 +232,14 @@ public class PaymentTotal implements Comparable<PaymentTotal>{
     public PaymentTotal(PaymentRecordEntity record,String siteVersion){
         this.posNo = record.getPosNo();
         this.posSerial = record.getAuditNo()+"";
-        //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         this.transLocalTime = format.format(record.getTransTime());
         this.siteVersion = siteVersion;
 
         timestamp = System.currentTimeMillis();
         uploadFlag = 0;
     }
+
+    public static final int UNUPLOAD = 0;
+    public static final int UPLOADED = 1;
 }

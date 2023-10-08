@@ -36,9 +36,11 @@ import com.rankway.controller.adapter.DishSelectedAdapter;
 import com.rankway.controller.adapter.DishTypeAdapter;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
+import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.DishEntity;
 import com.rankway.controller.persistence.entity.DishTypeEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.printer.PrinterBase;
 import com.rankway.controller.printer.PrinterFactory;
 import com.rankway.controller.printer.PrinterUtils;
@@ -46,6 +48,8 @@ import com.rankway.controller.utils.ClickUtil;
 import com.rankway.controller.utils.DateStringUtils;
 import com.rankway.controller.utils.HttpUtil;
 import com.rankway.sommerlibrary.utils.ToastUtils;
+
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -685,5 +689,19 @@ public class DeskPosPayMainActivity
         });
         builder.create().show();
         return;
+    }
+
+    @TestOnly
+    private void makeUploadRecord(){
+        List<PaymentRecordEntity> list = DBManager.getInstance().getPaymentRecordEntityDao()
+                .queryBuilder()
+                .where(PaymentRecordEntityDao.Properties.Id.le(4))
+                .where(PaymentRecordEntityDao.Properties.Id.ge(3))
+                .list();
+        Log.d(TAG,"List size:"+list.size());
+        for(PaymentRecordEntity record:list){
+            record.setUploadFlag(0);
+        }
+        DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(list);
     }
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--  读卡器  -->
+    <usb-device vendor-id="4292" product-id="528" />
+    <!--  打印机  -->
+    <usb-device vendor-id="26728" product-id="512" />
+</resources>

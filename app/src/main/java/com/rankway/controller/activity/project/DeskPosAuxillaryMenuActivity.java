@@ -1,6 +1,7 @@
 package com.rankway.controller.activity.project;
 
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.common.AppIntentString;
+import com.rankway.controller.common.BadgeView;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
@@ -34,6 +36,8 @@ public class DeskPosAuxillaryMenuActivity
     final String TAG = "DeskPosAuxillaryMenuActivity";
     TextView tvProcess;
 
+    private BadgeView bvMessage = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,8 +56,47 @@ public class DeskPosAuxillaryMenuActivity
         view = findViewById(R.id.deskPosUpload);
         view.setOnClickListener(this);
 
+        TextView tvUploadData = findViewById(R.id.tvUploadData);
+        bvMessage = new BadgeView(this, tvUploadData);
+
         tvProcess = findViewById(R.id.tvProcess);
         tvProcess.setText("");
+    }
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setMessageText();
+    }
+
+    /***
+     * 给消息图标上增加红数字
+     */
+    private void setMessageText() {
+        if (null == bvMessage) return;
+
+        List<PaymentRecordEntity> list = DBManager.getInstance().getPaymentRecordEntityDao()
+                .queryBuilder()
+                .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(0))
+                .list();
+        int num = list.size();
+        if (num > 0) {
+            if(num>99) {
+                bvMessage.setText("...");
+            }else{
+                bvMessage.setText(num + "");
+            }
+            bvMessage.setTextColor(Color.YELLOW);
+            bvMessage.setTextSize(12);
+            bvMessage.setBadgePosition(BadgeView.POSITION_TOP_RIGHT); //默认值
+            bvMessage.setVisibility(View.VISIBLE);
+            bvMessage.show();
+        } else {
+            bvMessage.setText("");
+            bvMessage.hide();
+        }
     }
 
     /***
@@ -234,7 +277,7 @@ public class DeskPosAuxillaryMenuActivity
                         record.setUploadTime(new Date());
                         DBManager.getInstance().getPaymentRecordEntityDao().save(record);
 
-                        cardOfflineCount++;
+                        cardOfflineSuccess++;
                     }
                 }
             }
@@ -284,9 +327,9 @@ public class DeskPosAuxillaryMenuActivity
                 int m = cardOfflineSuccess+qrOfflineSuccess;
 
                 if(m>0){
-                    playSound(true);
-                }else{
                     playSound(false);
+                }else{
+                    playSound(true);
                 }
 
                 String msg = String.format("共计 %d 离线交易，成功上传 %d",n,m);
@@ -304,6 +347,8 @@ public class DeskPosAuxillaryMenuActivity
                             }
                         });
             }
+
+            setMessageText();
         }
     }
 

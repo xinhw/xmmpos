@@ -124,8 +124,8 @@ public class PaymentDialog
         WindowManager.LayoutParams params = win.getAttributes();
         params.gravity = Gravity.CENTER;
         // 使用ViewGroup.LayoutParams，以便Dialog 宽度充满整个屏幕
-        params.width = (int) (dm.widthPixels * 0.9);
-        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        params.width = (int) (dm.widthPixels * 0.6);                //  设置对话框宽度
+        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;        //  设置对话框高度
         win.setAttributes(params);
     }
 
@@ -531,6 +531,7 @@ public class PaymentDialog
 
             String s1 = SpManager.getIntance().getSpString(AppIntentString.DISH_TYPE_VER);
             PaymentTotal paymentTotal = new PaymentTotal(record,s1);
+            paymentTotal.setUploadFlag(PaymentTotal.UPLOADED);  //  先设置为1，上传失败设置为0（防止后台任务自动上传）
             DBManager.getInstance().getPaymentTotalDao().save(paymentTotal);
 
             int n = 1;
@@ -570,7 +571,6 @@ public class PaymentDialog
                 DetLog.writeLog(TAG, "支付成功：" + cardPaymentObj.toString());
 
                 PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, famount, posInfoBean);
-                Log.d(TAG,"record: "+record.toString());
 
                 int flag = 0x00;
                 if(HttpUtil.isOnline) flag = 0x01;
@@ -580,6 +580,7 @@ public class PaymentDialog
                 record.setUploadFlag(flag);
                 DBManager.getInstance().getPaymentRecordEntityDao().save(record);
 
+                Log.d(TAG,"record:"+record.toString());
                 if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentSuccess(flag,record);
 
                 //  支付成功，关闭对话框

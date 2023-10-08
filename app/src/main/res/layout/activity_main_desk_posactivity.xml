@@ -270,7 +270,7 @@
                         android:gravity="center"
                         android:paddingLeft="1dp"
                         android:textStyle="bold"
-                        android:textSize="14sp"
+                        android:textSize="16sp"
                         android:text="数量："/>
                     <TextView
                         android:id="@+id/tvSubCount"
@@ -279,7 +279,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:textStyle="bold|italic"
-                        android:textSize="14sp"
+                        android:textSize="16sp"
                         android:text="1000"/>
                     <TextView
                         android:layout_height="match_parent"
@@ -288,7 +288,7 @@
                         android:gravity="center"
                         android:paddingLeft="2dp"
                         android:textStyle="bold"
-                        android:textSize="14sp"
+                        android:textSize="16sp"
                         android:text="小计："/>
                     <TextView
                         android:id="@+id/tvSubAmount"
@@ -298,7 +298,7 @@
                         android:gravity="center"
                         android:paddingLeft="2dp"
                         android:textStyle="bold|italic"
-                        android:textSize="14sp"
+                        android:textSize="16sp"
                         android:text="10076.23"/>
                 </LinearLayout>
             </LinearLayout>

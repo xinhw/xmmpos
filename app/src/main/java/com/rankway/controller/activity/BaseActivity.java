@@ -568,11 +568,12 @@ public class BaseActivity extends AppCompatActivity {
         }, time);
     }
 
-    public void showDialogMessage(String strtext, String format, String 确定, DialogInterface.OnClickListener onClickListener, String 取消, DialogInterface.OnClickListener clickListener) {
+    public void showDialogMessage(String strtext, String message, String 确定, DialogInterface.OnClickListener onClickListener, String 取消, DialogInterface.OnClickListener clickListener) {
         android.app.AlertDialog.Builder builder = null;
         builder = new android.app.AlertDialog.Builder(this);
         builder.setCancelable(false);
-        builder.setMessage(strtext);
+        builder.setTitle(strtext);
+        builder.setMessage(message);
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -1368,13 +1369,8 @@ public class BaseActivity extends AppCompatActivity {
 //                    //  上报设备事件
 //                    uploadEventList(str);
 
-//                    ///////////////////////////////////////////////////////////////////////////////////
-//                    //  是否可以自动上传
-//                    if (isAutoUploadDataAvailable()) {
-//                        autoUpdateData();
-//                    }
-//                    ///////////////////////////////////////////////////////////////////////////////////
-                    //  uploadPaymentRecords
+                    //  自动上传离线的IC卡交易和二维码交易
+                    //  uploadPaymentRecords();
 
                     uploadPaymentItems();
                 } catch (Exception e) {
@@ -1393,7 +1389,7 @@ public class BaseActivity extends AppCompatActivity {
         Log.d(TAG,"uploadPaymentItems");
         List<PaymentTotal> items = DBManager.getInstance().getPaymentTotalDao()
                 .queryBuilder()
-                .where(PaymentTotalDao.Properties.UploadFlag.eq(0))
+                .where(PaymentTotalDao.Properties.UploadFlag.eq(PaymentTotal.UNUPLOAD))
                 .list();
 
         if(items==null) return;

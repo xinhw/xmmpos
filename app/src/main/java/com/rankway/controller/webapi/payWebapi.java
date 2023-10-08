@@ -703,7 +703,28 @@ public class payWebapi {
             errMsg = String.valueOf(respParam.get("errmsg"));
             if (errCode != 0) return null;
 
-            // {"Result":[{"PosNo":"68001","Cno":"5324    ","CanteenName":"文新医务室","Amount":29.8,"Remain":567.39,"TransType":0,"TransTime":"2022-12-16T14:55:54"},{"PosNo":"22001","Cno":"879655  ","CanteenName":"文新1楼超市","Amount":21.0,"Remain":597.19,"TransType":0,"TransTime":"2022-12-16T11:52:36"},{"PosNo":"21003","Cno":"122196  ","CanteenName":"文新1F咖啡吧","Amount":49.0,"Remain":618.19,"TransType":0,"TransTime":"2022-12-14T12:44:13"},{"PosNo":"28004","Cno":"34451   ","CanteenName":"上报大食堂(梅龙镇)","Amount":17.0,"Remain":667.19,"TransType":0,"TransTime":"2022-12-13T11:14:48"},{"PosNo":"28004","Cno":"33797   ","CanteenName":"上报大食堂(梅龙镇)","Amount":28.0,"Remain":684.19,"TransType":0,"TransTime":"2022-12-12T11:42:25"},{"PosNo":"28002","Cno":"11756   ","CanteenName":"上报大食堂(梅龙镇)","Amount":17.0,"Remain":712.19,"TransType":0,"TransTime":"2022-12-09T11:35:04"},{"PosNo":"28004","Cno":"30732   ","CanteenName":"上报大食堂(梅龙镇)","Amount":22.0,"Remain":729.19,"TransType":0,"TransTime":"2022-12-06T11:23:27"},{"PosNo":"28001","Cno":"6186    ","CanteenName":"上报大食堂(梅龙镇)","Amount":60.0,"Remain":751.19,"TransType":0,"TransTime":"2022-12-05T17:43:01"},{"PosNo":"88888","Cno":"581188  ","CanteenName":"文新后台管理","Amount":800.0,"Remain":811.19,"TransType":1,"TransTime":"2022-11-30T15:02:47"},{"PosNo":"21003","Cno":"120151  ","CanteenName":"文新1F咖啡吧","Amount":102.0,"Remain":11.19,"TransType":0,"TransTime":"2022-11-25T15:41:59"},{"PosNo":"28006","Cno":"8129    ","CanteenName":"上报大食堂(梅龙镇)","Amount":17.0,"Remain":113.19,"TransType":0,"TransTime":"2022-11-24T11:17:46"},{"PosNo":"28005","Cno":"8379    ","CanteenName":"上报大食堂(梅龙镇)","Amount":120.0,"Remain":130.19,"TransType":0,"TransTime":"2022-11-23T15:55:14"},{"PosNo":"28005","Cno":"8378    ","CanteenName":"上报大食堂(梅龙镇)","Amount":35.0,"Remain":250.19,"TransType":0,"TransTime":"2022-11-23T15:13:48"},{"PosNo":"68001","Cno":"4767    ","CanteenName":"文新医务室","Amount":29.8,"Remain":285.19,"TransType":0,"TransTime":"2022-11-22T15:00:48"},{"PosNo":"28005","Cno":"7766    ","CanteenName":"上报大食堂(梅龙镇)","Amount":30.0,"Remain":314.99,"TransType":0,"TransTime":"2022-11-22T10:59:40"},{"PosNo":"28005","Cno":"7763    ","CanteenName":"上报大食堂(梅龙镇)","Amount":6.0,"Remain":344.99,"TransType":0,"TransTime":"2022-11-22T10:45:30"},{"PosNo":"50007","Cno":"10268   ","CanteenName":"盒马分组","Amount":1100.0,"Remain":350.99,"TransType":0,"TransTime":"2022-11-21T14:02:35"},{"PosNo":"22001","Cno":"867517  ","CanteenName":"文新1楼超市","Amount":10.5,"Remain":1450.99,"TransType":0,"TransTime":"2022-11-15T13:52:22"},{"PosNo":"28004","Cno":"19661   ","CanteenName":"上报大食堂(梅龙镇)","Amount":2.0,"Remain":1461.49,"TransType":0,"TransTime":"2022-11-15T08:57:45"},{"PosNo":"28004","Cno":"19081   ","CanteenName":"上报大食堂(梅龙镇)","Amount":30.0,"Remain":1463.49,"TransType":0,"TransTime":"2022-11-14T11:33:45"}],"errcode":0,"errmsg":"ok"}
+            // {"Result":[
+            // {"PosNo":"68001","Cno":"5324    ","CanteenName":"文新医务室","Amount":29.8,"Remain":567.39,"TransType":0,"TransTime":"2022-12-16T14:55:54"},
+            // {"PosNo":"22001","Cno":"879655  ","CanteenName":"文新1楼超市","Amount":21.0,"Remain":597.19,"TransType":0,"TransTime":"2022-12-16T11:52:36"},
+            // {"PosNo":"21003","Cno":"122196  ","CanteenName":"文新1F咖啡吧","Amount":49.0,"Remain":618.19,"TransType":0,"TransTime":"2022-12-14T12:44:13"},
+            // {"PosNo":"28004","Cno":"34451   ","CanteenName":"上报大食堂(梅龙镇)","Amount":17.0,"Remain":667.19,"TransType":0,"TransTime":"2022-12-13T11:14:48"},
+            // {"PosNo":"28004","Cno":"33797   ","CanteenName":"上报大食堂(梅龙镇)","Amount":28.0,"Remain":684.19,"TransType":0,"TransTime":"2022-12-12T11:42:25"},
+            // {"PosNo":"28002","Cno":"11756   ","CanteenName":"上报大食堂(梅龙镇)","Amount":17.0,"Remain":712.19,"TransType":0,"TransTime":"2022-12-09T11:35:04"},
+            // {"PosNo":"28004","Cno":"30732   ","CanteenName":"上报大食堂(梅龙镇)","Amount":22.0,"Remain":729.19,"TransType":0,"TransTime":"2022-12-06T11:23:27"},
+            // {"PosNo":"28001","Cno":"6186    ","CanteenName":"上报大食堂(梅龙镇)","Amount":60.0,"Remain":751.19,"TransType":0,"TransTime":"2022-12-05T17:43:01"},
+            // {"PosNo":"88888","Cno":"581188  ","CanteenName":"文新后台管理","Amount":800.0,"Remain":811.19,"TransType":1,"TransTime":"2022-11-30T15:02:47"},
+            // {"PosNo":"21003","Cno":"120151  ","CanteenName":"文新1F咖啡吧","Amount":102.0,"Remain":11.19,"TransType":0,"TransTime":"2022-11-25T15:41:59"},
+            // {"PosNo":"28006","Cno":"8129    ","CanteenName":"上报大食堂(梅龙镇)","Amount":17.0,"Remain":113.19,"TransType":0,"TransTime":"2022-11-24T11:17:46"},
+            // {"PosNo":"28005","Cno":"8379    ","CanteenName":"上报大食堂(梅龙镇)","Amount":120.0,"Remain":130.19,"TransType":0,"TransTime":"2022-11-23T15:55:14"},
+            // {"PosNo":"28005","Cno":"8378    ","CanteenName":"上报大食堂(梅龙镇)","Amount":35.0,"Remain":250.19,"TransType":0,"TransTime":"2022-11-23T15:13:48"},
+            // {"PosNo":"68001","Cno":"4767    ","CanteenName":"文新医务室","Amount":29.8,"Remain":285.19,"TransType":0,"TransTime":"2022-11-22T15:00:48"},
+            // {"PosNo":"28005","Cno":"7766    ","CanteenName":"上报大食堂(梅龙镇)","Amount":30.0,"Remain":314.99,"TransType":0,"TransTime":"2022-11-22T10:59:40"},
+            // {"PosNo":"28005","Cno":"7763    ","CanteenName":"上报大食堂(梅龙镇)","Amount":6.0,"Remain":344.99,"TransType":0,"TransTime":"2022-11-22T10:45:30"},
+            // {"PosNo":"50007","Cno":"10268   ","CanteenName":"盒马分组","Amount":1100.0,"Remain":350.99,"TransType":0,"TransTime":"2022-11-21T14:02:35"},
+            // {"PosNo":"22001","Cno":"867517  ","CanteenName":"文新1楼超市","Amount":10.5,"Remain":1450.99,"TransType":0,"TransTime":"2022-11-15T13:52:22"},
+            // {"PosNo":"28004","Cno":"19661   ","CanteenName":"上报大食堂(梅龙镇)","Amount":2.0,"Remain":1461.49,"TransType":0,"TransTime":"2022-11-15T08:57:45"},
+            // {"PosNo":"28004","Cno":"19081   ","CanteenName":"上报大食堂(梅龙镇)","Amount":30.0,"Remain":1463.49,"TransType":0,"TransTime":"2022-11-14T11:33:45"}],
+            // "errcode":0,"errmsg":"ok"}
             String str = JSONObject.toJSONString(respParam.get("Result"));
             Log.d(TAG,"RESULT:"+ str);
             return str;
@@ -1108,6 +1129,195 @@ public class payWebapi {
         }
     }
 
+    public static class WebapiResult{
+        PayRecord Result;
+        int errcode;
+        String errmsg;
+
+        public PayRecord getResult() {
+            return Result;
+        }
+
+        public void setResult(PayRecord result) {
+            Result = result;
+        }
+
+        public int getErrcode() {
+            return errcode;
+        }
+
+        public void setErrcode(int errcode) {
+            this.errcode = errcode;
+        }
+
+        public String getErrmsg() {
+            return errmsg;
+        }
+
+        public void setErrmsg(String errmsg) {
+            this.errmsg = errmsg;
+        }
+
+        @Override
+        public String toString() {
+            return "WebapiResult{" +
+                    "Result=" + Result +
+                    ", errcode=" + errcode +
+                    ", errmsg='" + errmsg + '\'' +
+                    '}';
+        }
+    }
+
+    public static class PayRecord{
+        String cno;
+        String cposno;
+        int cpostype;
+        int cpayway;
+        String cusercode;
+        int cardno;
+        String cdate;
+        float cmoney;
+        String cnote;
+        int typeid;
+        String localtime;
+
+        int systemid;
+        int qrtype;
+        String userid;
+
+        public String getCno() {
+            return cno;
+        }
+
+        public void setCno(String cno) {
+            this.cno = cno;
+        }
+
+        public String getCposno() {
+            return cposno;
+        }
+
+        public void setCposno(String cposno) {
+            this.cposno = cposno;
+        }
+
+        public int getCpostype() {
+            return cpostype;
+        }
+
+        public void setCpostype(int cpostype) {
+            this.cpostype = cpostype;
+        }
+
+        public int getCpayway() {
+            return cpayway;
+        }
+
+        public void setCpayway(int cpayway) {
+            this.cpayway = cpayway;
+        }
+
+        public String getCusercode() {
+            return cusercode;
+        }
+
+        public void setCusercode(String cusercode) {
+            this.cusercode = cusercode;
+        }
+
+        public int getCardno() {
+            return cardno;
+        }
+
+        public void setCardno(int cardno) {
+            this.cardno = cardno;
+        }
+
+        public String getCdate() {
+            return cdate;
+        }
+
+        public void setCdate(String cdate) {
+            this.cdate = cdate;
+        }
+
+        public float getCmoney() {
+            return cmoney;
+        }
+
+        public void setCmoney(float cmoney) {
+            this.cmoney = cmoney;
+        }
+
+        public String getCnote() {
+            return cnote;
+        }
+
+        public void setCnote(String cnote) {
+            this.cnote = cnote;
+        }
+
+        public int getTypeid() {
+            return typeid;
+        }
+
+        public void setTypeid(int typeid) {
+            this.typeid = typeid;
+        }
+
+        public String getLocaltime() {
+            return localtime;
+        }
+
+        public void setLocaltime(String localtime) {
+            this.localtime = localtime;
+        }
+
+        public int getSystemid() {
+            return systemid;
+        }
+
+        public void setSystemid(int systemid) {
+            this.systemid = systemid;
+        }
+
+        public int getQrtype() {
+            return qrtype;
+        }
+
+        public void setQrtype(int qrtype) {
+            this.qrtype = qrtype;
+        }
+
+        public String getUserid() {
+            return userid;
+        }
+
+        public void setUserid(String userid) {
+            this.userid = userid;
+        }
+
+        @Override
+        public String toString() {
+            return "PayRecord{" +
+                    "cno='" + cno + '\'' +
+                    ", cposno='" + cposno + '\'' +
+                    ", cpostype=" + cpostype +
+                    ", cpayway=" + cpayway +
+                    ", cusercode='" + cusercode + '\'' +
+                    ", cardno=" + cardno +
+                    ", cdate='" + cdate + '\'' +
+                    ", cmoney=" + cmoney +
+                    ", cnote='" + cnote + '\'' +
+                    ", typeid=" + typeid +
+                    ", localtime='" + localtime + '\'' +
+                    ", systemid=" + systemid +
+                    ", qrtype=" + qrtype +
+                    ", userid=" + userid +
+                    '}';
+        }
+    }
+
     /***
      * 获取黑名单
      * @return
@@ -1246,26 +1456,49 @@ public class payWebapi {
                 return -1;
             }
 
-            HashMap responseBody = (HashMap) fromJsonString(ret, HashMap.class);
-            if(null==responseBody){
+            WebapiResult wr = JSON.parseObject(ret,WebapiResult.class);
+            Log.d(TAG,"wr:"+wr.toString());
+
+            if(null==wr){
                 errMsg = "后台返回信息格式出错";
                 return -1;
             }
 
             //  {"errcode":0,"errmsg":"ok"}
-            errCode = (int)Double.parseDouble(String.valueOf(responseBody.get("errcode")));
-            errMsg = String.valueOf(responseBody.get("errmsg"));
+            errCode = wr.getErrcode();
+            errMsg = wr.getErrmsg();
+            Log.d(TAG,"errMsg:"+errMsg);
+
             if (errCode == 0) return errCode;
 
             //  重复的返回
             //  {"Result":{"cno":"47031425","cposno":"20001","cpostype":null,"cpayway":null,"cusercode":"90001","cardno":18985,"cdate":"2023-10-05T19:34:19.542+08:00",
             //  "cmoney":1.2,"cremain":0.0,"cnote":null,"typeid":100,"localtime":null,"SystemID":0,"personinfo":null},"errcode":409,"errmsg":"数据冲突"}
             //  需要比较一下cardno,cdate,cmoney是否一样，如果一样就认为成功
-            if(errCode==409) return 0;
+            if(errCode==409){
+                Log.d(TAG,"errCode:409");
+
+                // cardno
+                if(wr.getResult().getCardno()!=record.getCardno()){
+                    Log.d(TAG,"卡号不一样，是主键重复");
+                    return  errCode;
+                }
+
+                // "cmoney":1.2
+                if(Math.abs(wr.getResult().getCmoney()-record.getAmount())>0.001){
+                    Log.d(TAG,"金额不一样，是主键重复");
+                    return errCode;
+                }
+
+                Log.d(TAG,"记录重新传输，算成功");
+
+                return 0;
+            }
 
             return errCode;
 
         } catch (Exception e) {
+            e.printStackTrace();
             errMsg = e.getMessage();
         }
 
@@ -1283,7 +1516,7 @@ public class payWebapi {
         String accessToken = accessToken();
 
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
-        String url = serverPort + "/api/qr/payinfoes/list?accessToken=" + accessToken;
+        String url = serverPort + "/api/qr/payinfoes/listv2?accessToken=" + accessToken;
         Log.d(TAG,"url:"+url);
 
         PaymentApplyEntity pae = new PaymentApplyEntity(record);
@@ -1346,18 +1579,33 @@ public class payWebapi {
             }
 
             //  {{"errcode":0,"errmsg":"ok"}}
-            Log.d(TAG,String.format("对api返回的respParamSet进行JSON转换,内容:{%s}", responseParam));
-            HashMap respParam = (HashMap) fromJsonString(responseParam, HashMap.class);
+            WebapiResult wr = JSON.parseObject(responseParam,WebapiResult.class);
+            Log.d(TAG,"wr:"+wr.toString());
+
+            if(null==wr){
+                errMsg = "后台返回信息格式出错";
+                return -1;
+            }
 
             //  需要填充内容
-            errCode = (int)Double.parseDouble(String.valueOf(respParam.get("errcode")));
-            errMsg = String.valueOf(respParam.get("errmsg"));
+            errCode = wr.getErrcode();
+            Log.d(TAG,"errcode:"+errCode);
+
+            errMsg = wr.getErrmsg();
+            Log.d(TAG,"errmsg:"+errMsg);
+
             if (errCode == 0) return errCode;
 
             //  重复的返回
             //  {{"errcode":403,"errmsg":"设备交易流水已存在 caused by {\"cno\":\"47031428\",\"cposno\":\"20001\",\"cusercode\":\"90001\",
             //  \"cdate\":\"2023-10-05T20:03:41.369+08:00\",\"cmoney\":1.0,\"SystemId\":1,\"QrType\":1,\"UserId\":\"737589\"}"}}
-            if (errCode == 403) return 0;
+            if (errCode == 409){
+                if(!wr.getResult().getUserid().equalsIgnoreCase(record.getUserId())) return errCode;
+
+                Log.d(TAG,"记录重新传输，算成功");
+
+                return 0;
+            }
 
             return errCode;
 
@@ -1431,14 +1679,14 @@ public class payWebapi {
             @Override
             public void onFailure(Call call, IOException e) {
                 DetLog.writeLog(TAG,"上传消费明细失败："+e.getMessage());
+                paymentTotal.setUploadFlag(PaymentTotal.UNUPLOAD);
+                DBManager.getInstance().getPaymentTotalDao().save(paymentTotal);
                 return;
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 DetLog.writeLog(TAG,"上传明细成功："+JSON.toJSONString(paymentTotal));
-                paymentTotal.setUploadFlag(1);
-                DBManager.getInstance().getPaymentTotalDao().save(paymentTotal);
             }
         });
         return 0;
