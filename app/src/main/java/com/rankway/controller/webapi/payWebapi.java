@@ -64,8 +64,8 @@ public class payWebapi {
     private String menuServerIP = "121.36.16.185";
     private int menuPortNo = 6602;
 
-    private static int continuosErrCount = 0;           //  通信连续失败次数
-    private static boolean isConnected = false;         //  连接状态
+    private String sessionAccessToken = "9e9a3635b1caff8d0ae6512e8d5e303d";
+    private final int MAX_TRY_TIMES = 3;
 
     public int getErrCode() {
         return errCode;
@@ -125,11 +125,22 @@ public class payWebapi {
         Log.d(TAG,"url="+url);
 
         HttpUtil httpUtil = new HttpUtil();
-        String ret = httpUtil.httpGet(url);
-        Log.d(TAG,"ret:"+ret);
+        String ret = null;
+
+        //  循环3次
+        for(int i=0;i<MAX_TRY_TIMES;i++) {
+            ret = httpUtil.httpGet(url);
+            if(ret!=null) break;
+            sleep(100);
+        }
+        Log.d(TAG, "ret:" + ret);
+
         if(null!=ret) {
             HashMap retMap = (HashMap) fromJsonString(ret, HashMap.class);
             accessToken = (String) retMap.get("AccessToken");
+
+            sessionAccessToken = accessToken;
+
             return accessToken;
         }else{
             errCode = httpUtil.getResponseCode();
@@ -298,10 +309,8 @@ public class payWebapi {
     public cardInfo getPersonInfoBySNO(String sno){
         Log.d(TAG,"getPersonBySNO");
 
-        String accessToken = accessToken();
-
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
-        String url = serverPort + String.format("/api/PersoninfoFromSnoV2/%s?accessToken=",sno) + accessToken;
+        String url = serverPort + String.format("/api/PersoninfoFromSnoV2/%s?accessToken=",sno) + sessionAccessToken;
         Log.d(TAG,"URL:"+url);
 
         try {
@@ -440,10 +449,8 @@ public class payWebapi {
     public cardInfo getPersonInfoByQrCode(int systemId,int qrType,String userId) {
         Log.d(TAG,"getQrPersonInfo");
 
-        String accessToken = accessToken();
-
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
-        String url = serverPort + "/api/qr/personinfo?accessToken=" + accessToken;
+        String url = serverPort + "/api/qr/personinfo?accessToken=" + sessionAccessToken;
         Log.d(TAG,"url:"+url);
 
         Map<String, Object> requestMap = new HashMap<>();
@@ -747,10 +754,8 @@ public class payWebapi {
     public int cardPayment(int auditNo,int cardno,Date cdate,int cmoney){
         Log.d(TAG,"cardPayment");
 
-        String accessToken = accessToken();
-
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
-        String url = serverPort + "/api/Payinfoes?accessToken=" + accessToken;
+        String url = serverPort + "/api/Payinfoes?accessToken=" + sessionAccessToken;
         Log.d(TAG,"url:"+url);
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
@@ -814,10 +819,8 @@ public class payWebapi {
     public int qrPayment(int auditNo,int systemId,int qrType,String userId,Date cdate,int cmoney){
         Log.d(TAG,"qrPayment");
 
-        String accessToken = accessToken();
-
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
-        String url = serverPort + "/api/qr/payinfoes?accessToken=" + accessToken;
+        String url = serverPort + "/api/qr/payinfoes?accessToken=" + sessionAccessToken;
         Log.d(TAG,"url:"+url);
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
@@ -1690,5 +1693,13 @@ public class payWebapi {
             }
         });
         return 0;
+    }
+
+    private void sleep(int ms){
+        try{
+            Thread.sleep(ms);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }
