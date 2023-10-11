@@ -229,7 +229,7 @@ public class MobilePosSettingsActivity
             long lastmillis = c.getTimeInMillis();
             Date dtlast = new Date(lastmillis);
 
-            String fileName = path + String.format("ETEK%s.txt", simpleDateFormat.format(dtlast));
+            String fileName = path + String.format("WXPOS%s.txt", simpleDateFormat.format(dtlast));
             File logfile = new File(fileName);
             if (logfile.exists()) {
                 Log.d(TAG, "日志文件：" + fileName);

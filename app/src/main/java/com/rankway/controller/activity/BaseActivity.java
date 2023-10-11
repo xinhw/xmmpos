@@ -1069,7 +1069,7 @@ public class BaseActivity extends AppCompatActivity {
             long lastmillis = c.getTimeInMillis();
             Date dtlast = new Date(lastmillis);
 
-            String fileName = path + String.format("ETEK%s.txt", simpleDateFormat.format(dtlast));
+            String fileName = path + String.format("WXPOS%s.txt", simpleDateFormat.format(dtlast));
             File logfile = new File(fileName);
             if (logfile.exists()) {
                 Log.d("LOG", "合并日志：" + fileName);
