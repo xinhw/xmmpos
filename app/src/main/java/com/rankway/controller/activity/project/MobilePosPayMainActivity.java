@@ -485,6 +485,9 @@ public class MobilePosPayMainActivity
     }
 
 
+    /***
+     * 查询任务
+     */
     private class AsynTaskQuery extends AsyncTask<String, Integer, Integer> {
         private int payType = 0;
         private cardInfo cardInfoObj = null;
