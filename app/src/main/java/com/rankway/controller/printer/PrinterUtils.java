@@ -1,5 +1,9 @@
 package com.rankway.controller.printer;
 
+import android.text.TextUtils;
+
+import com.rankway.controller.activity.project.manager.SpManager;
+import com.rankway.controller.common.AppIntentString;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.persistence.entity.DishEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
@@ -19,9 +23,10 @@ import java.util.List;
 public class PrinterUtils {
 
     private String title;
-
     public PrinterUtils(){
-        title = "报业大厦餐厅";
+        String str = SpManager.getIntance().getSpString(AppIntentString.PRINTER_HEADER);
+        if(TextUtils.isEmpty(str)) str = "上海报业大厦餐厅";
+        title = str;
     }
 
     public void printPayItem(PrinterBase printer,
@@ -51,15 +56,15 @@ public class PrinterUtils {
 //        printer.printString(s);
 
         //  POS机号
-        s =combinePrintLine(12," POS号：",posInfoBean.getCposno());
+        s =combinePrintLine(12,"POS号：",posInfoBean.getCposno());
         printer.printString(s);
 
         //  流水号
-        s =combinePrintLine(12," 流水号：",posInfoBean.getAuditNo()+"");
+        s =combinePrintLine(12,"流水号：",posInfoBean.getAuditNo()+"");
         printer.printString(s);
 
         //  工号
-        s =combinePrintLine(12," 工号：",record.getWorkNo());
+        s =combinePrintLine(12,"工号：",record.getWorkNo());
         printer.printString(s);
 
         //  支付方式
@@ -68,11 +73,11 @@ public class PrinterUtils {
         }else{
             s = "二维码";
         }
-        s = combinePrintLine(12," 方式：",s);
+        s = combinePrintLine(12,"方式：",s);
         printer.printString(s);
 
         //  时间
-        s = combinePrintLine(12," 时间：",DateStringUtils.dateToString(record.getTransTime()));
+        s = combinePrintLine(12,"时间：",DateStringUtils.dateToString(record.getTransTime()));
         printer.printString(s);
 
         s = "--------------------------------";
@@ -104,14 +109,14 @@ public class PrinterUtils {
         float f = (float) (totoalAmount*0.01);
         String samount = padLeftSpace(String.format("%.2f",f),11);
         s = padRightSpace("消费金额：",10);
-        printer.printString(" " + s+samount);
+        printer.printString(s+samount);
 
         //  仅仅在线交易打印余额
         if(record.getUploadFlag()==0x01) {
             f = record.getRemain() - f;
             samount = padLeftSpace(String.format("%.2f", f), 11);
             s = padRightSpace("剩余金额：", 10);
-            printer.printString(" " + s + samount);
+            printer.printString(s + samount);
         }
 
         //  走纸3行

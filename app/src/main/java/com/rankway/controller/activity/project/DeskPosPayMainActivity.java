@@ -1,10 +1,16 @@
 package com.rankway.controller.activity.project;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -43,7 +49,9 @@ import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.printer.PrinterBase;
 import com.rankway.controller.printer.PrinterFactory;
+import com.rankway.controller.printer.PrinterGP58;
 import com.rankway.controller.printer.PrinterUtils;
+import com.rankway.controller.reader.ReaderCS230Z;
 import com.rankway.controller.utils.ClickUtil;
 import com.rankway.controller.utils.DateStringUtils;
 import com.rankway.controller.utils.HttpUtil;
@@ -110,6 +118,10 @@ public class DeskPosPayMainActivity
         initView();
 
         initData();
+
+        checkAppUpdate();
+
+        registerReceiver();
     }
 
     private void initView() {
@@ -249,6 +261,14 @@ public class DeskPosPayMainActivity
         return super.onKeyUp(keyCode, event);
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.d(TAG,"onConfigurationChanged");
+
+        //USB 拔插动作, 这个方法都会被调用.
+        super.onConfigurationChanged(newConfig);
+    }
+
     private void setLayoutManager(RecyclerView mRecyclerView){
         //设置布局管理器
         FlexboxLayoutManager flexboxLayoutManager = new FlexboxLayoutManager(DeskPosPayMainActivity.this);
@@ -268,6 +288,8 @@ public class DeskPosPayMainActivity
 
         //  停止服务
         stopAppService();
+
+        unregisterReceiver();
 
         detSleep(100);
 
@@ -703,5 +725,67 @@ public class DeskPosPayMainActivity
             record.setUploadFlag(0);
         }
         DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(list);
+    }
+
+    /***
+     * 监听USB设备的插入和拔出
+     */
+    private class USBReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //  USB设备对象
+            UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+            if(null==usbDevice){
+                Log.d(TAG,"usbDevice is null");
+                return;
+            }
+
+            switch (intent.getAction()){
+                case UsbManager.ACTION_USB_DEVICE_ATTACHED:     //  插入USB设备
+                    if((usbDevice.getVendorId()== PrinterGP58.VENDORID)
+                            &&(usbDevice.getProductId()==PrinterGP58.PRODUCTID)){
+                        Log.d(TAG,"打印机插入");
+                    }
+                    if((usbDevice.getVendorId()== ReaderCS230Z.VENDORID)
+                            &&(usbDevice.getProductId()==ReaderCS230Z.PRODUCTID)){
+                        Log.d(TAG,"IC卡读卡器插入");
+                    }
+                    break;
+
+                case UsbManager.ACTION_USB_DEVICE_DETACHED:     //  拔出USB设备
+                    if((usbDevice.getVendorId()== PrinterGP58.VENDORID)
+                            &&(usbDevice.getProductId()==PrinterGP58.PRODUCTID)){
+                        Log.d(TAG,"打印机拔出");
+                    }
+                    if((usbDevice.getVendorId()== ReaderCS230Z.VENDORID)
+                            &&(usbDevice.getProductId()==ReaderCS230Z.PRODUCTID)){
+                        Log.d(TAG,"IC卡读卡器拔出");
+                    }
+                    break;
+
+                default:
+                    Log.d(TAG,String.format("未知设备：VENTORID=%d PRODUCTID=%d",
+                            usbDevice.getVendorId(),
+                            usbDevice.getProductId()));
+                    break;
+            }
+        }
+    }
+
+    USBReceiver mUsbReceiver = null;
+    private void registerReceiver(){
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+
+        mUsbReceiver = new USBReceiver();
+        mContext.registerReceiver(mUsbReceiver,filter);
+    }
+
+    private void unregisterReceiver(){
+        if(null!=mUsbReceiver) {
+            mContext.unregisterReceiver(mUsbReceiver);
+        }
+        mUsbReceiver = null;
     }
 }

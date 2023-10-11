@@ -33,13 +33,16 @@ public class ReaderCS230Z extends ReaderBase{
     private UsbDevice usbDeviceReader = null;
     private String Device_USB_READER = "com.android.example.USB.reader";
 
+    public static final int VENDORID = 4292;
+    public static final int PRODUCTID = 528;
+
     public ReaderCS230Z(Context context) {
         super(context);
     }
 
     @Override
-    public int opneReader() {
-        Log.d(TAG,"opneReader");
+    public int openReader() {
+        Log.d(TAG,"openReader");
 
         manager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
         if (manager == null) {

@@ -101,6 +101,7 @@
             android:name=".activity.project.MobliePosPayMainActivity"
             android:exported="true"
             android:launchMode="singleTask"
+            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
             android:theme="@style/AppTheme.NoActionBar">
 
             <!-- <intent-filter> -->

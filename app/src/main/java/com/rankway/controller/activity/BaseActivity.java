@@ -697,12 +697,24 @@ public class BaseActivity extends AppCompatActivity {
 
     private AlertDialog updateDialog;
 
+    //  升级URL
+    private String getAppUpdateURL(){
+        PosInfoBean pos = getPosInfoBean();
+        if(null==pos) return "";
+
+        String url = String.format("http://%s:%d/api/appVersions/deskpos?sn=%s",
+                    pos.getMenuServerIP(),
+                    pos.getMenuPortNo(),
+                    pos.getCposno());
+        return url;
+    }
+
     /***
      * 检查服务器上版本信息
      */
     public void checkAppUpdate() {
-
-        UpdateAppUtils.checkAppUpdate(AppIntentString.APP_DOWNLOAD_URL, this, new UpdateAppUtils.AppUpdateCallback() {
+        String url = getAppUpdateURL();
+        UpdateAppUtils.checkAppUpdate(url, this, new UpdateAppUtils.AppUpdateCallback() {
             @Override
             public void onSuccess(AppUpdateBean updateInfo) {
                 Log.d(TAG, updateInfo.toString());
@@ -1120,15 +1132,23 @@ public class BaseActivity extends AppCompatActivity {
         return;
     }
 
+
+    private String getUploadLogURL(){
+        //  https://47.117.132.63:6062/logs/upload/posno
+        PosInfoBean pos = getPosInfoBean();
+        if(null==pos) return "";
+
+        String url = String.format("http://%s:%d/logs/upload/%s",
+                pos.getMenuServerIP(),
+                pos.getMenuPortNo(),
+                pos.getCposno());
+        return url;
+    }
+
     public void httpPostLogFile(final ArrayList<String> logfiles, final File logfile) {
-        //  起爆器编号
-        String strsno = getPreInfo(getString(com.rankway.controller.R.string.controller_sno));
-        if (TextUtils.isEmpty(strsno))
-            strsno = "F00A8000000";
-        Log.d("LOG", String.format("起爆器编号：%s", strsno));
 
         //  上传地址
-        String url = String.format(SemiServerAddress.getUploadLogURL() + "/%s", strsno);
+        String url = getUploadLogURL();
         url = url + "?gzip=1";
 
         AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();

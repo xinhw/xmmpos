@@ -80,7 +80,7 @@ public class DeskPosModulesTestActivity extends BaseActivity {
             public void onClick(View v) {
                 if(reader==null){
                     reader = ReaderFactory.getReader(mContext);
-                    int ret = reader.opneReader();
+                    int ret = reader.openReader();
                     if(0!=ret){
                         PutMessage(DEVICE_CARD_READER,reader.getErrMessage());
                     }else{

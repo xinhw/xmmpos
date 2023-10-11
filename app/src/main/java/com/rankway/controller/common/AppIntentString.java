@@ -30,4 +30,5 @@ public class AppIntentString {
     public static final String LAST_SYNC_TIME = "lastSyncTime";         //  上次同步时间
     public static final String DISH_TYPE_VER = "dishTypeVer";           //  菜品类型信息
     public static final String OFFLINE_MAX_AMOUNT = "offlineMaxAmount";           //  脱机消费最大金额
+    public static final String PRINTER_HEADER = "printerHeader";           //  打印头
 }

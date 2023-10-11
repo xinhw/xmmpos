@@ -109,7 +109,7 @@ public class MyCrashHandler implements Thread.UncaughtExceptionHandler {
             private void writeCrashLog(String errorMessage){
                 try {
                     FileWriter writer = null;
-                    String fileName = logFilePath+File.separator+"WXSemiconCrash.log";
+                    String fileName = logFilePath+File.separator+"SUMGPOSCrash.log";
                     // 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
                     writer = new FileWriter(fileName, true);
 

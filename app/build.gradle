@@ -70,7 +70,7 @@ android {
         release.setRoot('build-types/release')
         android.applicationVariants.all { variant ->
             variant.outputs.all { output ->
-                outputFileName = "WXSEMICON_FEB_${variant.versionCode}-${variant.versionName}-${releaseTime()}.apk"
+                outputFileName = "SUMG_DESK_POS_${variant.versionCode}-${variant.versionName}-${releaseTime()}.apk"
             }
         }
 

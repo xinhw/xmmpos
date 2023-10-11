@@ -39,8 +39,8 @@ public class PrinterGP58 extends PrinterBase{
 
     private String Device_USB_PRINTER = "com.android.example.USB.printer";
 
-    private final int VENDORID = 26728;
-    private final int PRODUCTID = 512;
+    public static final int VENDORID = 26728;
+    public static final int PRODUCTID = 512;
 
     private final int TIMEOUT = 500;
 
@@ -73,7 +73,7 @@ public class PrinterGP58 extends PrinterBase{
         }
 
         if(usbDevice==null){
-            setErrMessage("请确保读卡器接入并开机");
+            setErrMessage("请确打印机接入并开机");
             return -2;
         }
 
@@ -113,7 +113,7 @@ public class PrinterGP58 extends PrinterBase{
         }
 
         if (!usbConnection.claimInterface(usbInterface, true)){
-            setErrMessage("没有找到 USB 设备接口");
+            setErrMessage("没有找到 打印机 设备接口");
             usbConnection.close();
             usbDevicePrinter = null;
             return -4;
@@ -128,7 +128,7 @@ public class PrinterGP58 extends PrinterBase{
                 usbEndpointOut = end;
             }
         }
-        setErrMessage("Usb打印机打开成功");
+        setErrMessage("打印机打开成功");
 
         //  复位
         printBytes(PrinterFormatUtils.RESET);

@@ -142,7 +142,7 @@ public class PaymentDialog
         if(payMode==PAY_MODE_CARD){
             tvPayMode.setText("支付方式：IC卡");
 
-            int ret = ReaderFactory.getReader(mContext).opneReader();
+            int ret = ReaderFactory.getReader(mContext).openReader();
             if(0!=ret){
                 ToastUtils.showLong(mContext,"读卡器打开失败，请检查连接!");
                 baseActivity.playSound(false);

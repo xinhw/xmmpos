@@ -69,6 +69,7 @@ public class MobilePosSettingsActivity
     private TextView tvOfflineMaxAmount;
     private TextView menuServerIP;
     private TextView menuServerPort;
+    private TextView tvPrintHeader;
 
     private  boolean passAdvancedPassword = false;
 
@@ -89,7 +90,7 @@ public class MobilePosSettingsActivity
                 R.id.upload_log,R.id.about,
                 R.id.recover_data,
                 R.id.tvHttpTimeout,R.id.tvOfflineMaxAmount,
-                R.id.menuServerIP,R.id.menuServerPort};
+                R.id.menuServerIP,R.id.menuServerPort,R.id.tvPrintHeader};
         setOnClickListener(viewIds);
 
         tvPosName = findViewById(R.id.posname);
@@ -100,6 +101,7 @@ public class MobilePosSettingsActivity
         tvServerPort = findViewById(R.id.serverPort);
         tvHttpTimeout = findViewById(R.id.tvHttpTimeout);
         tvOfflineMaxAmount = findViewById(R.id.tvOfflineMaxAmount);
+        tvPrintHeader = findViewById(R.id.tvPrintHeader);
 
         menuServerIP = findViewById(R.id.menuServerIP);
         menuServerPort = findViewById(R.id.menuServerPort);
@@ -147,6 +149,11 @@ public class MobilePosSettingsActivity
         ret = SpManager.getIntance().getSpInt(AppIntentString.OFFLINE_MAX_AMOUNT);
         if(ret<=0) ret = 30;
         tvOfflineMaxAmount.setText(ret+"");
+
+        //  打印头
+        String str = SpManager.getIntance().getSpString(AppIntentString.PRINTER_HEADER);
+        if(TextUtils.isEmpty(str)) str = "上海报业大厦餐厅";
+        tvPrintHeader.setText(str);
 
         return;
     }
@@ -202,6 +209,10 @@ public class MobilePosSettingsActivity
 
             case R.id.recover_data:
                 showCleanDialog();
+                break;
+
+            case R.id.tvPrintHeader:
+                showPrintHeaderDialog();
                 break;
         }
     }
@@ -652,4 +663,39 @@ public class MobilePosSettingsActivity
         alertDialog.setCancelable(false);
         alertDialog.show();
     }
+
+
+    /***
+     * 输入打印标题
+     */
+    private void showPrintHeaderDialog() {
+        // 展示提示框，进行数据清除
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_intput, null);
+        EditText editPassword = view.findViewById(R.id.edit_msg);
+        builder.setTitle("请输入打印标题:");
+        builder.setView(view);
+        editPassword.setInputType(InputType.TYPE_CLASS_TEXT);
+        editPassword.setFilters(new InputFilter[]{
+                new InputFilter.LengthFilter(8)
+        });
+
+        builder.setPositiveButton("确认", (dialog, which) -> {
+            String password = editPassword.getText().toString().trim();
+            if (TextUtils.isEmpty(password)) {
+                ToastUtils.show(mContext, "请输入打印标题！");
+                playSound(false);
+            } else {
+                tvPrintHeader.setText(password);
+
+                SpManager.getIntance().saveSpString(AppIntentString.PRINTER_HEADER,password);
+                playSound(true);
+
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("取消", (dialog, which) -> dialog.dismiss());
+        builder.create().show();
+    }
+
 }

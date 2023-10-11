@@ -28,7 +28,7 @@ public abstract class ReaderBase {
         this.errMessage = errMessage;
     }
 
-    public abstract int opneReader();
+    public abstract int openReader();
     public abstract void closeReader();
     public abstract String getCardNo();
     public abstract byte[] readBlock(byte blockNo);
