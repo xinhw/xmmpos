@@ -30,7 +30,6 @@ import com.baidu.mapapi.model.LatLng;
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.hardware.util.DetLog;
-import com.rankway.sommerlibrary.utils.ToastUtils;
 
 import java.text.SimpleDateFormat;
 
@@ -151,7 +150,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener {
             String str = sdf.format(date);
             setStringInfo("LocationCacheTime", str);
 
-            ToastUtils.showCustom(MapActivity.this, "已获取经纬度！");
+            showToast("已获取经纬度！");
         } else {
             Log.d(TAG, "不缓存经纬度");
         }
@@ -261,7 +260,7 @@ public class MapActivity extends BaseActivity implements View.OnClickListener {
             // 注意：此处更新准确度非常低，推荐在service里面启动一个Thread，在run中sleep(10000);然后执行handler.sendMessage(),更新位置
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
         } else {
-            ToastUtils.show(MapActivity.this, "请在设置里授权");
+            showToast("请在设置里授权");
         }
     }
 

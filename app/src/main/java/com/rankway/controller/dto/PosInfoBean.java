@@ -20,7 +20,6 @@ public class PosInfoBean {
     String menuServerIP;
     int menuPortNo;
 
-
     String shiftNo;     //  班次号
 
     int status;         //  状态：0--已经结班；1--未结班
@@ -29,6 +28,8 @@ public class PosInfoBean {
 
     Date startTime;         //  开班时间
     Date settleTime;        //  结班时间
+
+    String upgradeUrl;      //  升级地址
 
     public String getCposno() {
         return cposno;
@@ -136,6 +137,15 @@ public class PosInfoBean {
                 ", status=" + status +
                 ", startTime=" + startTime +
                 ", settleTime=" + settleTime +
+                ", upgradeUrl='" + upgradeUrl + '\'' +
                 '}';
+    }
+
+    public String getUpgradeUrl() {
+        return upgradeUrl;
+    }
+
+    public void setUpgradeUrl(String upgradeUrl) {
+        this.upgradeUrl = upgradeUrl;
     }
 }

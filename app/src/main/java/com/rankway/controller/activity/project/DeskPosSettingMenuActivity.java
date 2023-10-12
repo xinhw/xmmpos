@@ -14,7 +14,6 @@ import android.widget.EditText;
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.utils.ClickUtil;
-import com.rankway.sommerlibrary.utils.ToastUtils;
 
 public class DeskPosSettingMenuActivity
         extends BaseActivity
@@ -116,13 +115,13 @@ public class DeskPosSettingMenuActivity
             public void onClick(DialogInterface dialog, int which) {
                 String possword = editPossword.getText().toString().trim();
                 if (TextUtils.isEmpty(possword)) {
-                    ToastUtils.show(mContext, "请输入密码后清理！");
+                    showToast( "请输入密码后清理！");
                     playSound(false);
                     return;
                 }
 
                 if (!isAdvancedPasswordRight(possword)) {
-                    ToastUtils.show(mContext, "密码错误！");
+                    showToast("密码错误！");
                     playSound(false);
                     return;
                 }

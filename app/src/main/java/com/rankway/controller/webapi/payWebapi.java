@@ -1682,6 +1682,7 @@ public class payWebapi {
             @Override
             public void onFailure(Call call, IOException e) {
                 DetLog.writeLog(TAG,"上传消费明细失败："+e.getMessage());
+
                 paymentTotal.setUploadFlag(PaymentTotal.UNUPLOAD);
                 DBManager.getInstance().getPaymentTotalDao().save(paymentTotal);
                 return;
@@ -1689,7 +1690,15 @@ public class payWebapi {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                DetLog.writeLog(TAG,"上传明细成功："+JSON.toJSONString(paymentTotal));
+                String strjson = response.body().string();
+                Log.d(TAG, "onSuccess:" + strjson);
+                try {
+                    Result result = JSON.parseObject(strjson, Result.class);
+                    Log.d(TAG,"Result:"+result.toString());
+                    DetLog.writeLog(TAG, "上传明细成功：" + JSON.toJSONString(paymentTotal));
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         });
         return 0;

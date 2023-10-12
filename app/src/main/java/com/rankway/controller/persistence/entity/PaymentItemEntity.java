@@ -28,15 +28,19 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
     int quantity;
     float transMoney;
 
+    String dishTypeCode;
+    String dishTypeName;
+
     @JSONField(serialize = false)
     long timestamp;
 
     @JSONField(serialize = false)
     long paymentTotalId;
     
-    @Generated(hash = 1343734876)
+    @Generated(hash = 1661599674)
     public PaymentItemEntity(Long id, String posSerialChild, String dishCode, String dishName,
-            float price, int quantity, float transMoney, long timestamp, long paymentTotalId) {
+            float price, int quantity, float transMoney, String dishTypeCode, String dishTypeName,
+            long timestamp, long paymentTotalId) {
         this.id = id;
         this.posSerialChild = posSerialChild;
         this.dishCode = dishCode;
@@ -44,6 +48,8 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
         this.price = price;
         this.quantity = quantity;
         this.transMoney = transMoney;
+        this.dishTypeCode = dishTypeCode;
+        this.dishTypeName = dishTypeName;
         this.timestamp = timestamp;
         this.paymentTotalId = paymentTotalId;
     }
@@ -145,6 +151,22 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
         return ret;
     }
 
+    public String getDishTypeCode() {
+        return this.dishTypeCode;
+    }
+
+    public void setDishTypeCode(String dishTypeCode) {
+        this.dishTypeCode = dishTypeCode;
+    }
+
+    public String getDishTypeName() {
+        return this.dishTypeName;
+    }
+
+    public void setDishTypeName(String dishTypeName) {
+        this.dishTypeName = dishTypeName;
+    }
+
     public PaymentItemEntity(int seqNo, long paymentTotalId, DishEntity dishEntity){
         this.posSerialChild = seqNo+"";
         this.dishCode = dishEntity.getDishCode().trim();
@@ -154,6 +176,11 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
         this.transMoney = dishEntity.getCount()* dishEntity.getPrice();
         this.timestamp = System.currentTimeMillis();
         this.paymentTotalId = paymentTotalId;
+        DishTypeEntity dishType = dishEntity.getDishType();
+        if(null!=dishType) {
+            this.dishTypeCode = dishType.getDishTypeCode();
+            this.dishTypeName = dishType.getDishTypeName();
+        }
     }
 
     @Generated(hash = 558064288)

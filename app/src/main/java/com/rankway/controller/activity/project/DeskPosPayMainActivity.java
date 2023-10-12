@@ -57,7 +57,6 @@ import com.rankway.controller.reader.ReaderCS230Z;
 import com.rankway.controller.utils.ClickUtil;
 import com.rankway.controller.utils.DateStringUtils;
 import com.rankway.controller.utils.HttpUtil;
-import com.rankway.sommerlibrary.utils.ToastUtils;
 
 import org.jetbrains.annotations.TestOnly;
 
@@ -524,7 +523,7 @@ public class DeskPosPayMainActivity
                     count = Integer.parseInt(str);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    ToastUtils.showShort(mContext, "输入无效！");
+                    showToast("输入无效！");
                     playSound(false);
                     return;
                 }
@@ -593,7 +592,7 @@ public class DeskPosPayMainActivity
             printer.closePrinter();
         }
 
-        if(HttpUtil.isOnline){
+        if(flag==0x01){
             imgNetworkConnect.setVisibility(View.VISIBLE);
             imgNetworkDisconnect.setVisibility(View.GONE);
         }else{

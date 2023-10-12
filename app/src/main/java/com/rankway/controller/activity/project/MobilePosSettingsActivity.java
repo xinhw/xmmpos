@@ -33,7 +33,6 @@ import com.rankway.controller.common.SemiServerAddress;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.HttpUtil;
-import com.rankway.sommerlibrary.utils.ToastUtils;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -70,6 +69,7 @@ public class MobilePosSettingsActivity
     private TextView menuServerIP;
     private TextView menuServerPort;
     private TextView tvPrintHeader;
+    private TextView appUpgradeUrl;
 
     private  boolean passAdvancedPassword = false;
 
@@ -90,7 +90,9 @@ public class MobilePosSettingsActivity
                 R.id.upload_log,R.id.about,
                 R.id.recover_data,
                 R.id.tvHttpTimeout,R.id.tvOfflineMaxAmount,
-                R.id.menuServerIP,R.id.menuServerPort,R.id.tvPrintHeader,R.id.tvPrintSuffix};
+                R.id.menuServerIP,R.id.menuServerPort,
+                R.id.tvPrintHeader,R.id.tvPrintSuffix,
+                R.id.appUpgradeUrl};
         setOnClickListener(viewIds);
 
         tvPosName = findViewById(R.id.posname);
@@ -105,6 +107,9 @@ public class MobilePosSettingsActivity
 
         menuServerIP = findViewById(R.id.menuServerIP);
         menuServerPort = findViewById(R.id.menuServerPort);
+
+        appUpgradeUrl = findViewById(R.id.appUpgradeUrl);
+
     }
 
     protected void setOnClickListener(int[] viewIds){
@@ -129,6 +134,7 @@ public class MobilePosSettingsActivity
             tvServerPort.setText(str);
             menuServerIP.setText("");
             menuServerPort.setText("");
+            appUpgradeUrl.setText("");
         }else{
             tvPosName.setText(infoBean.getCposno());
             tvPosNo.setText(infoBean.getCposno());
@@ -138,6 +144,7 @@ public class MobilePosSettingsActivity
             tvServerPort.setText(infoBean.getPortNo()+"");
             menuServerIP.setText(infoBean.getMenuServerIP());
             menuServerPort.setText(infoBean.getMenuPortNo()+"");
+            appUpgradeUrl.setText(infoBean.getUpgradeUrl());
         }
 
         //  通信超时
@@ -192,6 +199,7 @@ public class MobilePosSettingsActivity
             case R.id.tvOfflineMaxAmount:
             case R.id.menuServerIP:
             case R.id.menuServerPort:
+            case R.id.appUpgradeUrl:
                 showAdvanedSetting(v.getId());
                 break;
 
@@ -444,13 +452,13 @@ public class MobilePosSettingsActivity
             public void onClick(DialogInterface dialog, int which) {
                 String possword = editPossword.getText().toString().trim();
                 if (TextUtils.isEmpty(possword)) {
-                    ToastUtils.show(mContext, "请输入密码后编辑！");
+                    showToast("请输入密码后编辑！");
                 } else {
                     if (isAdvancedPasswordRight(possword)) {
                         passAdvancedPassword = true;
                         inputParam(type);
                     } else {
-                        ToastUtils.show(mContext, "密码错误！");
+                        showToast("密码错误！");
                     }
                 }
             }
@@ -472,7 +480,7 @@ public class MobilePosSettingsActivity
 
         switch (type) {
             case R.id.viewPosNo:
-                builder.setTitle("请设置POS机号：");
+                builder.setTitle("POS机号：");
                 editMsg.setInputType(InputType.TYPE_CLASS_NUMBER);
                 editMsg.setFilters(new InputFilter[]{
                         new InputFilter.LengthFilter(5)
@@ -480,7 +488,7 @@ public class MobilePosSettingsActivity
                 break;
 
             case R.id.viewUserCode:
-                builder.setTitle("请设置操作员号：");
+                builder.setTitle("操作员号：");
                 editMsg.setInputType(InputType.TYPE_CLASS_NUMBER);
                 editMsg.setFilters(new InputFilter[]{
                         new InputFilter.LengthFilter(5)
@@ -488,7 +496,7 @@ public class MobilePosSettingsActivity
                 break;
 
             case R.id.viewServerIP:
-                builder.setTitle("请设置服务器IP：");
+                builder.setTitle("支付服务器IP：");
                 editMsg.setInputType(InputType.TYPE_CLASS_TEXT);
                 String digits = "0123456789.";
                 editMsg.setKeyListener(DigitsKeyListener.getInstance(digits));
@@ -498,7 +506,7 @@ public class MobilePosSettingsActivity
                 break;
 
             case R.id.viewServerPort:
-                builder.setTitle("请设置服务器端口：");
+                builder.setTitle("支付服务器端口：");
                 editMsg.setInputType(InputType.TYPE_CLASS_NUMBER);
                 editMsg.setFilters(new InputFilter[]{
                         new InputFilter.LengthFilter(5)
@@ -506,7 +514,7 @@ public class MobilePosSettingsActivity
                 break;
 
             case R.id.menuServerIP:
-                builder.setTitle("请设置服务器IP：");
+                builder.setTitle("菜品服务器IP：");
                 editMsg.setInputType(InputType.TYPE_CLASS_TEXT);
                 String digits1 = "0123456789.";
                 editMsg.setKeyListener(DigitsKeyListener.getInstance(digits1));
@@ -516,7 +524,7 @@ public class MobilePosSettingsActivity
                 break;
 
             case R.id.menuServerPort:
-                builder.setTitle("请设置服务器端口：");
+                builder.setTitle("菜品服务器端口：");
                 editMsg.setInputType(InputType.TYPE_CLASS_NUMBER);
                 editMsg.setFilters(new InputFilter[]{
                         new InputFilter.LengthFilter(5)
@@ -524,7 +532,7 @@ public class MobilePosSettingsActivity
                 break;
 
             case R.id.tvHttpTimeout:
-                builder.setTitle("请通信超时时间(ms)：");
+                builder.setTitle("通信超时时间(ms)：");
                 editMsg.setInputType(InputType.TYPE_CLASS_NUMBER);
                 editMsg.setFilters(new InputFilter[]{
                         new InputFilter.LengthFilter(5)
@@ -538,6 +546,16 @@ public class MobilePosSettingsActivity
                         new InputFilter.LengthFilter(3)
                 });
                 break;
+
+            case R.id.appUpgradeUrl:
+                builder.setTitle("APP升级地址：");
+                editMsg.setInputType(InputType.TYPE_CLASS_TEXT);
+                String digits12 = "0123456789.:";
+                editMsg.setKeyListener(DigitsKeyListener.getInstance(digits12));
+                editMsg.setFilters(new InputFilter[]{
+                        new InputFilter.LengthFilter(21)
+                });
+                break;
         }
 
         builder.setView(view);
@@ -546,7 +564,7 @@ public class MobilePosSettingsActivity
             public void onClick(DialogInterface dialog, int which) {
                 String msg = editMsg.getText().toString().trim();
                 if (TextUtils.isEmpty(msg)) {
-                    ToastUtils.show(mContext, "请输入信息！");
+                    showToast("请输入信息！");
                     return;
                 }
                 PosInfoBean bean = getPosInfoBean();
@@ -601,10 +619,15 @@ public class MobilePosSettingsActivity
                             e.printStackTrace();
                         }
                         break;
+
+                    case R.id.appUpgradeUrl:
+                        appUpgradeUrl.setText(msg);
+                        bean.setUpgradeUrl(msg);
+                        break;
                 }
                 savePosInfoBean(bean);
 
-                ToastUtils.show(mContext,"设置成功！");
+                showToast("设置成功！");
                 playSound(true);
             }
         });
@@ -628,12 +651,12 @@ public class MobilePosSettingsActivity
         builder.setPositiveButton("确认", (dialog, which) -> {
             String password = editPassword.getText().toString().trim();
             if (TextUtils.isEmpty(password)) {
-                ToastUtils.show(mContext, "请输入密码！");
+                showToast( "请输入密码！");
             } else {
                 if (password.equals(AppConstants.CLEAN_DATA_PASSWORD)) {
                     resetAppData();
                 } else {
-                    ToastUtils.show(mContext, "输入密码有误！");
+                    showToast( "输入密码有误！");
                 }
             }
         });
@@ -687,7 +710,7 @@ public class MobilePosSettingsActivity
         builder.setPositiveButton("确认", (dialog, which) -> {
             String password = editPassword.getText().toString().trim();
             if (TextUtils.isEmpty(password)) {
-                ToastUtils.show(mContext, "请输入打印标题！");
+                showToast( "请输入打印标题！");
                 playSound(false);
             } else {
                 tvPrintHeader.setText(password);

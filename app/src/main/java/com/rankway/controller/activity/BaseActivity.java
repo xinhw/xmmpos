@@ -395,9 +395,7 @@ public class BaseActivity extends AppCompatActivity {
         int x = outSize.x;
         int y = outSize.y;
         // 通过吐司显示屏幕宽、高数据
-        ToastUtils.showCustom(this, "手机像素为：X:" + x + "||Y:" + y);
-
-
+        showToast("手机像素为：X:" + x + "||Y:" + y);
     }
 
     public <T> void setDataList(String tag, List<T> dataList) {
@@ -532,7 +530,7 @@ public class BaseActivity extends AppCompatActivity {
     /*----以下是log记录---------------------------------------------------------------------------*/
 
     /*----TOAST---------------------------------------------------------------------------*/
-    protected void showToast(final String message) {
+    public void showToast(final String message) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -542,7 +540,7 @@ public class BaseActivity extends AppCompatActivity {
 
     }
 
-    protected void showLongToast(final String message) {
+    public void showLongToast(final String message) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -695,15 +693,15 @@ public class BaseActivity extends AppCompatActivity {
 
     private AlertDialog updateDialog;
 
-    //  升级URL
-    private String getAppUpdateURL(){
-        PosInfoBean pos = getPosInfoBean();
-        if(null==pos) return "";
+    private String getCheckAppUrl(){
+        PosInfoBean posInfoBean = getPosInfoBean();
+        if(null==posInfoBean) return "";
 
-        String url = String.format("http://%s:%d/api/appVersions/deskpos?sn=%s",
-                    pos.getMenuServerIP(),
-                    pos.getMenuPortNo(),
-                    pos.getCposno());
+        //  http://ip2:serverPort2/api/appVersions/{appType}?sn=10003
+        //  sn为pos机编号，appType暂定两种(Desktop-POS/Handset-POS)
+        String url = String.format("http://%s/api/appVersions/Desktop-POS?sn=%s",
+                posInfoBean.getUpgradeUrl(),
+                posInfoBean.getCposno());
         return url;
     }
 
@@ -711,7 +709,7 @@ public class BaseActivity extends AppCompatActivity {
      * 检查服务器上版本信息
      */
     public void checkAppUpdate() {
-        String url = getAppUpdateURL();
+        String url = getCheckAppUrl();
         UpdateAppUtils.checkAppUpdate(url, this, new UpdateAppUtils.AppUpdateCallback() {
             @Override
             public void onSuccess(AppUpdateBean updateInfo) {
@@ -1083,23 +1081,26 @@ public class BaseActivity extends AppCompatActivity {
     }
 
 
-    private String getUploadLogURL(){
-        //  https://47.117.132.63:6062/logs/upload/posno
-        PosInfoBean pos = getPosInfoBean();
-        if(null==pos) return "";
+    /**
+     * 获取日志上传地址
+     * @return
+     */
+    private String getUploadLogUrl(){
+        PosInfoBean posInfoBean = getPosInfoBean();
+        if(null==posInfoBean) return "";
 
-        String url = String.format("http://%s:%d/logs/upload/%s",
-                pos.getMenuServerIP(),
-                pos.getMenuPortNo(),
-                pos.getCposno());
+        //  http://ip2:serverPort2/api/logs/upload/{posno}?gzip=1&appVersion=1.2.0
+        String url = String.format("http://%s/api/logs/upload/%s?gzip=1&appVersion=%s",
+                posInfoBean.getUpgradeUrl(),
+                posInfoBean.getCposno(),
+                AppConstants.APP_VERSION);
         return url;
     }
 
     public void httpPostLogFile(final ArrayList<String> logfiles, final File logfile) {
 
         //  上传地址
-        String url = getUploadLogURL();
-        url = url + "?gzip=1";
+        String url = getUploadLogUrl();
 
         AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
         asyncHttpCilentUtil.httpsPostFile(url, null, "file", logfile, new Callback() {

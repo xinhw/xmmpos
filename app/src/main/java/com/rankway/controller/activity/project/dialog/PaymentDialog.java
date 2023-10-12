@@ -45,7 +45,6 @@ import com.rankway.controller.webapi.cardInfo;
 import com.rankway.controller.webapi.decodeQRCode;
 import com.rankway.controller.webapi.payWebapi;
 import com.rankway.controller.webapi.posAudit;
-import com.rankway.sommerlibrary.utils.ToastUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -144,7 +143,7 @@ public class PaymentDialog
 
             int ret = ReaderFactory.getReader(mContext).openReader();
             if(0!=ret){
-                ToastUtils.showLong(mContext,"读卡器打开失败，请检查连接!");
+                baseActivity.showLongToast("读卡器打开失败，请检查连接!");
                 baseActivity.playSound(false);
             }else {
                 readCardThread = new ReadCardThread();
@@ -238,7 +237,7 @@ public class PaymentDialog
             cardInfo cardPaymentObj = decodeQRCode.decode(qrcode);
             if (null == cardPaymentObj) {
                 baseActivity.playSound(false);
-                ToastUtils.showLong(mContext, "无效的二维码");
+                baseActivity.showLongToast("无效的二维码");
                 return;
             }
             Log.d(TAG,"二维码："+qrcode);
@@ -290,7 +289,8 @@ public class PaymentDialog
         float famount = 0;
         String errString = "";
         cardInfo cardPaymentObj;
-        int payMode = PAY_MODE_CARD;
+        int payMode;
+        boolean isOnlinePay = true;
 
         public AsynTaskPayment(int payMode,cardInfo obj,float amount) {
             this.payMode = payMode;
@@ -311,8 +311,10 @@ public class PaymentDialog
         protected Integer doInBackground(String... strings) {
             int ret = -1;
             if(HttpUtil.isOnline){
+                isOnlinePay = true;
                 ret = onlinePayment();
             }else{
+                isOnlinePay = false;
                 ret = offlinePayment();
             }
             return ret;
@@ -369,7 +371,7 @@ public class PaymentDialog
                 return -1;
             }
 
-            //  4. 支付
+            //  4. 支付流程
             cardPaymentObj = new cardInfo(cardInfoObj);
             if (payMode==PAY_MODE_CARD) {
                 // public int cardPayment(int auditNo,int cardno,Date cdate,int cmoney){
@@ -526,7 +528,7 @@ public class PaymentDialog
          * @param posInfoBean
          * @param record
          */
-        private void uploadPaymentItems(boolean isOnline,PosInfoBean posInfoBean,PaymentRecordEntity record) {
+        private void saveAndUploadPaymentItems(boolean isOnline,PosInfoBean posInfoBean,PaymentRecordEntity record) {
             Log.d(TAG,"uploadPaymentItems");
 
             String s1 = SpManager.getIntance().getSpString(AppIntentString.DISH_TYPE_VER);
@@ -573,9 +575,9 @@ public class PaymentDialog
                 PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, famount, posInfoBean);
 
                 int flag = 0x00;
-                if(HttpUtil.isOnline) flag = 0x01;
+                if(isOnlinePay) flag = 0x01;
 
-                uploadPaymentItems(HttpUtil.isOnline,posInfoBean,record);
+                saveAndUploadPaymentItems(isOnlinePay,posInfoBean,record);
 
                 record.setUploadFlag(flag);
                 DBManager.getInstance().getPaymentRecordEntityDao().save(record);
@@ -585,11 +587,13 @@ public class PaymentDialog
 
                 //  支付成功，关闭对话框
                 dismiss();
-            } else {
-                baseActivity.playSound(false);
-
-                ToastUtils.showLong(mContext,errString);
+                return;
             }
+
+            //  支付失败，显示失败信息
+            baseActivity.playSound(false);
+            baseActivity.showToast(errString);
+
             return;
         }
     }

@@ -243,6 +243,37 @@
                 android:textStyle="bold"
                 android:textSize="16sp" />
         </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/btn_gray_normal" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content"
+                android:background="@drawable/seleted_status"
+                android:padding="8dp"
+                android:text="APP升级地址"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+            <TextView
+                android:id="@+id/appUpgradeUrl"
+                android:layout_width="0dp"
+                android:layout_weight="1.5"
+                android:layout_height="wrap_content"
+                android:background="@drawable/seleted_status"
+                android:padding="8dp"
+                android:text="121.36.16.185:2200"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+        </LinearLayout>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="2dp"
