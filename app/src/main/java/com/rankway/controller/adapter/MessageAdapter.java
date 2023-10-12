@@ -18,16 +18,16 @@ public class MessageAdapter extends BaseQuickAdapter<MessageDetail, BaseViewHold
 
     @Override
     protected void convert(BaseViewHolder helper, MessageDetail item) {
-        if(item.isBreaded()) {
+        if (item.isBreaded()) {
             helper.setTextColor(R.id.message_title, Color.BLACK);
-        }else{
+        } else {
             helper.setTextColor(R.id.message_title, Color.BLUE);
         }
-        helper.setText(R.id.message_title,"标题：" + item.getTitle());
+        helper.setText(R.id.message_title, "标题：" + item.getTitle());
         String content = item.getContent();
-        if(content.length()>60) content = item.getContent().substring(0,60)+"...";
-        helper.setText(R.id.message_content,content);
-        helper.setText(R.id.message_source,"来自:"+ item.getFrom());
+        if (content.length() > 60) content = item.getContent().substring(0, 60) + "...";
+        helper.setText(R.id.message_content, content);
+        helper.setText(R.id.message_source, "来自:" + item.getFrom());
         helper.setText(R.id.message_time, "时间：" + DateUtil.getDateDStr(item.getTime()));
     }
 }

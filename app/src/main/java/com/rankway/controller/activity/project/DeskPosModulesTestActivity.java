@@ -78,20 +78,20 @@ public class DeskPosModulesTestActivity extends BaseActivity {
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(reader==null){
+                if (reader == null) {
                     reader = ReaderFactory.getReader(mContext);
                     int ret = reader.openReader();
-                    if(0!=ret){
-                        PutMessage(DEVICE_CARD_READER,reader.getErrMessage());
-                    }else{
-                        PutMessage(DEVICE_CARD_READER,"读卡器打开成功！");
-                    }
-                }else{
-                    String sn = reader.getCardNo();
-                    if(sn==null){
+                    if (0 != ret) {
                         PutMessage(DEVICE_CARD_READER, reader.getErrMessage());
-                    }else{
-                        PutMessage(DEVICE_CARD_READER,"读取卡片："+sn);
+                    } else {
+                        PutMessage(DEVICE_CARD_READER, "读卡器打开成功！");
+                    }
+                } else {
+                    String sn = reader.getCardNo();
+                    if (sn == null) {
+                        PutMessage(DEVICE_CARD_READER, reader.getErrMessage());
+                    } else {
+                        PutMessage(DEVICE_CARD_READER, "读取卡片：" + sn);
                     }
                 }
             }
@@ -101,15 +101,15 @@ public class DeskPosModulesTestActivity extends BaseActivity {
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(printer==null) {
+                if (printer == null) {
                     printer = PrinterFactory.getPrinter(mContext);
                     int ret = printer.openPrinter();
-                    if(0!=ret){
-                        PutMessage(DEVICE_PRINTER,printer.getErrMessage());
-                    }else{
-                        PutMessage(DEVICE_PRINTER,"打印机打开成功！");
+                    if (0 != ret) {
+                        PutMessage(DEVICE_PRINTER, printer.getErrMessage());
+                    } else {
+                        PutMessage(DEVICE_PRINTER, "打印机打开成功！");
                     }
-                }else{
+                } else {
                     printTest();
                 }
             }
@@ -119,7 +119,7 @@ public class DeskPosModulesTestActivity extends BaseActivity {
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(null!=llResult) llResult.removeAllViews();
+                if (null != llResult) llResult.removeAllViews();
             }
         });
         scrollViewResult = findViewById(R.id.scrollViewResult);
@@ -133,11 +133,10 @@ public class DeskPosModulesTestActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(reader!=null) reader.closeReader();
-        if(printer!=null) printer.closePrinter();
+        if (reader != null) reader.closeReader();
+        if (printer != null) printer.closePrinter();
 
     }
-
 
 
     @Override
@@ -173,11 +172,11 @@ public class DeskPosModulesTestActivity extends BaseActivity {
         public void run() {
             String qrcode = mStringBufferResult.toString();
             mStringBufferResult.setLength(0);
-            if (TextUtils.isEmpty(qrcode)){
-                Log.d(TAG,"qrcode is empty");
+            if (TextUtils.isEmpty(qrcode)) {
+                Log.d(TAG, "qrcode is empty");
                 return;
             }
-            PutMessage(DEVICE_QR_CODE,qrcode);
+            PutMessage(DEVICE_QR_CODE, qrcode);
         }
     };
 
@@ -191,7 +190,7 @@ public class DeskPosModulesTestActivity extends BaseActivity {
      *
      * @param str 要添加的信息
      */
-    private void PutMessage(int type,final String str) {
+    private void PutMessage(int type, final String str) {
         mHandler.post(() -> {
             TextView lb = new TextView(this);
             lb.setTextSize(16);
@@ -199,7 +198,7 @@ public class DeskPosModulesTestActivity extends BaseActivity {
 
             String strTime = DateStringUtils.getCurrentTime();
             String deviceName = "";
-            switch (type){
+            switch (type) {
                 case DEVICE_QR_CODE:
                     deviceName = "二维码";
                     break;
@@ -212,7 +211,7 @@ public class DeskPosModulesTestActivity extends BaseActivity {
                 default:
                     break;
             }
-            lb.setText(String.format("%s %s %s",strTime,deviceName,str));
+            lb.setText(String.format("%s %s %s", strTime, deviceName, str));
             llResult.addView(lb);
 
             if (llResult.getChildCount() > 200) {
@@ -224,8 +223,8 @@ public class DeskPosModulesTestActivity extends BaseActivity {
     }
 
 
-    private void printTest(){
-        Log.d(TAG,"printTest");
+    private void printTest() {
+        Log.d(TAG, "printTest");
 
         String s = "";
 
@@ -235,7 +234,7 @@ public class DeskPosModulesTestActivity extends BaseActivity {
 
         //  放大字体
         printBytes(PrinterFormatUtils.getFontSizeCommand(true));
-        s ="上海报业集团餐厅";
+        s = "上海报业集团餐厅";
         printString(s);
 
         //  字体正常
@@ -255,51 +254,51 @@ public class DeskPosModulesTestActivity extends BaseActivity {
         s = "--------------------------------";
         printString(s);
         printString("合计：       9.50");
-        printString("时间： "+DateStringUtils.getCurrentTime());
+        printString("时间： " + DateStringUtils.getCurrentTime());
 
         printBytes(PrinterFormatUtils.getFeedCommand(3));
     }
 
-    private void printString(String s){
-        PutMessage(DEVICE_PRINTER,s);
-        if(null!=printer) printer.printString(s);
+    private void printString(String s) {
+        PutMessage(DEVICE_PRINTER, s);
+        if (null != printer) printer.printString(s);
     }
 
-    private void printBytes(byte[] bytes){
-        if(null!=printer) printer.printBytes(bytes);
+    private void printBytes(byte[] bytes) {
+        if (null != printer) printer.printBytes(bytes);
     }
 
 
-    private void enumAllUsbDevice(){
-        Log.d(TAG,"enumAllUsbDevice");
+    private void enumAllUsbDevice() {
+        Log.d(TAG, "enumAllUsbDevice");
 
         UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
         HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
-        Log.d(TAG,"UsbDeviceCount: "+deviceList.size());
+        Log.d(TAG, "UsbDeviceCount: " + deviceList.size());
 
         Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
-        while(deviceIterator.hasNext()) {
+        while (deviceIterator.hasNext()) {
             UsbDevice device = deviceIterator.next();
-            if(null!=device) Log.d(TAG,devicesString(device));
+            if (null != device) Log.d(TAG, devicesString(device));
 
             //获取设备接口
             for (int i = 0; i < device.getInterfaceCount(); ) {
                 // 一般来说一个设备都是一个接口，你可以通过getInterfaceCount()查看接口的个数
                 // 这个接口上有两个端点，分别对应OUT 和 IN
                 UsbInterface usbInterface = device.getInterface(i);
-                if(null==usbInterface) continue;
+                if (null == usbInterface) continue;
 
-                Log.d(TAG,"UsbInterface Id:"+usbInterface.getId()+" Name:"+usbInterface.getName()
-                        + " Class:"+usbInterface.getClass()+" Procotocol:"+usbInterface.getInterfaceProtocol()
-                        +" EndPointCount:"+usbInterface.getEndpointCount());
+                Log.d(TAG, "UsbInterface Id:" + usbInterface.getId() + " Name:" + usbInterface.getName()
+                        + " Class:" + usbInterface.getClass() + " Procotocol:" + usbInterface.getInterfaceProtocol()
+                        + " EndPointCount:" + usbInterface.getEndpointCount());
 
-                for(int j=0;j< usbInterface.getEndpointCount();j++){
+                for (int j = 0; j < usbInterface.getEndpointCount(); j++) {
                     UsbEndpoint endpoint = usbInterface.getEndpoint(j);
-                    if(endpoint==null) continue;
+                    if (endpoint == null) continue;
 
-                    Log.d(TAG,"UsbEndpoint Address:"+endpoint.getAddress() +
-                            " Attributes:"+endpoint.getAttributes() +
-                            " Direction:"+endpoint.getDirection());
+                    Log.d(TAG, "UsbEndpoint Address:" + endpoint.getAddress() +
+                            " Attributes:" + endpoint.getAttributes() +
+                            " Direction:" + endpoint.getDirection());
                 }
                 break;
             }
@@ -307,12 +306,12 @@ public class DeskPosModulesTestActivity extends BaseActivity {
     }
 
 
-    private String devicesString(UsbDevice device){
+    private String devicesString(UsbDevice device) {
         StringBuilder builder = new StringBuilder("UsbDevice Name=" + device.getDeviceName() +
                 " VendorId=" + device.getVendorId() + " ProductId=" + device.getProductId() +
                 " mClass=" + device.getClass() + " mSubclass=" + device.getDeviceSubclass() +
-                " mProtocol=" + device.getDeviceProtocol() + " mManufacturerName=" +" mSerialNumber=" +
-                " InterfaceCount="+device.getInterfaceCount() +
+                " mProtocol=" + device.getDeviceProtocol() + " mManufacturerName=" + " mSerialNumber=" +
+                " InterfaceCount=" + device.getInterfaceCount() +
                 "  ");
         return builder.toString();
     }
@@ -320,14 +319,14 @@ public class DeskPosModulesTestActivity extends BaseActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.d(TAG,"onKeyDown "+keyCode);
+        Log.d(TAG, "onKeyDown " + keyCode);
 
         //  右下角返回键
         if (KeyEvent.KEYCODE_BACK == keyCode) {
             finish();
             return true;
         }
-        if(KeyEvent.KEYCODE_HOME == keyCode){
+        if (KeyEvent.KEYCODE_HOME == keyCode) {
             return true;
         }
 

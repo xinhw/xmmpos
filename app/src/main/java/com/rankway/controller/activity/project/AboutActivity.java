@@ -100,7 +100,6 @@ public class AboutActivity extends BaseActivity implements View.OnClickListener 
     }
 
 
-
     @Override
     protected void showUpdateMessage(String msg) {
         Message message = new Message();

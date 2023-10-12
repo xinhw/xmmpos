@@ -24,9 +24,9 @@ import java.util.List;
  * </pre>
  */
 public class MobilePosPayStatisticsAdapter
-        extends RecyclerView.Adapter<MobilePosPayStatisticsAdapter.PaymentRecordStatisticsViewHolder>{
+        extends RecyclerView.Adapter<MobilePosPayStatisticsAdapter.PaymentRecordStatisticsViewHolder> {
 
-    private final String TAG ="MobilePosPayStatisticsAdapter";
+    private final String TAG = "MobilePosPayStatisticsAdapter";
 
     List<PaymentStatisticsRecordEntity> data;
     OnItemClickListener onItemClickListener;
@@ -36,7 +36,7 @@ public class MobilePosPayStatisticsAdapter
     private long lastClickTime = 0;
     private final int MIN_CLICK_INTERVAL = 500; //
 
-    public MobilePosPayStatisticsAdapter(Context context, List<PaymentStatisticsRecordEntity> records){
+    public MobilePosPayStatisticsAdapter(Context context, List<PaymentStatisticsRecordEntity> records) {
         this.mContext = context;
         this.data = records;
     }
@@ -45,34 +45,35 @@ public class MobilePosPayStatisticsAdapter
     @androidx.annotation.NonNull
     @Override
     public PaymentRecordStatisticsViewHolder onCreateViewHolder(@NonNull @androidx.annotation.NonNull ViewGroup viewGroup, int i) {
-        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_payment_statistics,viewGroup,false);
+        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_payment_statistics, viewGroup, false);
         PaymentRecordStatisticsViewHolder holder = new PaymentRecordStatisticsViewHolder(inflate);
         return holder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull @androidx.annotation.NonNull PaymentRecordStatisticsViewHolder holder, int i) {
-        holder.itemView.setSelected(i==selectedItem);
+        holder.itemView.setSelected(i == selectedItem);
         PaymentStatisticsRecordEntity item = data.get(i);
-        holder.seqNo.setText(item.getSeqNo()+"");
+        holder.seqNo.setText(item.getSeqNo() + "");
         holder.transDate.setText(item.getCdate());
-        holder.subCount.setText(item.getSubCount()+"");
-        holder.subAmount.setText(String.format("￥%.2f",item.getSubAmount()));
+        holder.subCount.setText(item.getSubCount() + "");
+        holder.subAmount.setText(String.format("￥%.2f", item.getSubAmount()));
 
         holder.rootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 long t1 = SystemClock.elapsedRealtime();
 
-                if(selectedItem==i){
-                    if((t1-lastClickTime)<MIN_CLICK_INTERVAL){
-                        if (onItemClickListener != null) onItemClickListener.onItemDoubleClick(v, i);
+                if (selectedItem == i) {
+                    if ((t1 - lastClickTime) < MIN_CLICK_INTERVAL) {
+                        if (onItemClickListener != null)
+                            onItemClickListener.onItemDoubleClick(v, i);
                         lastClickTime = t1;
-                    }else {
+                    } else {
                         if (onItemClickListener != null) onItemClickListener.onItemClick(v, i);
                         lastClickTime = 0;
                     }
-                }else {
+                } else {
                     if (onItemClickListener != null) onItemClickListener.onItemClick(v, i);
                     selectedItem = i;
                     lastClickTime = t1;
@@ -83,7 +84,7 @@ public class MobilePosPayStatisticsAdapter
         holder.rootView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if(null!=onItemClickListener) onItemClickListener.onItemLongClick(v,i);
+                if (null != onItemClickListener) onItemClickListener.onItemLongClick(v, i);
                 selectedItem = i;
                 lastClickTime = SystemClock.elapsedRealtime();
                 return false;
@@ -96,9 +97,11 @@ public class MobilePosPayStatisticsAdapter
         return data.size();
     }
 
-    public interface OnItemClickListener{
+    public interface OnItemClickListener {
         void onItemClick(View view, int position);
-        void onItemLongClick(View view,int position);
+
+        void onItemLongClick(View view, int position);
+
         void onItemDoubleClick(View view, int position);
     }
 
@@ -116,10 +119,10 @@ public class MobilePosPayStatisticsAdapter
         public PaymentRecordStatisticsViewHolder(@NonNull @androidx.annotation.NonNull View itemView) {
             super(itemView);
             rootView = itemView.findViewById(R.id.rootView);
-            seqNo  = itemView.findViewById(R.id.seqNo);
-            transDate  = itemView.findViewById(R.id.transDate);
-            subCount  = itemView.findViewById(R.id.subCount);
-            subAmount  = itemView.findViewById(R.id.subAmount);
+            seqNo = itemView.findViewById(R.id.seqNo);
+            transDate = itemView.findViewById(R.id.transDate);
+            subCount = itemView.findViewById(R.id.subCount);
+            subAmount = itemView.findViewById(R.id.subAmount);
         }
     }
 }

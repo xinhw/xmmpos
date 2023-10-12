@@ -37,7 +37,7 @@ public class MobliePosPayRecordAdapter
     private long lastClickTime = 0;
     private final int MIN_CLICK_INTERVAL = 500; //
 
-    public MobliePosPayRecordAdapter(Context context, List<PaymentRecordEntity> records){
+    public MobliePosPayRecordAdapter(Context context, List<PaymentRecordEntity> records) {
         this.mContext = context;
         this.data = records;
     }
@@ -47,7 +47,7 @@ public class MobliePosPayRecordAdapter
     }
 
     public void setSelectedItem(int i) {
-        Log.d(TAG,"setSelectedItem选中的是："+i);
+        Log.d(TAG, "setSelectedItem选中的是：" + i);
         this.selectedItem = i;
     }
 
@@ -60,41 +60,42 @@ public class MobliePosPayRecordAdapter
     @androidx.annotation.NonNull
     @Override
     public PaymentRecordViewHolder onCreateViewHolder(@NonNull @androidx.annotation.NonNull ViewGroup viewGroup, int i) {
-        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_payment_record,viewGroup,false);
+        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_payment_record, viewGroup, false);
         PaymentRecordViewHolder holder = new PaymentRecordViewHolder(inflate);
         return holder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull @androidx.annotation.NonNull PaymentRecordViewHolder holder, @SuppressLint("RecyclerView") int i) {
-        holder.itemView.setSelected(i==selectedItem);
+        holder.itemView.setSelected(i == selectedItem);
         PaymentRecordEntity item = data.get(i);
-        holder.auditNo.setText("序号:"+item.getAuditNo());
-        holder.workNo.setText("工号:"+item.getWorkNo());
-        holder.workName.setText("姓名:"+item.getWorkName());
-        holder.amount.setText(String.format("金额：￥%.2f",item.getAmount()));
-        holder.balance.setText(String.format("余额：￥%.2f",item.getBalance()));
-        if(item.getQrType()==0){
+        holder.auditNo.setText("序号:" + item.getAuditNo());
+        holder.workNo.setText("工号:" + item.getWorkNo());
+        holder.workName.setText("姓名:" + item.getWorkName());
+        holder.amount.setText(String.format("金额：￥%.2f", item.getAmount()));
+        holder.balance.setText(String.format("余额：￥%.2f", item.getBalance()));
+        if (item.getQrType() == 0) {
             holder.payWay.setText("方式:IC卡");
-        }else{
+        } else {
             holder.payWay.setText("方式:二维码");
         }
-        holder.transTime.setText("时间："+ DateStringUtils.dateToString(item.getTransTime()));
+        holder.transTime.setText("时间：" + DateStringUtils.dateToString(item.getTransTime()));
 
         holder.rootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 long t1 = SystemClock.elapsedRealtime();
 
-                if(selectedItem==i){
-                    if((t1-lastClickTime)<MIN_CLICK_INTERVAL){
-                        if (onItemClickListener != null) onItemClickListener.onItemDoubleClick(v, i);
+                if (selectedItem == i) {
+                    if ((t1 - lastClickTime) < MIN_CLICK_INTERVAL) {
+                        if (onItemClickListener != null)
+                            onItemClickListener.onItemDoubleClick(v, i);
                         lastClickTime = t1;
-                    }else {
+                    } else {
                         if (onItemClickListener != null) onItemClickListener.onItemClick(v, i);
                         lastClickTime = 0;
                     }
-                }else {
+                } else {
                     if (onItemClickListener != null) onItemClickListener.onItemClick(v, i);
                     selectedItem = i;
                     lastClickTime = t1;
@@ -105,7 +106,7 @@ public class MobliePosPayRecordAdapter
         holder.rootView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if(null!=onItemClickListener) onItemClickListener.onItemLongClick(v,i);
+                if (null != onItemClickListener) onItemClickListener.onItemLongClick(v, i);
                 selectedItem = i;
                 lastClickTime = SystemClock.elapsedRealtime();
                 return false;
@@ -119,7 +120,7 @@ public class MobliePosPayRecordAdapter
     }
 
 
-    public class PaymentRecordViewHolder extends RecyclerView.ViewHolder{
+    public class PaymentRecordViewHolder extends RecyclerView.ViewHolder {
         View rootView;
         TextView auditNo;
         TextView workNo;
@@ -143,9 +144,11 @@ public class MobliePosPayRecordAdapter
         }
     }
 
-    public interface OnItemClickListener{
+    public interface OnItemClickListener {
         void onItemClick(View view, int position);
-        void onItemLongClick(View view,int position);
+
+        void onItemLongClick(View view, int position);
+
         void onItemDoubleClick(View view, int position);
     }
 

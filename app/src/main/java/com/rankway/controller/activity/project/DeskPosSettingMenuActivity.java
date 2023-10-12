@@ -17,7 +17,7 @@ import com.rankway.controller.utils.ClickUtil;
 
 public class DeskPosSettingMenuActivity
         extends BaseActivity
-        implements View.OnClickListener{
+        implements View.OnClickListener {
 
     final String TAG = "DeskPosSettingMenuActivity";
 
@@ -25,7 +25,7 @@ public class DeskPosSettingMenuActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_desk_pos_setting_menu);
-        
+
         initView();
     }
 
@@ -51,12 +51,12 @@ public class DeskPosSettingMenuActivity
 
     @Override
     public void onClick(View v) {
-        if(ClickUtil.isFastDoubleClick(v.getId())){
+        if (ClickUtil.isFastDoubleClick(v.getId())) {
             showToast("请勿连续点击!");
             return;
         }
 
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.deskPosRecord:
                 startActivity(DeskPosPayRecordActivity.class);
                 break;
@@ -85,14 +85,14 @@ public class DeskPosSettingMenuActivity
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.d(TAG,"onKeyDown "+keyCode);
+        Log.d(TAG, "onKeyDown " + keyCode);
 
         //  右下角返回键
         if (KeyEvent.KEYCODE_BACK == keyCode) {
             finish();
             return true;
         }
-        if(KeyEvent.KEYCODE_HOME == keyCode){
+        if (KeyEvent.KEYCODE_HOME == keyCode) {
             return true;
         }
 
@@ -115,7 +115,7 @@ public class DeskPosSettingMenuActivity
             public void onClick(DialogInterface dialog, int which) {
                 String possword = editPossword.getText().toString().trim();
                 if (TextUtils.isEmpty(possword)) {
-                    showToast( "请输入密码后清理！");
+                    showToast("请输入密码后清理！");
                     playSound(false);
                     return;
                 }

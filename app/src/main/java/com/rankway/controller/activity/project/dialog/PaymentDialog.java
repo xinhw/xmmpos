@@ -568,6 +568,7 @@ public class PaymentDialog
 
             isPaying = false;
 
+            //  支付成功
             if (0 == integer) {
                 baseActivity.playSound(true);
                 DetLog.writeLog(TAG, "支付成功：" + cardPaymentObj.toString());

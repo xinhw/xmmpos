@@ -24,8 +24,8 @@ import java.util.List;
  * </pre>
  */
 public class DishAdapter
-    extends RecyclerView.Adapter<DishAdapter.DishAdapterViewHolder>{
-    private final String TAG ="DishAdapter";
+        extends RecyclerView.Adapter<DishAdapter.DishAdapterViewHolder> {
+    private final String TAG = "DishAdapter";
 
     List<DishEntity> data;
     private OnItemClickListener onItemClickListener;
@@ -33,7 +33,7 @@ public class DishAdapter
     private int selectedItem = -1;
     private Context mContext;
 
-    public DishAdapter(Context context,List<DishEntity> dishEntities){
+    public DishAdapter(Context context, List<DishEntity> dishEntities) {
         this.mContext = context;
         this.data = dishEntities;
     }
@@ -43,18 +43,18 @@ public class DishAdapter
     @androidx.annotation.NonNull
     @Override
     public DishAdapterViewHolder onCreateViewHolder(@NonNull @androidx.annotation.NonNull ViewGroup viewGroup, int i) {
-        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_dish,viewGroup,false);
+        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_dish, viewGroup, false);
         DishAdapterViewHolder holder = new DishAdapterViewHolder(inflate);
         return holder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull @androidx.annotation.NonNull DishAdapterViewHolder holder, @SuppressLint("RecyclerView") int i) {
-        holder.itemView.setSelected(i==selectedItem);
+        holder.itemView.setSelected(i == selectedItem);
         DishEntity item = data.get(i);
 
-        float price = (float)(item.getPrice()*0.01);
-        String str = String.format("%s\n(%.2f)",item.getDishName().trim(),price);
+        float price = (float) (item.getPrice() * 0.01);
+        String str = String.format("%s\n(%.2f)", item.getDishName().trim(), price);
         holder.tvDish.setText(str);
         holder.rootView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,7 +71,7 @@ public class DishAdapter
         return data.size();
     }
 
-    public interface OnItemClickListener{
+    public interface OnItemClickListener {
         void onDishItemClick(View view, int position);
     }
 
@@ -79,14 +79,14 @@ public class DishAdapter
         this.onItemClickListener = listener;
     }
 
-    public class DishAdapterViewHolder extends RecyclerView.ViewHolder{
+    public class DishAdapterViewHolder extends RecyclerView.ViewHolder {
         View rootView;
         TextView tvDish;
 
         public DishAdapterViewHolder(@NonNull @androidx.annotation.NonNull View itemView) {
             super(itemView);
             rootView = itemView.findViewById(R.id.rootView);
-            tvDish  = itemView.findViewById(R.id.tvDish);
+            tvDish = itemView.findViewById(R.id.tvDish);
         }
     }
 

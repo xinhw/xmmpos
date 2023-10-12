@@ -69,7 +69,7 @@ public class DeskPosPayMainActivity
         DishSelectedAdapter.OnItemClickListener,
         DishAdapter.OnItemClickListener,
         DishTypeAdapter.OnItemClickListener,
-        PaymentDialog.OnPaymentResult{
+        PaymentDialog.OnPaymentResult {
 
     private final String TAG = "DeskPosPayMainActivity";
 
@@ -126,7 +126,7 @@ public class DeskPosPayMainActivity
     }
 
     private void initView() {
-        Log.d(TAG,"initView");
+        Log.d(TAG, "initView");
 
         TextView textView = findViewById(R.id.tvTitle);
         textView.setText("上海报业餐厅POS机");
@@ -162,8 +162,8 @@ public class DeskPosPayMainActivity
         dishRecyclerView.setAdapter(dishAdapter);
         dishAdapter.setOnItemClickListener(this);
 
-        int[] ids = {R.id.tvExit,R.id.tvClearSelected,R.id.tvQuatity,
-                R.id.tvCardPay,R.id.tvQRPay,R.id.tvPrintAgain};
+        int[] ids = {R.id.tvExit, R.id.tvClearSelected, R.id.tvQuatity,
+                R.id.tvCardPay, R.id.tvQRPay, R.id.tvPrintAgain};
         findViewIdSetOnClickListener(ids);
 
         tvPosNo = findViewById(R.id.tvPosNo);
@@ -175,22 +175,22 @@ public class DeskPosPayMainActivity
         imgNetworkDisconnect = findViewById(R.id.imgNetworkDisconnect);
     }
 
-    private void findViewIdSetOnClickListener(int[] ids){
-        for(int id:ids){
+    private void findViewIdSetOnClickListener(int[] ids) {
+        for (int id : ids) {
             View view = findViewById(id);
-            if(null!=view) view.setOnClickListener(this);
+            if (null != view) view.setOnClickListener(this);
         }
     }
 
     private void initData() {
-        Log.d(TAG,"initData");
+        Log.d(TAG, "initData");
 
         listSelectedDishEntities.clear();
         selectedAdapter.notifyDataSetChanged();
         refreshSubTotal();
 
         tvTime.setText(String.format("时间：%s", DateStringUtils.getCurrentTime()));
-        mHandler.sendEmptyMessageDelayed(121,1000);
+        mHandler.sendEmptyMessageDelayed(121, 1000);
 
         startAppService();
     }
@@ -205,40 +205,41 @@ public class DeskPosPayMainActivity
             startActivity(MobilePosSettingsActivity.class);
             return;
         }
-        tvPosNo.setText(String.format("POS号：%s",posInfoBean.getCposno()));
+        tvPosNo.setText(String.format("POS号：%s", posInfoBean.getCposno()));
 
         //  菜品种类
         listDishTypeEntities.clear();
         List<DishTypeEntity> dishTypeList = getLocalDishType();
-        Log.d(TAG,"dishTypeList "+dishTypeList.size());
-        if(dishTypeList.size()>0) listDishTypeEntities.addAll(dishTypeList);
+        Log.d(TAG, "dishTypeList " + dishTypeList.size());
+        if (dishTypeList.size() > 0) listDishTypeEntities.addAll(dishTypeList);
         dishTypeAdapter.notifyDataSetChanged();
 
         //  菜品明细（选中第一个）
         listDishEntities.clear();
-        if(listDishTypeEntities.size()>0){
+        if (listDishTypeEntities.size() > 0) {
             List<DishEntity> dishList = getLocalDish(listDishTypeEntities.get(0));
-            if(dishList.size()>0) listDishEntities.addAll(dishList);
+            if (dishList.size() > 0) listDishEntities.addAll(dishList);
         }
-        if(listDishEntities.size()>0){
+        if (listDishEntities.size() > 0) {
             dishRecyclerView.setVisibility(View.VISIBLE);
             noDishView.setVisibility(View.GONE);
             dishAdapter.notifyDataSetChanged();
-        }else{
+        } else {
             dishRecyclerView.setVisibility(View.GONE);
             noDishView.setVisibility(View.VISIBLE);
         }
 
         //  刷新合计
         fTotalAmount = 0;
-        for(PaymentRecordEntity record:payRecords) fTotalAmount = fTotalAmount + record.getAmount();
+        for (PaymentRecordEntity record : payRecords)
+            fTotalAmount = fTotalAmount + record.getAmount();
         refreshTotalCount();
 
         //  在线，离线标志
-        if(HttpUtil.isOnline){
+        if (HttpUtil.isOnline) {
             imgNetworkConnect.setVisibility(View.VISIBLE);
             imgNetworkDisconnect.setVisibility(View.GONE);
-        }else{
+        } else {
             imgNetworkConnect.setVisibility(View.GONE);
             imgNetworkDisconnect.setVisibility(View.VISIBLE);
 
@@ -249,13 +250,13 @@ public class DeskPosPayMainActivity
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.d(TAG,"onKeyDown "+keyCode);
+        Log.d(TAG, "onKeyDown " + keyCode);
 
         //  右下角返回键
         if (KeyEvent.KEYCODE_BACK == keyCode) {
             return true;
         }
-        if(KeyEvent.KEYCODE_HOME == keyCode){
+        if (KeyEvent.KEYCODE_HOME == keyCode) {
             return true;
         }
 
@@ -264,13 +265,13 @@ public class DeskPosPayMainActivity
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        Log.d(TAG,"onConfigurationChanged");
+        Log.d(TAG, "onConfigurationChanged");
 
         //USB 拔插动作, 这个方法都会被调用.
         super.onConfigurationChanged(newConfig);
     }
 
-    private void setLayoutManager(RecyclerView mRecyclerView){
+    private void setLayoutManager(RecyclerView mRecyclerView) {
         //设置布局管理器
         FlexboxLayoutManager flexboxLayoutManager = new FlexboxLayoutManager(DeskPosPayMainActivity.this);
         //flexDirection 属性决定主轴的方向（即项目的排列方向）。类似 LinearLayout 的 vertical 和 horizontal。
@@ -299,12 +300,12 @@ public class DeskPosPayMainActivity
 
     @Override
     public void onClick(View v) {
-        if(ClickUtil.isFastDoubleClick(v.getId())){
+        if (ClickUtil.isFastDoubleClick(v.getId())) {
             showToast("请勿连续点击!");
             return;
         }
 
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.tvExit:
                 finishPrompt();
                 break;
@@ -319,31 +320,31 @@ public class DeskPosPayMainActivity
                 break;
 
             case R.id.tvQuatity:
-                if(listSelectedDishEntities.size()==0) return;
-                if(selectedDishPosition==-1) return;
+                if (listSelectedDishEntities.size() == 0) return;
+                if (selectedDishPosition == -1) return;
 
-                setDishQuatityDialog("请输入[%s]数量:",selectedDishPosition);
+                setDishQuatityDialog("请输入[%s]数量:", selectedDishPosition);
                 break;
 
             case R.id.tvCardPay:
-                if(listSelectedDishEntities.size()==0) return;
+                if (listSelectedDishEntities.size() == 0) return;
                 showPaymentDialog(PaymentDialog.PAY_MODE_CARD);
                 break;
 
             case R.id.tvQRPay:
-                if(listSelectedDishEntities.size()==0) return;
+                if (listSelectedDishEntities.size() == 0) return;
                 showPaymentDialog(PaymentDialog.PAY_MODE_QRCODE);
                 break;
 
             case R.id.tvPrintAgain:
-                if(null==printPayRecord) break;
+                if (null == printPayRecord) break;
 
                 PrinterBase printer = PrinterFactory.getPrinter(mContext);
                 int ret = printer.openPrinter();
-                if(0!=ret){
+                if (0 != ret) {
                     playSound(false);
                     showLongToast("打印机初始化失败，请检查连接");
-                }else {
+                } else {
                     PrinterUtils printerUtils = new PrinterUtils();
                     printerUtils.printPayItem(printer, posInfoBean, printPayRecord, listPrintDishEntities);
                     printer.closePrinter();
@@ -358,8 +359,8 @@ public class DeskPosPayMainActivity
 
     @Override
     public void onDishTypeItemClick(View view, int position) {
-        Log.d(TAG,"onDishTypeItemClick "+ position);
-        if(selectedDishTypePosition==position) return;
+        Log.d(TAG, "onDishTypeItemClick " + position);
+        if (selectedDishTypePosition == position) return;
 
         selectedDishTypePosition = position;
 
@@ -367,11 +368,11 @@ public class DeskPosPayMainActivity
         listDishEntities.clear();
 
         List<DishEntity> dishList = getLocalDish(dishTypeEntity);
-        if(dishList.size()>0){
+        if (dishList.size() > 0) {
             dishRecyclerView.setVisibility(View.VISIBLE);
             noDishView.setVisibility(View.GONE);
             listDishEntities.addAll(dishList);
-        }else{
+        } else {
             dishRecyclerView.setVisibility(View.GONE);
             noDishView.setVisibility(View.VISIBLE);
         }
@@ -380,14 +381,14 @@ public class DeskPosPayMainActivity
 
     @Override
     public void onDishItemClick(View view, int position) {
-        Log.d(TAG,"onDishItemClick "+ position);
+        Log.d(TAG, "onDishItemClick " + position);
 
         DishEntity dishEntity = new DishEntity(listDishEntities.get(position));
         dishEntity.setCount(1);
         listSelectedDishEntities.add(dishEntity);
 
-        dishRecyclerView.scrollToPosition(listSelectedDishEntities.size()-1);
-        selectedAdapter.setSelectedItem(listSelectedDishEntities.size()-1);
+        dishRecyclerView.scrollToPosition(listSelectedDishEntities.size() - 1);
+        selectedAdapter.setSelectedItem(listSelectedDishEntities.size() - 1);
         selectedAdapter.notifyDataSetChanged();
 
         selectedDishPosition = selectedAdapter.getSelectedItem();
@@ -398,23 +399,23 @@ public class DeskPosPayMainActivity
     /***
      * 统计选择的菜品数量和金额
      */
-    private void refreshSubTotal(){
+    private void refreshSubTotal() {
         tvSubCount.setText("0");
         tvSubAmount.setText("0.00");
 
-        if(listSelectedDishEntities.size()==0) return;
+        if (listSelectedDishEntities.size() == 0) return;
 
         int totoalAmount = 0;
-        for(DishEntity dishEntity : listSelectedDishEntities){
-            totoalAmount = totoalAmount + dishEntity.getPrice()* dishEntity.getCount();
+        for (DishEntity dishEntity : listSelectedDishEntities) {
+            totoalAmount = totoalAmount + dishEntity.getPrice() * dishEntity.getCount();
         }
-        tvSubCount.setText(listSelectedDishEntities.size()+"");
-        tvSubAmount.setText(String.format("%.2f",totoalAmount*0.01));
+        tvSubCount.setText(listSelectedDishEntities.size() + "");
+        tvSubAmount.setText(String.format("%.2f", totoalAmount * 0.01));
     }
 
     @Override
     public void onSelectedDishItemClick(View view, int position) {
-        Log.d(TAG,"onSelectedDishItemClick "+ position);
+        Log.d(TAG, "onSelectedDishItemClick " + position);
 
         dishRecyclerView.scrollToPosition(position);
         selectedAdapter.setSelectedItem(position);
@@ -425,19 +426,20 @@ public class DeskPosPayMainActivity
 
     @Override
     public void onSelectedDishItemLongClick(View view, int position) {
-        Log.d(TAG,"onSelectedDishItemLongClick "+ position);
+        Log.d(TAG, "onSelectedDishItemLongClick " + position);
         selectedDishPosition = position;
 
-        showPopupMenu(view,position);
+        showPopupMenu(view, position);
     }
 
     /**
      * 显示右键菜单
+     *
      * @param view
      * @param index
      */
-    private void showPopupMenu(View view,int index){
-        Log.d(TAG,"showPopupMenu");
+    private void showPopupMenu(View view, int index) {
+        Log.d(TAG, "showPopupMenu");
         int[] location = new int[2];
         view.getLocationInWindow(location);
         View popuView = getLayoutInflater().inflate(R.layout.popuwindow_view, null, false);
@@ -454,14 +456,14 @@ public class DeskPosPayMainActivity
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
                 }
-                DetLog.writeLog(TAG,"删除："+listSelectedDishEntities.get(index).toString());
+                DetLog.writeLog(TAG, "删除：" + listSelectedDishEntities.get(index).toString());
                 listSelectedDishEntities.remove(index);
                 selectedAdapter.notifyDataSetChanged();
 
                 refreshSubTotal();
 
                 playSound(true);
-                selectedDishPosition  = -1;
+                selectedDishPosition = -1;
             }
         });
 
@@ -474,7 +476,7 @@ public class DeskPosPayMainActivity
                 // 设置数量
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
-                    setDishQuatityDialog("请输入[%s]数量:",index);
+                    setDishQuatityDialog("请输入[%s]数量:", index);
                 }
             }
         });
@@ -485,27 +487,28 @@ public class DeskPosPayMainActivity
 
     /**
      * 输入菜品数量
+     *
      * @param title
      * @param position
      */
-    private void setDishQuatityDialog(String title,int position){
-        Log.d(TAG,"setDishQuatityDialog "+position);
+    private void setDishQuatityDialog(String title, int position) {
+        Log.d(TAG, "setDishQuatityDialog " + position);
 
         DishEntity dishEntity = null;
 
         try {
             dishEntity = listSelectedDishEntities.get(position);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return;
         }
-        if(dishEntity==null) return;
+        if (dishEntity == null) return;
 
         // 展示提示框，进行数据输入
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = LayoutInflater.from(this).inflate(R.layout.input_dialog_view, null);
         TextView tvTitle = view.findViewById(R.id.tvTitle);
-        tvTitle.setText(String.format(title,dishEntity.getDishName()));
+        tvTitle.setText(String.format(title, dishEntity.getDishName()));
 
         EditText editText = view.findViewById(R.id.inputEditText);
         editText.setInputType(EditorInfo.TYPE_CLASS_NUMBER);
@@ -529,12 +532,12 @@ public class DeskPosPayMainActivity
                 }
                 dialog.dismiss();
 
-                Log.d(TAG,"修改数量："+position);
+                Log.d(TAG, "修改数量：" + position);
                 DishEntity item = listSelectedDishEntities.get(position);
                 item.setCount(count);
                 selectedAdapter.notifyDataSetChanged();
 
-                DetLog.writeLog(TAG,"修改数量："+item.toString());
+                DetLog.writeLog(TAG, "修改数量：" + item.toString());
 
                 refreshSubTotal();
                 playSound(true);
@@ -555,18 +558,18 @@ public class DeskPosPayMainActivity
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (null == msg) return;
-            switch (msg.what){
+            switch (msg.what) {
                 case 121: //    刷新时间
                     tvTime.setText(String.format("时间：%s", DateStringUtils.getCurrentTime()));
-                    mHandler.sendEmptyMessageDelayed(121,1000);
+                    mHandler.sendEmptyMessageDelayed(121, 1000);
                     break;
             }
         }
     };
 
     @Override
-    public void onPaymentSuccess(int flag,PaymentRecordEntity record) {
-        Log.d(TAG,"onPaymentSuccess "+record.toString());
+    public void onPaymentSuccess(int flag, PaymentRecordEntity record) {
+        Log.d(TAG, "onPaymentSuccess " + record.toString());
 
         //  缓存打印信息
         printPayRecord = record;
@@ -581,21 +584,21 @@ public class DeskPosPayMainActivity
         //  打印
         PrinterBase printer = PrinterFactory.getPrinter(mContext);
         int ret = printer.openPrinter();
-        if(0!=ret){
+        if (0 != ret) {
             playSound(false);
             showLongToast("打印机初始化失败，请检查连接");
-        }else{
+        } else {
             //  打印
             PrinterUtils printerUtils = new PrinterUtils();
-            printerUtils.printPayItem(printer,posInfoBean,printPayRecord, listPrintDishEntities);
+            printerUtils.printPayItem(printer, posInfoBean, printPayRecord, listPrintDishEntities);
             detSleep(100);
             printer.closePrinter();
         }
 
-        if(flag==0x01){
+        if (flag == 0x01) {
             imgNetworkConnect.setVisibility(View.VISIBLE);
             imgNetworkDisconnect.setVisibility(View.GONE);
-        }else{
+        } else {
             imgNetworkConnect.setVisibility(View.GONE);
             imgNetworkDisconnect.setVisibility(View.VISIBLE);
         }
@@ -607,13 +610,14 @@ public class DeskPosPayMainActivity
         refreshTotalCount();
     }
 
-    private void refreshTotalCount(){
-        tvTotalCount.setText("总数："+payRecords.size());
-        tvTotalAmount.setText(String.format("总金额：%.2f",fTotalAmount));
+    private void refreshTotalCount() {
+        tvTotalCount.setText("总数：" + payRecords.size());
+        tvTotalAmount.setText(String.format("总金额：%.2f", fTotalAmount));
     }
+
     @Override
     public void onPaymentCancel() {
-        Log.d(TAG,"onPaymentCancel 取消支付");
+        Log.d(TAG, "onPaymentCancel 取消支付");
         playSound(false);
     }
 
@@ -673,21 +677,21 @@ public class DeskPosPayMainActivity
      * 显示支付对话框
      * @param type
      */
-    private void showPaymentDialog(int type){
-        Log.d(TAG,"showPaymentDialog");
+    private void showPaymentDialog(int type) {
+        Log.d(TAG, "showPaymentDialog");
 
         int nAmount = 0;
-        for(DishEntity dishEntity:listSelectedDishEntities){
+        for (DishEntity dishEntity : listSelectedDishEntities) {
             nAmount = nAmount + dishEntity.getSubAmount();
         }
 
-        paymentDialog = new PaymentDialog(mContext,this,posInfoBean,type,nAmount);
+        paymentDialog = new PaymentDialog(mContext, this, posInfoBean, type, nAmount);
         paymentDialog.setOnPaymentResultListner(this);
         paymentDialog.setListDishes(listSelectedDishEntities);
-        if(type==PaymentDialog.PAY_MODE_QRCODE) {
+        if (type == PaymentDialog.PAY_MODE_QRCODE) {
             paymentDialog.show(getSupportFragmentManager(), "qrcode pay");
-        }else{
-            paymentDialog.show(getSupportFragmentManager(),"iccard pay");
+        } else {
+            paymentDialog.show(getSupportFragmentManager(), "iccard pay");
         }
     }
 
@@ -715,14 +719,14 @@ public class DeskPosPayMainActivity
     }
 
     @TestOnly
-    private void makeUploadRecord(){
+    private void makeUploadRecord() {
         List<PaymentRecordEntity> list = DBManager.getInstance().getPaymentRecordEntityDao()
                 .queryBuilder()
                 .where(PaymentRecordEntityDao.Properties.Id.le(4))
                 .where(PaymentRecordEntityDao.Properties.Id.ge(3))
                 .list();
-        Log.d(TAG,"List size:"+list.size());
-        for(PaymentRecordEntity record:list){
+        Log.d(TAG, "List size:" + list.size());
+        for (PaymentRecordEntity record : list) {
             record.setUploadFlag(PaymentTotal.UNUPLOAD);
         }
         DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(list);
@@ -736,30 +740,30 @@ public class DeskPosPayMainActivity
         public void onReceive(Context context, Intent intent) {
             //  USB设备对象
             UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-            if(null==usbDevice){
-                Log.d(TAG,"usbDevice is null");
+            if (null == usbDevice) {
+                Log.d(TAG, "usbDevice is null");
                 return;
             }
 
-            switch (intent.getAction()){
+            switch (intent.getAction()) {
                 case UsbManager.ACTION_USB_DEVICE_ATTACHED:     //  插入USB设备
-                    if((usbDevice.getVendorId()== PrinterGP58.VENDORID)
-                            &&(usbDevice.getProductId()==PrinterGP58.PRODUCTID)){
-                        Log.d(TAG,"打印机插入");
+                    if ((usbDevice.getVendorId() == PrinterGP58.VENDORID)
+                            && (usbDevice.getProductId() == PrinterGP58.PRODUCTID)) {
+                        Log.d(TAG, "打印机插入");
 
                         showToast("打印机插入");
                         playSound(true);
                     }
-                    if((usbDevice.getVendorId()== ReaderCS230Z.VENDORID)
-                            &&(usbDevice.getProductId()==ReaderCS230Z.PRODUCTID)){
-                        Log.d(TAG,"IC卡读卡器插入");
+                    if ((usbDevice.getVendorId() == ReaderCS230Z.VENDORID)
+                            && (usbDevice.getProductId() == ReaderCS230Z.PRODUCTID)) {
+                        Log.d(TAG, "IC卡读卡器插入");
 
                         showToast("读卡器插入");
                         playSound(true);
                     }
-                    if((usbDevice.getVendorId()== AppConstants.USB_QR_SCAN_VENDOR_ID)
-                            &&(usbDevice.getProductId()==AppConstants.USB_QR_SCAN_PRODUCT_ID)){
-                        Log.d(TAG,"二维码扫描头插入");
+                    if ((usbDevice.getVendorId() == AppConstants.USB_QR_SCAN_VENDOR_ID)
+                            && (usbDevice.getProductId() == AppConstants.USB_QR_SCAN_PRODUCT_ID)) {
+                        Log.d(TAG, "二维码扫描头插入");
 
                         showLongToast("二维码扫描头被插入");
                         playSound(false);
@@ -767,23 +771,23 @@ public class DeskPosPayMainActivity
                     break;
 
                 case UsbManager.ACTION_USB_DEVICE_DETACHED:     //  拔出USB设备
-                    if((usbDevice.getVendorId()== PrinterGP58.VENDORID)
-                            &&(usbDevice.getProductId()==PrinterGP58.PRODUCTID)){
-                        Log.d(TAG,"打印机拔出");
+                    if ((usbDevice.getVendorId() == PrinterGP58.VENDORID)
+                            && (usbDevice.getProductId() == PrinterGP58.PRODUCTID)) {
+                        Log.d(TAG, "打印机拔出");
 
                         showLongToast("打印机被拔出，消费无法打印");
                         playSound(false);
                     }
-                    if((usbDevice.getVendorId()== ReaderCS230Z.VENDORID)
-                            &&(usbDevice.getProductId()==ReaderCS230Z.PRODUCTID)){
-                        Log.d(TAG,"IC卡读卡器拔出");
+                    if ((usbDevice.getVendorId() == ReaderCS230Z.VENDORID)
+                            && (usbDevice.getProductId() == ReaderCS230Z.PRODUCTID)) {
+                        Log.d(TAG, "IC卡读卡器拔出");
 
                         showLongToast("读卡器被拔出，不支持IC卡消费");
                         playSound(false);
                     }
-                    if((usbDevice.getVendorId()== AppConstants.USB_QR_SCAN_VENDOR_ID)
-                            &&(usbDevice.getProductId()==AppConstants.USB_QR_SCAN_PRODUCT_ID)){
-                        Log.d(TAG,"二维码扫描头拔出");
+                    if ((usbDevice.getVendorId() == AppConstants.USB_QR_SCAN_VENDOR_ID)
+                            && (usbDevice.getProductId() == AppConstants.USB_QR_SCAN_PRODUCT_ID)) {
+                        Log.d(TAG, "二维码扫描头拔出");
 
                         showLongToast("二维码扫描头被拔出，不支持二维码消费");
                         playSound(false);
@@ -791,7 +795,7 @@ public class DeskPosPayMainActivity
                     break;
 
                 default:
-                    Log.d(TAG,String.format("未知设备：VENTORID=%d PRODUCTID=%d",
+                    Log.d(TAG, String.format("未知设备：VENTORID=%d PRODUCTID=%d",
                             usbDevice.getVendorId(),
                             usbDevice.getProductId()));
                     break;
@@ -800,17 +804,18 @@ public class DeskPosPayMainActivity
     }
 
     USBReceiver mUsbReceiver = null;
-    private void registerReceiver(){
+
+    private void registerReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
 
         mUsbReceiver = new USBReceiver();
-        mContext.registerReceiver(mUsbReceiver,filter);
+        mContext.registerReceiver(mUsbReceiver, filter);
     }
 
-    private void unregisterReceiver(){
-        if(null!=mUsbReceiver) {
+    private void unregisterReceiver() {
+        if (null != mUsbReceiver) {
             mContext.unregisterReceiver(mUsbReceiver);
         }
         mUsbReceiver = null;

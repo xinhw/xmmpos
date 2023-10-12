@@ -33,7 +33,7 @@ import java.util.List;
 
 public class DeskPosAuxillaryMenuActivity
         extends BaseActivity
-        implements View.OnClickListener{
+        implements View.OnClickListener {
     final String TAG = "DeskPosAuxillaryMenuActivity";
     TextView tvProcess;
 
@@ -65,7 +65,6 @@ public class DeskPosAuxillaryMenuActivity
     }
 
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -84,9 +83,9 @@ public class DeskPosAuxillaryMenuActivity
                 .list();
         int num = list.size();
         if (num > 0) {
-            if(num>99) {
+            if (num > 99) {
                 bvMessage.setText("...");
-            }else{
+            } else {
                 bvMessage.setText(num + "");
             }
             bvMessage.setTextColor(Color.YELLOW);
@@ -103,7 +102,7 @@ public class DeskPosAuxillaryMenuActivity
     /***
      * 开启数据同步异步任务
      */
-    private void startSyncDataTask(){
+    private void startSyncDataTask() {
         AsynSyncData task = new AsynSyncData();
         task.execute();
     }
@@ -111,19 +110,19 @@ public class DeskPosAuxillaryMenuActivity
     /***
      * 开启数据上传异步任务
      */
-    private void startUploadTask(){
+    private void startUploadTask() {
         AsynUploadTask task = new AsynUploadTask();
         task.execute();
     }
 
     @Override
     public void onClick(View v) {
-        if(ClickUtil.isFastDoubleClick(v.getId())){
+        if (ClickUtil.isFastDoubleClick(v.getId())) {
             showToast("请勿连续点击!");
             return;
         }
 
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.back_img:
                 finish();
                 break;
@@ -158,7 +157,7 @@ public class DeskPosAuxillaryMenuActivity
             payWebapi obj = payWebapi.getInstance();
 
             PosInfoBean posInfoBean = getPosInfoBean();
-            if(null!=posInfoBean) {
+            if (null != posInfoBean) {
                 obj.setServerIP(posInfoBean.getServerIP());
                 obj.setPortNo(posInfoBean.getPortNo());
             }
@@ -166,9 +165,9 @@ public class DeskPosAuxillaryMenuActivity
             //  1. 操作员信息
             sendProccessMessage("同步 操作员信息，请稍等...");
             List<UserInfoEntity> listUserInfo = obj.getUserInfoList();
-            if(listUserInfo==null){
+            if (listUserInfo == null) {
                 sendProccessMessage("同步 操作员信息 失败");
-            }else{
+            } else {
                 sendProccessMessage("同步 操作员信息 成功");
                 DBManager.getInstance().getUserInfoEntityDao().deleteAll();
                 DBManager.getInstance().getUserInfoEntityDao().saveInTx(listUserInfo);
@@ -177,12 +176,12 @@ public class DeskPosAuxillaryMenuActivity
 
             //  2. 菜品种类和菜品明细（只下载上架的菜品）
             String posno = "";
-            if(null!=posInfoBean) posno = posInfoBean.getCposno();
+            if (null != posInfoBean) posno = posInfoBean.getCposno();
             sendProccessMessage("同步 菜品信息，请稍等...");
             Result result = obj.getDishType(posno);
-            if(null==result){
+            if (null == result) {
                 sendProccessMessage("同步 菜品信息 失败");
-            }else{
+            } else {
                 sendProccessMessage("同步 菜品信息 成功");
                 saveDishType(result);
                 n++;
@@ -191,9 +190,9 @@ public class DeskPosAuxillaryMenuActivity
             //  3. IC卡白名单
             sendProccessMessage("同步 IC卡名单信息，请稍等...");
             List<PersonInfoEntity> listCardBlist = obj.getPersonInfoList();
-            if(null==listCardBlist){
+            if (null == listCardBlist) {
                 sendProccessMessage("同步 IC卡名单信息 失败");
-            }else{
+            } else {
                 sendProccessMessage("同步 IC卡名单信息 成功");
                 DBManager.getInstance().getPersonInfoEntityDao().deleteAll();
                 DBManager.getInstance().getPersonInfoEntityDao().saveInTx(listCardBlist);
@@ -203,9 +202,9 @@ public class DeskPosAuxillaryMenuActivity
             //  4. 二维码黑名单
             sendProccessMessage("同步 二维码黑名单信息，请稍等...");
             List<QrBlackListEntity> listQrBlacklist = obj.getQrBlackList();
-            if(null==listQrBlacklist){
+            if (null == listQrBlacklist) {
                 sendProccessMessage("同步 二维码黑名单信息 失败");
-            }else{
+            } else {
                 sendProccessMessage("同步 二维码黑名单信息 成功");
                 DBManager.getInstance().getQrBlackListEntityDao().deleteAll();
                 DBManager.getInstance().getQrBlackListEntityDao().saveInTx(listQrBlacklist);
@@ -213,7 +212,7 @@ public class DeskPosAuxillaryMenuActivity
             }
 
             //  上次同步时间
-            if(4==n) {
+            if (4 == n) {
                 setLongInfo(AppIntentString.LAST_SYNC_TIME, System.currentTimeMillis());
             }
 
@@ -232,8 +231,9 @@ public class DeskPosAuxillaryMenuActivity
      * 上传离线交易数据异步任务
      */
     private class AsynUploadTask extends AsyncTask<String, Integer, Integer> {
-        int cardOfflineCount = 0,cardOfflineSuccess=0;
-        int qrOfflineCount = 0,qrOfflineSuccess=0;
+        int cardOfflineCount = 0, cardOfflineSuccess = 0;
+        int qrOfflineCount = 0, qrOfflineSuccess = 0;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -245,7 +245,7 @@ public class DeskPosAuxillaryMenuActivity
             payWebapi obj = payWebapi.getInstance();
 
             PosInfoBean posInfoBean = getPosInfoBean();
-            if(null!=posInfoBean) {
+            if (null != posInfoBean) {
                 obj.setServerIP(posInfoBean.getServerIP());
                 obj.setPortNo(posInfoBean.getPortNo());
             }
@@ -257,22 +257,22 @@ public class DeskPosAuxillaryMenuActivity
                     .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(0))
                     .where(PaymentRecordEntityDao.Properties.QrType.eq(0))
                     .list();
-            if(listCardRecord.size()>0){
+            if (listCardRecord.size() > 0) {
                 cardOfflineCount = listCardRecord.size();
-                Log.d(TAG,"未上传IC卡离线交易个数："+cardOfflineCount);
+                Log.d(TAG, "未上传IC卡离线交易个数：" + cardOfflineCount);
                 cardOfflineSuccess = 0;
 
                 int n = 0;
                 sendProccessMessage("上传 IC卡离线交易，请稍等...");
-                for(PaymentRecordEntity record:listCardRecord){
+                for (PaymentRecordEntity record : listCardRecord) {
                     n++;
                     int ret = obj.pushOfflineCardPaymentRecords(record);
-                    if(0!=ret){
-                        sendProccessMessage(String.format("上传 IC卡离线交易%d/%d 失败",n,listCardRecord.size()));
-                        DetLog.writeLog(TAG,"IC卡离线记录上送失败："+record.toString());
-                    }else{
-                        sendProccessMessage(String.format("上传 IC卡离线交易%d/%d 成功",n,listCardRecord.size()));
-                        DetLog.writeLog(TAG,"IC卡离线记录上送成功："+record.toString());
+                    if (0 != ret) {
+                        sendProccessMessage(String.format("上传 IC卡离线交易%d/%d 失败", n, listCardRecord.size()));
+                        DetLog.writeLog(TAG, "IC卡离线记录上送失败：" + record.toString());
+                    } else {
+                        sendProccessMessage(String.format("上传 IC卡离线交易%d/%d 成功", n, listCardRecord.size()));
+                        DetLog.writeLog(TAG, "IC卡离线记录上送成功：" + record.toString());
 
                         record.setUploadFlag(PaymentTotal.UPLOADED);
                         record.setUploadTime(new Date());
@@ -289,21 +289,21 @@ public class DeskPosAuxillaryMenuActivity
                     .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(0))
                     .where(PaymentRecordEntityDao.Properties.QrType.notEq(0))
                     .list();
-            if(listQrRecord.size()>0){
+            if (listQrRecord.size() > 0) {
                 qrOfflineCount = listQrRecord.size();
-                Log.d(TAG,"未上传二维码离线交易个数："+qrOfflineCount);
+                Log.d(TAG, "未上传二维码离线交易个数：" + qrOfflineCount);
                 qrOfflineSuccess = 0;
                 int n = 0;
                 sendProccessMessage("上传 二维码离线交易，请稍等...");
-                for(PaymentRecordEntity record:listQrRecord){
+                for (PaymentRecordEntity record : listQrRecord) {
                     n++;
                     int ret = obj.pushOfflineQRPaymentRecords(record);
-                    if(0!=ret){
-                        sendProccessMessage(String.format("上传 二维码离线交易%d/%d 失败",n,listCardRecord.size()));
-                        DetLog.writeLog(TAG,"二维码离线记录上送失败："+record.toString());
-                    }else{
-                        sendProccessMessage(String.format("上传 二维码离线交易%d/%d 成功",n,listCardRecord.size()));
-                        DetLog.writeLog(TAG,"二维码离线记录上送成功："+record.toString());
+                    if (0 != ret) {
+                        sendProccessMessage(String.format("上传 二维码离线交易%d/%d 失败", n, listCardRecord.size()));
+                        DetLog.writeLog(TAG, "二维码离线记录上送失败：" + record.toString());
+                    } else {
+                        sendProccessMessage(String.format("上传 二维码离线交易%d/%d 成功", n, listCardRecord.size()));
+                        DetLog.writeLog(TAG, "二维码离线记录上送成功：" + record.toString());
 
                         record.setUploadFlag(PaymentTotal.UPLOADED);
                         record.setUploadTime(new Date());
@@ -323,17 +323,17 @@ public class DeskPosAuxillaryMenuActivity
             missProDialog();
 
             //  显示上送信息
-            if((cardOfflineCount+qrOfflineCount)>0){
-                int n = cardOfflineCount+qrOfflineCount;
-                int m = cardOfflineSuccess+qrOfflineSuccess;
+            if ((cardOfflineCount + qrOfflineCount) > 0) {
+                int n = cardOfflineCount + qrOfflineCount;
+                int m = cardOfflineSuccess + qrOfflineSuccess;
 
-                if(m>0){
+                if (m > 0) {
                     playSound(false);
-                }else{
+                } else {
                     playSound(true);
                 }
 
-                String msg = String.format("共计 %d 离线交易，成功上传 %d",n,m);
+                String msg = String.format("共计 %d 离线交易，成功上传 %d", n, m);
                 showDialogMessage("上送", msg,
                         "确定", new DialogInterface.OnClickListener() {
                             @Override
@@ -354,7 +354,7 @@ public class DeskPosAuxillaryMenuActivity
     }
 
 
-    private void sendProccessMessage(String msg){
+    private void sendProccessMessage(String msg) {
         Message message = new Message();
         message.what = 100;
         message.obj = msg;
@@ -366,10 +366,10 @@ public class DeskPosAuxillaryMenuActivity
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (null == msg) return;
-            switch (msg.what){
+            switch (msg.what) {
                 case 100:       //  显示对话框信息
-                    String str = (String)msg.obj;
-                    if(null!=str){
+                    String str = (String) msg.obj;
+                    if (null != str) {
                         setProDialogText(str);
                         tvProcess.setText(str);
                     }
@@ -383,14 +383,14 @@ public class DeskPosAuxillaryMenuActivity
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.d(TAG,"onKeyDown "+keyCode);
+        Log.d(TAG, "onKeyDown " + keyCode);
 
         //  右下角返回键
         if (KeyEvent.KEYCODE_BACK == keyCode) {
             finish();
             return true;
         }
-        if(KeyEvent.KEYCODE_HOME == keyCode){
+        if (KeyEvent.KEYCODE_HOME == keyCode) {
             return true;
         }
 

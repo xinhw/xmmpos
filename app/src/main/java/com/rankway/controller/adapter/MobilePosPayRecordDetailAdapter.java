@@ -36,7 +36,7 @@ public class MobilePosPayRecordDetailAdapter
     private long lastClickTime = 0;
     private final int MIN_CLICK_INTERVAL = 500; //
 
-    public MobilePosPayRecordDetailAdapter(Context context, List<PaymentRecordEntity> records){
+    public MobilePosPayRecordDetailAdapter(Context context, List<PaymentRecordEntity> records) {
         this.mContext = context;
         this.data = records;
     }
@@ -49,33 +49,34 @@ public class MobilePosPayRecordDetailAdapter
     @androidx.annotation.NonNull
     @Override
     public PaymentRecordDetailViewHolder onCreateViewHolder(@NonNull @androidx.annotation.NonNull ViewGroup viewGroup, int i) {
-        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_payment_record_detail,viewGroup,false);
+        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_payment_record_detail, viewGroup, false);
         PaymentRecordDetailViewHolder holder = new PaymentRecordDetailViewHolder(inflate);
         return holder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull @androidx.annotation.NonNull PaymentRecordDetailViewHolder holder, @SuppressLint("RecyclerView") int i) {
-        holder.itemView.setSelected(i==selectedItem);
+        holder.itemView.setSelected(i == selectedItem);
         PaymentRecordEntity item = data.get(i);
-        holder.cno.setText(item.getAuditNo()+"");
+        holder.cno.setText(item.getAuditNo() + "");
         holder.workNo.setText(item.getWorkNo());
-        holder.amount.setText(String.format("￥%.2f",item.getAmount()));
+        holder.amount.setText(String.format("￥%.2f", item.getAmount()));
         holder.transTime.setText(DateStringUtils.dateToString(item.getTransTime()));
         holder.rootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 long t1 = SystemClock.elapsedRealtime();
 
-                if(selectedItem==i){
-                    if((t1-lastClickTime)<MIN_CLICK_INTERVAL){
-                        if (onItemClickListener != null) onItemClickListener.onItemDoubleClick(v, i);
+                if (selectedItem == i) {
+                    if ((t1 - lastClickTime) < MIN_CLICK_INTERVAL) {
+                        if (onItemClickListener != null)
+                            onItemClickListener.onItemDoubleClick(v, i);
                         lastClickTime = t1;
-                    }else {
+                    } else {
                         if (onItemClickListener != null) onItemClickListener.onItemClick(v, i);
                         lastClickTime = 0;
                     }
-                }else {
+                } else {
                     if (onItemClickListener != null) onItemClickListener.onItemClick(v, i);
                     selectedItem = i;
                     lastClickTime = t1;
@@ -85,7 +86,7 @@ public class MobilePosPayRecordDetailAdapter
         holder.rootView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if(onItemClickListener!=null) onItemClickListener.onItemLongClick(v,i);
+                if (onItemClickListener != null) onItemClickListener.onItemLongClick(v, i);
                 selectedItem = i;
                 lastClickTime = SystemClock.elapsedRealtime();
                 return false;
@@ -107,7 +108,7 @@ public class MobilePosPayRecordDetailAdapter
         return data.size();
     }
 
-    public class PaymentRecordDetailViewHolder extends RecyclerView.ViewHolder{
+    public class PaymentRecordDetailViewHolder extends RecyclerView.ViewHolder {
         View rootView;
         TextView cno;
         TextView workNo;
@@ -124,9 +125,11 @@ public class MobilePosPayRecordDetailAdapter
         }
     }
 
-    public interface OnItemClickListener{
+    public interface OnItemClickListener {
         void onItemClick(View view, int position);
-        void onItemLongClick(View view,int position);
+
+        void onItemLongClick(View view, int position);
+
         void onItemDoubleClick(View view, int position);
     }
 

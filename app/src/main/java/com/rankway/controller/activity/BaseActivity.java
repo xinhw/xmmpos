@@ -93,7 +93,6 @@ import com.rankway.controller.widget.MyAlertDialog;
 import com.rankway.sommerlibrary.R;
 import com.rankway.sommerlibrary.common.ActivityCollector;
 import com.rankway.sommerlibrary.utils.FileUtils;
-import com.rankway.sommerlibrary.utils.StringTool;
 import com.rankway.sommerlibrary.utils.ToastUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -328,24 +327,6 @@ public class BaseActivity extends AppCompatActivity {
     protected int getIntInfo(String index) {
         preferences = getSharedPreferences("detInfo", MODE_PRIVATE);
         return preferences.getInt(index, 0);
-    }
-
-    protected Uri getUriInfo(String index) {
-        preferences = getSharedPreferences("detInfo", MODE_PRIVATE);
-        String str = preferences.getString(index, "");
-        if (StringTool.isNullOrBlankStr(str)) {
-            return null;
-        }
-        Uri uri = Uri.parse(str);
-        return uri;
-    }
-
-    protected void setUriInfo(String index, Uri value) {
-
-        preferences = getSharedPreferences("detInfo", MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(index, value.toString());
-        editor.apply();
     }
 
     // 保存延时设置
@@ -764,8 +745,7 @@ public class BaseActivity extends AppCompatActivity {
      * @param flag      0代表app更新    1代表控制板更新
      * @param app
      */
-    private void showUpdateDialog(int flag,
-                                  AppUpdateBean.ResultBean.AppBean app) {
+    private void showUpdateDialog(int flag, AppUpdateBean.ResultBean.AppBean app) {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         switch (flag) {
             case appUpdate:

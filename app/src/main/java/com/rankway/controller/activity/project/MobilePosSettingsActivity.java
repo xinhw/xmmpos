@@ -71,7 +71,7 @@ public class MobilePosSettingsActivity
     private TextView tvPrintHeader;
     private TextView appUpgradeUrl;
 
-    private  boolean passAdvancedPassword = false;
+    private boolean passAdvancedPassword = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,13 +85,13 @@ public class MobilePosSettingsActivity
     }
 
     private void initView() {
-        int[] viewIds = {R.id.viewPosNo,R.id.viewUserCode,
-                R.id.viewServerIP,R.id.viewServerPort,
-                R.id.upload_log,R.id.about,
+        int[] viewIds = {R.id.viewPosNo, R.id.viewUserCode,
+                R.id.viewServerIP, R.id.viewServerPort,
+                R.id.upload_log, R.id.about,
                 R.id.recover_data,
-                R.id.tvHttpTimeout,R.id.tvOfflineMaxAmount,
-                R.id.menuServerIP,R.id.menuServerPort,
-                R.id.tvPrintHeader,R.id.tvPrintSuffix,
+                R.id.tvHttpTimeout, R.id.tvOfflineMaxAmount,
+                R.id.menuServerIP, R.id.menuServerPort,
+                R.id.tvPrintHeader, R.id.tvPrintSuffix,
                 R.id.appUpgradeUrl};
         setOnClickListener(viewIds);
 
@@ -112,19 +112,19 @@ public class MobilePosSettingsActivity
 
     }
 
-    protected void setOnClickListener(int[] viewIds){
-        for(int id: viewIds){
+    protected void setOnClickListener(int[] viewIds) {
+        for (int id : viewIds) {
             View view = findViewById(id);
             view.setOnClickListener(this);
         }
         return;
     }
 
-    private void initData(){
-        Log.d(TAG,"initData");
+    private void initData() {
+        Log.d(TAG, "initData");
 
         PosInfoBean infoBean = getPosInfoBean();
-        if(null==infoBean){
+        if (null == infoBean) {
             String str = "";
             tvPosName.setText(str);
             tvPosNo.setText(str);
@@ -135,31 +135,31 @@ public class MobilePosSettingsActivity
             menuServerIP.setText("");
             menuServerPort.setText("");
             appUpgradeUrl.setText("");
-        }else{
+        } else {
             tvPosName.setText(infoBean.getCposno());
             tvPosNo.setText(infoBean.getCposno());
             tvUserCode.setText(infoBean.getUsercode());
-            tvAuditNo.setText(infoBean.getAuditNo()+"");
+            tvAuditNo.setText(infoBean.getAuditNo() + "");
             tvServerIP.setText(infoBean.getServerIP());
-            tvServerPort.setText(infoBean.getPortNo()+"");
+            tvServerPort.setText(infoBean.getPortNo() + "");
             menuServerIP.setText(infoBean.getMenuServerIP());
-            menuServerPort.setText(infoBean.getMenuPortNo()+"");
+            menuServerPort.setText(infoBean.getMenuPortNo() + "");
             appUpgradeUrl.setText(infoBean.getUpgradeUrl());
         }
 
         //  通信超时
         int ret = SpManager.getIntance().getSpInt(AppIntentString.HTTP_OVER_TIME);
-        if(ret<=0) ret = HttpUtil.DEFAULT_OVER_TIME;
-        tvHttpTimeout.setText(ret+"");
+        if (ret <= 0) ret = HttpUtil.DEFAULT_OVER_TIME;
+        tvHttpTimeout.setText(ret + "");
 
         //  脱机消费最大金额
         ret = SpManager.getIntance().getSpInt(AppIntentString.OFFLINE_MAX_AMOUNT);
-        if(ret<=0) ret = 30;
-        tvOfflineMaxAmount.setText(ret+"");
+        if (ret <= 0) ret = 30;
+        tvOfflineMaxAmount.setText(ret + "");
 
         //  打印头
         String str = SpManager.getIntance().getSpString(AppIntentString.PRINTER_HEADER);
-        if(TextUtils.isEmpty(str)) str = "上海报业大厦餐厅";
+        if (TextUtils.isEmpty(str)) str = "上海报业大厦餐厅";
         tvPrintHeader.setText(str);
 
         return;
@@ -387,8 +387,8 @@ public class MobilePosSettingsActivity
         String strsno = "00000";
         PosInfoBean posInfoBean = getPosInfoBean();
 
-        if(posInfoBean!=null){
-            if(!TextUtils.isEmpty(posInfoBean.getCposno())) strsno = posInfoBean.getCposno();
+        if (posInfoBean != null) {
+            if (!TextUtils.isEmpty(posInfoBean.getCposno())) strsno = posInfoBean.getCposno();
         }
 
         //  上传地址
@@ -435,7 +435,7 @@ public class MobilePosSettingsActivity
      */
     private void showAdvanedSetting(int type) {
         //  如果通过了高级密码验证，直接设置
-        if(passAdvancedPassword){
+        if (passAdvancedPassword) {
             inputParam(type);
             return;
         }
@@ -472,7 +472,7 @@ public class MobilePosSettingsActivity
         builder.create().show();
     }
 
-    private void inputParam(int type){
+    private void inputParam(int type) {
         // 展示提示框，进行数据输入
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_intput, null);
@@ -568,7 +568,7 @@ public class MobilePosSettingsActivity
                     return;
                 }
                 PosInfoBean bean = getPosInfoBean();
-                if(null==bean) bean = new PosInfoBean();
+                if (null == bean) bean = new PosInfoBean();
 
                 switch (type) {
                     case R.id.viewPosNo:
@@ -602,20 +602,20 @@ public class MobilePosSettingsActivity
                         break;
 
                     case R.id.tvHttpTimeout:
-                        try{
+                        try {
                             int ret = Integer.parseInt(msg);
-                            SpManager.getIntance().saveSpInt(AppIntentString.HTTP_OVER_TIME,ret);
+                            SpManager.getIntance().saveSpInt(AppIntentString.HTTP_OVER_TIME, ret);
                             tvHttpTimeout.setText(msg);
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
 
                     case R.id.tvOfflineMaxAmount:
-                        try{
+                        try {
                             int ret = Integer.parseInt(msg);
-                            SpManager.getIntance().saveSpInt(AppIntentString.OFFLINE_MAX_AMOUNT,ret);
+                            SpManager.getIntance().saveSpInt(AppIntentString.OFFLINE_MAX_AMOUNT, ret);
                             tvOfflineMaxAmount.setText(msg);
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                         break;
@@ -651,12 +651,12 @@ public class MobilePosSettingsActivity
         builder.setPositiveButton("确认", (dialog, which) -> {
             String password = editPassword.getText().toString().trim();
             if (TextUtils.isEmpty(password)) {
-                showToast( "请输入密码！");
+                showToast("请输入密码！");
             } else {
                 if (password.equals(AppConstants.CLEAN_DATA_PASSWORD)) {
                     resetAppData();
                 } else {
-                    showToast( "输入密码有误！");
+                    showToast("输入密码有误！");
                 }
             }
         });
@@ -710,12 +710,12 @@ public class MobilePosSettingsActivity
         builder.setPositiveButton("确认", (dialog, which) -> {
             String password = editPassword.getText().toString().trim();
             if (TextUtils.isEmpty(password)) {
-                showToast( "请输入打印标题！");
+                showToast("请输入打印标题！");
                 playSound(false);
             } else {
                 tvPrintHeader.setText(password);
 
-                SpManager.getIntance().saveSpString(AppIntentString.PRINTER_HEADER,password);
+                SpManager.getIntance().saveSpString(AppIntentString.PRINTER_HEADER, password);
                 playSound(true);
 
                 dialog.dismiss();
@@ -736,11 +736,11 @@ public class MobilePosSettingsActivity
         editPassword.setInputType(InputType.TYPE_CLASS_TEXT);
 
         String s = SpManager.getIntance().getSpString(AppIntentString.PRINTER_SUFFIX);
-        if(!TextUtils.isEmpty(s)) editPassword.setText(s);
+        if (!TextUtils.isEmpty(s)) editPassword.setText(s);
 
         builder.setPositiveButton("确认", (dialog, which) -> {
             String password = editPassword.getText().toString().trim();
-            SpManager.getIntance().saveSpString(AppIntentString.PRINTER_SUFFIX,password);
+            SpManager.getIntance().saveSpString(AppIntentString.PRINTER_SUFFIX, password);
             playSound(true);
 
             dialog.dismiss();

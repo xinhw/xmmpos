@@ -54,10 +54,10 @@ public class DeskPosPayRecordActivity extends BaseActivity {
         });
     }
 
-    private void initAdapter(){
-        Log.d(TAG,"initAdapter");
+    private void initAdapter() {
+        Log.d(TAG, "initAdapter");
 
-        adapter = new DeskPosPayRecordAdapter(mContext,listRecords);
+        adapter = new DeskPosPayRecordAdapter(mContext, listRecords);
         recyclerView.setAdapter(adapter);
         recyclerView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
 
@@ -71,17 +71,17 @@ public class DeskPosPayRecordActivity extends BaseActivity {
             @Override
             public void parentOnClickListener(View view, int groupPosition) {
                 //  收缩其他已经扩展的排
-                for(int i=0;i<listRecords.size();i++){
-                    if(i!=groupPosition) {
-                        if(recyclerView.isGroupExpanded(i)) recyclerView.collapseGroup(i);
+                for (int i = 0; i < listRecords.size(); i++) {
+                    if (i != groupPosition) {
+                        if (recyclerView.isGroupExpanded(i)) recyclerView.collapseGroup(i);
                     }
                 }
 
                 //  如果原来是收缩就扩展；如果是扩展就收缩
                 boolean b = recyclerView.isGroupExpanded(groupPosition);
-                if(b){
+                if (b) {
                     recyclerView.collapseGroup(groupPosition);
-                }else {
+                } else {
                     recyclerView.expandGroup(groupPosition);
                 }
                 adapter.setSelectedGroupItem(groupPosition);
@@ -96,12 +96,12 @@ public class DeskPosPayRecordActivity extends BaseActivity {
         listRecords.clear();
         listRecords.addAll(list);
 
-        Log.d(TAG,"记录数："+listRecords.size());
+        Log.d(TAG, "记录数：" + listRecords.size());
 
-        if(listRecords.size()>0){
+        if (listRecords.size() > 0) {
             recyclerView.setVisibility(View.VISIBLE);
             onDataView.setVisibility(View.GONE);
-        }else{
+        } else {
             recyclerView.setVisibility(View.GONE);
             onDataView.setVisibility(View.VISIBLE);
         }
@@ -110,14 +110,14 @@ public class DeskPosPayRecordActivity extends BaseActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.d(TAG,"onKeyDown "+keyCode);
+        Log.d(TAG, "onKeyDown " + keyCode);
 
         //  右下角返回键
         if (KeyEvent.KEYCODE_BACK == keyCode) {
             finish();
             return true;
         }
-        if(KeyEvent.KEYCODE_HOME == keyCode){
+        if (KeyEvent.KEYCODE_HOME == keyCode) {
             return true;
         }
 

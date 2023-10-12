@@ -124,11 +124,11 @@ public class DeskPosPayRecordAdapter
      */
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-        Log.d(TAG, " getGroupView"+String.format("(%d,%d)",groupPosition,selectedGroupItem));
+        Log.d(TAG, " getGroupView" + String.format("(%d,%d)", groupPosition, selectedGroupItem));
         ParentHolder parentHolder;
         if (convertView == null) {
-            Log.d(TAG,"convertView is null");
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_payment_statistics,null);
+            Log.d(TAG, "convertView is null");
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_payment_statistics, null);
             parentHolder = new ParentHolder();
             parentHolder.rootView = convertView.findViewById(R.id.rootView);
             parentHolder.seqNo = convertView.findViewById(R.id.seqNo);
@@ -137,35 +137,35 @@ public class DeskPosPayRecordAdapter
             parentHolder.subAmount = convertView.findViewById(R.id.subAmount);
             parentHolder.detail = convertView.findViewById(R.id.detail);
             convertView.setTag(parentHolder);
-        }else{
-            Log.d(TAG,"convertView "+convertView.toString());
+        } else {
+            Log.d(TAG, "convertView " + convertView.toString());
             parentHolder = (ParentHolder) convertView.getTag();
         }
-        Log.d(TAG,"parentHolder "+parentHolder.toString());
+        Log.d(TAG, "parentHolder " + parentHolder.toString());
 
         PaymentStatisticsRecordEntity row = dataEntity.get(groupPosition);
-        parentHolder.seqNo.setText(row.getSeqNo()+"");
+        parentHolder.seqNo.setText(row.getSeqNo() + "");
         parentHolder.transDate.setText(row.getCdate());
-        parentHolder.subCount.setText(row.getSubCount()+"");
-        parentHolder.subAmount.setText(String.format("%.2f",row.getSubAmount()));
-        if(isExpanded){
+        parentHolder.subCount.setText(row.getSubCount() + "");
+        parentHolder.subAmount.setText(String.format("%.2f", row.getSubAmount()));
+        if (isExpanded) {
             parentHolder.detail.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24);
-        }else{
+        } else {
             parentHolder.detail.setImageResource(R.drawable.ic_baseline_keyboard_arrow_right_24);
         }
         //选中时，突出显示
-        if(groupPosition == selectedGroupItem) {
+        if (groupPosition == selectedGroupItem) {
             convertView.setBackgroundColor(0xfffc843b);     //  亮蓝色
             parentHolder.rootView.setSelected(true);
-        }else {
+        } else {
             convertView.setBackgroundColor(0xFFADD8E6);
             parentHolder.rootView.setSelected(false);
         }
         parentHolder.rootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(null!=onItemClickListener) {
-                    onItemClickListener.parentOnClickListener(v,groupPosition);
+                if (null != onItemClickListener) {
+                    onItemClickListener.parentOnClickListener(v, groupPosition);
                 }
             }
         });
@@ -177,11 +177,11 @@ public class DeskPosPayRecordAdapter
      */
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        Log.d(TAG, " getChildView"+String.format("(%d,%d)",groupPosition,childPosition));
+        Log.d(TAG, " getChildView" + String.format("(%d,%d)", groupPosition, childPosition));
         final ChildrenHolder childrenHolder;
         if (convertView == null) {
-            Log.d(TAG,"convertView is null");
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_payment_record,null);
+            Log.d(TAG, "convertView is null");
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_payment_record, null);
             childrenHolder = new ChildrenHolder();
             childrenHolder.rootView = convertView.findViewById(R.id.rootView);
             childrenHolder.auditNo = convertView.findViewById(R.id.auditNo);
@@ -193,46 +193,44 @@ public class DeskPosPayRecordAdapter
             childrenHolder.transTime = convertView.findViewById(R.id.transTime);
             childrenHolder.uploadFlag = convertView.findViewById(R.id.uploadFlag);
             convertView.setTag(childrenHolder);
-        }else{
-            Log.d(TAG,"convertView "+convertView.toString());
+        } else {
+            Log.d(TAG, "convertView " + convertView.toString());
             childrenHolder = (ChildrenHolder) convertView.getTag();
         }
-        Log.d(TAG,"childrenHolder "+childrenHolder.toString());
+        Log.d(TAG, "childrenHolder " + childrenHolder.toString());
 
         //设置选中child时效果
-        if(groupPosition == selectedGroupItem && childPosition == selectedChildItem)
-        {
+        if (groupPosition == selectedGroupItem && childPosition == selectedChildItem) {
             convertView.setBackgroundColor(Color.BLUE);
             childrenHolder.rootView.setSelected(true);
-        }else
-        {
+        } else {
             convertView.setBackgroundColor(Color.WHITE);
             childrenHolder.rootView.setSelected(false);
         }
         PaymentRecordEntity item = dataEntity.get(groupPosition).getRecordList().get(childPosition);
-        childrenHolder.auditNo.setText((childPosition+1)+"");
+        childrenHolder.auditNo.setText((childPosition + 1) + "");
         childrenHolder.workNo.setText(item.getWorkNo().trim());
         childrenHolder.workName.setText(item.getWorkName().trim());
-        childrenHolder.balance.setText(String.format("%.2f",item.getRemain()));
-        childrenHolder.amount.setText(String.format("%.2f",item.getAmount()));
-        if(item.getQrType()==0){
+        childrenHolder.balance.setText(String.format("%.2f", item.getRemain()));
+        childrenHolder.amount.setText(String.format("%.2f", item.getAmount()));
+        if (item.getQrType() == 0) {
             childrenHolder.payWay.setText("IC卡");
-        }else{
+        } else {
             childrenHolder.payWay.setText("二维码");
         }
         childrenHolder.transTime.setText(DateStringUtils.dateToString(item.getTransTime()));
-        if(item.getUploadFlag()== PaymentTotal.UPLOADED){
+        if (item.getUploadFlag() == PaymentTotal.UPLOADED) {
             childrenHolder.uploadFlag.setText("已上传");
             childrenHolder.uploadFlag.setTextColor(Color.BLACK);
-        }else{
+        } else {
             childrenHolder.uploadFlag.setText("未上传");
             childrenHolder.uploadFlag.setTextColor(Color.RED);
         }
         childrenHolder.rootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "childrenHolder.rootView.setOnClickListener" +String.format("(%d,%d)",groupPosition,childPosition));
-                if(onItemClickListener!=null) {
+                Log.d(TAG, "childrenHolder.rootView.setOnClickListener" + String.format("(%d,%d)", groupPosition, childPosition));
+                if (onItemClickListener != null) {
                     onItemClickListener.childOnClickListener(groupPosition, childPosition, item);
                 }
             }
@@ -275,9 +273,10 @@ public class DeskPosPayRecordAdapter
         TextView uploadFlag;
     }
 
-    public interface OnItemClickListener{
+    public interface OnItemClickListener {
         void childOnClickListener(int groupPosition, int childPosition, PaymentRecordEntity record);
-        void parentOnClickListener(View view,int groupPosition);
+
+        void parentOnClickListener(View view, int groupPosition);
     }
 
     public int getSelectedGroupItem() {
@@ -292,7 +291,7 @@ public class DeskPosPayRecordAdapter
         return selectedChildItem;
     }
 
-    public void setSelectedChildItem(int selectedGroupItem,int selectedChildItem) {
+    public void setSelectedChildItem(int selectedGroupItem, int selectedChildItem) {
         this.selectedGroupItem = selectedGroupItem;
         this.selectedChildItem = selectedChildItem;
     }

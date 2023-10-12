@@ -55,8 +55,6 @@ public class AppUpdateBean {
          */
 
         private AppBean app;
-        private MainBoardBean febMainBoard;
-        private Blaster febBlaster;
 
         public AppBean getApp() {
             return app;
@@ -64,18 +62,6 @@ public class AppUpdateBean {
 
         public void setApp(AppBean app) {
             this.app = app;
-        }
-
-        public MainBoardBean getMainBoard() {
-            return febMainBoard;
-        }
-
-        public Blaster getBlaster(){
-            return febBlaster;
-        }
-
-        public void setMainBoard(MainBoardBean mainBoard) {
-            this.febMainBoard = mainBoard;
         }
 
         public static class AppBean implements Serializable {
@@ -133,123 +119,5 @@ public class AppUpdateBean {
             }
         }
 
-        public static class MainBoardBean implements Serializable {
-            /**
-             * version : 1.0.1
-             * versionType : 0
-             * versionNote : 更新了新的主控板程序，版本为1.0.1
-             * downloadUrl : http://47.117.132.63:6067/etk-resource/CoreBrd1768_Std_v1.0.13.bin
-             */
-            private int versionCode;
-            private String versionName;
-            private int versionType;
-            private String versionNote;
-            private String downloadUrl;
-
-            public int getVersionCode() {
-                return versionCode;
-            }
-
-            public void setVersionCode(int versionCode) {
-                this.versionCode = versionCode;
-            }
-
-            public String getVersionName() {
-                return versionName;
-            }
-
-            public void setVersionName(String versionName) {
-                this.versionName = versionName;
-            }
-
-            public int getVersionType() {
-                return versionType;
-            }
-
-            public void setVersionType(int versionType) {
-                this.versionType = versionType;
-            }
-
-            public String getVersionNote() {
-                return versionNote;
-            }
-
-            public void setVersionNote(String versionNote) {
-                this.versionNote = versionNote;
-            }
-
-            public String getDownloadUrl() {
-                return downloadUrl;
-            }
-
-            public void setDownloadUrl(String downloadUrl) {
-                this.downloadUrl = downloadUrl;
-            }
-        }
-
-        public static class Blaster implements Serializable {
-            /**
-             * version : 1.0.1
-             * versionType : 0
-             * versionNote : 更新了新的主控板程序，版本为1.0.1
-             * downloadUrl : http://47.117.132.63:6067/etk-resource/CoreBrd1768_Std_v1.0.13.bin
-             */
-            private int versionCode;
-            private String versionName;
-            private int versionType;
-            private String versionNote;
-            private String downloadUrl;
-
-            public int getVersionCode() {
-                return versionCode;
-            }
-
-            public void setVersionCode(int versionCode) {
-                this.versionCode = versionCode;
-            }
-
-            public String getVersionName() {
-                return versionName;
-            }
-
-            public void setVersionName(String versionName) {
-                this.versionName = versionName;
-            }
-
-            public int getVersionType() {
-                return versionType;
-            }
-
-            public void setVersionType(int versionType) {
-                this.versionType = versionType;
-            }
-
-            public String getVersionNote() {
-                return versionNote;
-            }
-
-            public void setVersionNote(String versionNote) {
-                this.versionNote = versionNote;
-            }
-
-            public String getDownloadUrl() {
-                return downloadUrl;
-            }
-
-            public void setDownloadUrl(String downloadUrl) {
-                this.downloadUrl = downloadUrl;
-            }
-
-            @Override
-            public String toString() {
-                return "Blaster{" +
-                        "versionCode=" + versionCode +
-                        ", versionName='" + versionName + '\'' +
-                        ", versionType=" + versionType +
-                        ", versionNote='" + versionNote + '\'' +
-                        ", downloadUrl='" + downloadUrl + '\'' +
-                        '}';
-            }
-        }
     }
 }

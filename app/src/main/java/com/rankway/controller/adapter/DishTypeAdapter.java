@@ -25,8 +25,8 @@ import java.util.List;
  * </pre>
  */
 public class DishTypeAdapter
-    extends RecyclerView.Adapter<DishTypeAdapter.DishTypeViewHolder>{
-    private final String TAG ="DishTypeAdapter";
+        extends RecyclerView.Adapter<DishTypeAdapter.DishTypeViewHolder> {
+    private final String TAG = "DishTypeAdapter";
 
     List<DishTypeEntity> data;
     private OnItemClickListener onItemClickListener;
@@ -34,7 +34,7 @@ public class DishTypeAdapter
     private int selectedItem = -1;
     private Context mContext;
 
-    public DishTypeAdapter(Context context,List<DishTypeEntity> types){
+    public DishTypeAdapter(Context context, List<DishTypeEntity> types) {
         this.mContext = context;
         this.data = types;
     }
@@ -43,49 +43,50 @@ public class DishTypeAdapter
     @androidx.annotation.NonNull
     @Override
     public DishTypeViewHolder onCreateViewHolder(@NonNull @androidx.annotation.NonNull ViewGroup viewGroup, int i) {
-        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_dish_type,viewGroup,false);
+        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_dish_type, viewGroup, false);
         DishTypeViewHolder viewHolder = new DishTypeViewHolder(inflate);
         return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull @androidx.annotation.NonNull DishTypeViewHolder holder, @SuppressLint("RecyclerView") int i) {
-        holder.itemView.setSelected(i==selectedItem);
+        holder.itemView.setSelected(i == selectedItem);
         DishTypeEntity item = data.get(i);
-        Log.d(TAG,"item:"+item.toString());
+        Log.d(TAG, "item:" + item.toString());
         holder.tvDishType.setText(item.getDishTypeName().trim());
 
         holder.rootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selectedItem = i;
-                if(null!=onItemClickListener) onItemClickListener.onDishTypeItemClick(v,i);
+                if (null != onItemClickListener) onItemClickListener.onDishTypeItemClick(v, i);
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        Log.d(TAG,"getItemCount:"+data.size());
+        Log.d(TAG, "getItemCount:" + data.size());
         return data.size();
     }
 
 
-    public interface OnItemClickListener{
+    public interface OnItemClickListener {
         void onDishTypeItemClick(View view, int position);
     }
+
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.onItemClickListener = listener;
     }
 
-    public class DishTypeViewHolder extends RecyclerView.ViewHolder{
+    public class DishTypeViewHolder extends RecyclerView.ViewHolder {
         View rootView;
         TextView tvDishType;
 
         public DishTypeViewHolder(@NonNull @androidx.annotation.NonNull View itemView) {
             super(itemView);
             rootView = itemView.findViewById(R.id.rootView);
-            tvDishType  = itemView.findViewById(R.id.tvDishType);
+            tvDishType = itemView.findViewById(R.id.tvDishType);
         }
     }
 }
