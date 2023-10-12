@@ -40,12 +40,14 @@ import com.rankway.controller.activity.service.AppService;
 import com.rankway.controller.adapter.DishAdapter;
 import com.rankway.controller.adapter.DishSelectedAdapter;
 import com.rankway.controller.adapter.DishTypeAdapter;
+import com.rankway.controller.common.AppConstants;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.DishEntity;
 import com.rankway.controller.persistence.entity.DishTypeEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.printer.PrinterBase;
 import com.rankway.controller.printer.PrinterFactory;
@@ -722,7 +724,7 @@ public class DeskPosPayMainActivity
                 .list();
         Log.d(TAG,"List size:"+list.size());
         for(PaymentRecordEntity record:list){
-            record.setUploadFlag(0);
+            record.setUploadFlag(PaymentTotal.UNUPLOAD);
         }
         DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(list);
     }
@@ -745,10 +747,23 @@ public class DeskPosPayMainActivity
                     if((usbDevice.getVendorId()== PrinterGP58.VENDORID)
                             &&(usbDevice.getProductId()==PrinterGP58.PRODUCTID)){
                         Log.d(TAG,"打印机插入");
+
+                        showToast("打印机插入");
+                        playSound(true);
                     }
                     if((usbDevice.getVendorId()== ReaderCS230Z.VENDORID)
                             &&(usbDevice.getProductId()==ReaderCS230Z.PRODUCTID)){
                         Log.d(TAG,"IC卡读卡器插入");
+
+                        showToast("读卡器插入");
+                        playSound(true);
+                    }
+                    if((usbDevice.getVendorId()== AppConstants.USB_QR_SCAN_VENDOR_ID)
+                            &&(usbDevice.getProductId()==AppConstants.USB_QR_SCAN_PRODUCT_ID)){
+                        Log.d(TAG,"二维码扫描头插入");
+
+                        showLongToast("二维码扫描头被插入");
+                        playSound(false);
                     }
                     break;
 
@@ -756,10 +771,23 @@ public class DeskPosPayMainActivity
                     if((usbDevice.getVendorId()== PrinterGP58.VENDORID)
                             &&(usbDevice.getProductId()==PrinterGP58.PRODUCTID)){
                         Log.d(TAG,"打印机拔出");
+
+                        showLongToast("打印机被拔出，消费无法打印");
+                        playSound(false);
                     }
                     if((usbDevice.getVendorId()== ReaderCS230Z.VENDORID)
                             &&(usbDevice.getProductId()==ReaderCS230Z.PRODUCTID)){
                         Log.d(TAG,"IC卡读卡器拔出");
+
+                        showLongToast("读卡器被拔出，不支持IC卡消费");
+                        playSound(false);
+                    }
+                    if((usbDevice.getVendorId()== AppConstants.USB_QR_SCAN_VENDOR_ID)
+                            &&(usbDevice.getProductId()==AppConstants.USB_QR_SCAN_PRODUCT_ID)){
+                        Log.d(TAG,"二维码扫描头拔出");
+
+                        showLongToast("二维码扫描头被拔出，不支持二维码消费");
+                        playSound(false);
                     }
                     break;
 

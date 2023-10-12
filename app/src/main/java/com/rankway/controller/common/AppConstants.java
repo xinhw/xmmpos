@@ -16,8 +16,10 @@ public  class AppConstants {
 
     public static final String ETEK_UPLOAD_EVENT = "https://47.117.132.63:6062/handsets/uploadevents";
 
-
     public static final String APP_VERSION_NAME = "1.0.7";
     public static final String NOTIFICATION_CHANNEL_ID = "2019";
 
+    //  扫描头的VENDOR_ID和PRODUCT_ID
+    public static final int USB_QR_SCAN_VENDOR_ID = 1046;
+    public static final int USB_QR_SCAN_PRODUCT_ID = 2337;
 }

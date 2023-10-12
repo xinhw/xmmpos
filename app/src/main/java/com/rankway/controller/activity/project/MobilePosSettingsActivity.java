@@ -90,7 +90,7 @@ public class MobilePosSettingsActivity
                 R.id.upload_log,R.id.about,
                 R.id.recover_data,
                 R.id.tvHttpTimeout,R.id.tvOfflineMaxAmount,
-                R.id.menuServerIP,R.id.menuServerPort,R.id.tvPrintHeader};
+                R.id.menuServerIP,R.id.menuServerPort,R.id.tvPrintHeader,R.id.tvPrintSuffix};
         setOnClickListener(viewIds);
 
         tvPosName = findViewById(R.id.posname);
@@ -213,6 +213,10 @@ public class MobilePosSettingsActivity
 
             case R.id.tvPrintHeader:
                 showPrintHeaderDialog();
+                break;
+
+            case R.id.tvPrintSuffix:
+                showPrintSuffixDialog();
                 break;
         }
     }
@@ -619,7 +623,7 @@ public class MobilePosSettingsActivity
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_intput, null);
         EditText editPassword = view.findViewById(R.id.edit_msg);
-        builder.setTitle("请输入恢复密码:");
+        builder.setTitle("请输入清除密码:");
         builder.setView(view);
         builder.setPositiveButton("确认", (dialog, which) -> {
             String password = editPassword.getText().toString().trim();
@@ -698,4 +702,27 @@ public class MobilePosSettingsActivity
         builder.create().show();
     }
 
+
+    private void showPrintSuffixDialog() {
+        // 展示提示框，进行数据清除
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_intput, null);
+        EditText editPassword = view.findViewById(R.id.edit_msg);
+        builder.setTitle("请输入打印后缀:");
+        builder.setView(view);
+        editPassword.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        String s = SpManager.getIntance().getSpString(AppIntentString.PRINTER_SUFFIX);
+        if(!TextUtils.isEmpty(s)) editPassword.setText(s);
+
+        builder.setPositiveButton("确认", (dialog, which) -> {
+            String password = editPassword.getText().toString().trim();
+            SpManager.getIntance().saveSpString(AppIntentString.PRINTER_SUFFIX,password);
+            playSound(true);
+
+            dialog.dismiss();
+        });
+        builder.setNegativeButton("取消", (dialog, which) -> dialog.dismiss());
+        builder.create().show();
+    }
 }

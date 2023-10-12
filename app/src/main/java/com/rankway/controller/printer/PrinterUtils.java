@@ -7,6 +7,7 @@ import com.rankway.controller.common.AppIntentString;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.persistence.entity.DishEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.utils.DateStringUtils;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public class PrinterUtils {
 
         //  放大字体
         printer.printBytes(PrinterFormatUtils.getFontSizeCommand(true));
-        printer.printString(title);
+        printer.printString(centralPrintLine(16,title));
 
         //  字体正常
         printer.printBytes(PrinterFormatUtils.getFontSizeCommand(false));
@@ -112,11 +113,22 @@ public class PrinterUtils {
         printer.printString(s+samount);
 
         //  仅仅在线交易打印余额
-        if(record.getUploadFlag()==0x01) {
+        if(record.getUploadFlag()== PaymentTotal.UPLOADED) {
             f = record.getRemain() - f;
             samount = padLeftSpace(String.format("%.2f", f), 11);
             s = padRightSpace("剩余金额：", 10);
             printer.printString(s + samount);
+        }
+
+        s = SpManager.getIntance().getSpString(AppIntentString.PRINTER_SUFFIX);
+        if(!TextUtils.isEmpty(s)) {
+            String s2 = "--------------------------------";
+            printer.printString(s2);
+
+            String[] strings = s.split("，");
+            for (String s1 : strings) {
+                printer.printString(s1);
+            }
         }
 
         //  走纸3行
@@ -222,7 +234,8 @@ public class PrinterUtils {
         return s+sb.toString();
     }
 
-    private String combinePrintLine(int str1len,String str1,String str2){
+    private String combinePrintLine(int str1len,String str1,
+                                    String str2){
         String s1 = str1;
         try {
             s1 = new String(str1.getBytes("GB2312"), "ISO-8859-1");
@@ -239,5 +252,27 @@ public class PrinterUtils {
             sb.append(' ');
         }
         return str1+sb.toString()+str2;
+    }
+
+    /***
+     * 中间打印
+     * @param totalLen
+     * @param str1
+     * @return
+     */
+    private String centralPrintLine(int totalLen,String str1){
+        String s1 = str1;
+        try {
+            s1 = new String(str1.getBytes("GB2312"), "ISO-8859-1");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        int n = s1.length();
+        if(n>=totalLen) return str1;
+        StringBuilder sb = new StringBuilder();
+        while(sb.length()<(totalLen-n)/2){
+            sb.append(' ');
+        }
+        return sb.toString()+str1;
     }
 }

@@ -21,6 +21,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -35,13 +36,11 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
@@ -52,7 +51,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.maning.mndialoglibrary.MProgressDialog;
-import com.rankway.controller.IDialogResult;
 import com.rankway.controller.activity.project.NotificationDetail;
 import com.rankway.controller.activity.project.comment.AppSpSaveConstant;
 import com.rankway.controller.activity.project.eventbus.MessageEvent;
@@ -977,54 +975,6 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    protected void showInputDialog(String title, String defaultVal, int inType, IDialogResult dr) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = LayoutInflater.from(this).inflate(com.rankway.controller.R.layout.dialog_intput, null);
-        EditText editPossword = view.findViewById(com.rankway.controller.R.id.edit_msg);
-        editPossword.setText(defaultVal);
-        editPossword.setInputType(inType);
-        builder.setTitle(title);
-        builder.setView(view);
-        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (null != dr) dr.onOk(editPossword.getText().toString().trim());
-                dialog.dismiss();
-            }
-        });
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (null != dr) dr.onCancel();
-                dialog.dismiss();
-            }
-        });
-        builder.create().show();
-    }
-
-    protected void showConfirmDialog(String title, String msg, IDialogResult dr) {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        builder.setCancelable(false);
-        builder.setTitle(title);
-        builder.setMessage(msg);
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (null != dr) dr.onOk("");
-                dialog.dismiss();
-            }
-        });
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (null != dr) dr.onCancel();
-                dialog.dismiss();
-            }
-        });
-
-        builder.create().show();
-        return;
-    }
 
     protected void showUpdateMessage(String msg) {
         Log.d(TAG, "showUpdateMessage:" + msg);
@@ -1466,7 +1416,7 @@ public class BaseActivity extends AppCompatActivity {
                     DetLog.writeLog(TAG,"IC卡离线记录上送失败："+record.toString());
                 }else{
                     DetLog.writeLog(TAG,"IC卡离线记录上送成功："+record.toString());
-                    record.setUploadFlag(0);
+                    record.setUploadFlag(PaymentTotal.UNUPLOAD);
                     record.setUploadTime(new Date());
                     DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
                 }
@@ -1490,7 +1440,7 @@ public class BaseActivity extends AppCompatActivity {
                 }else{
                     DetLog.writeLog(TAG,"二维码离线记录上送成功："+record.toString());
 
-                    record.setUploadFlag(0);
+                    record.setUploadFlag(PaymentTotal.UNUPLOAD);
                     record.setUploadTime(new Date());
                     DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
                 }
@@ -1957,29 +1907,8 @@ public class BaseActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
 
-                        DBManager.getInstance().getPaymentRecordEntityDao()
-                                .queryBuilder()
-                                .where(PaymentRecordEntityDao.Properties.TransTime.lt(date))
-                                .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(1))
-                                .buildDelete()
-                                .executeDeleteWithoutDetachingEntities();
-
-                        List<PaymentTotal> paymentTotals = DBManager.getInstance().getPaymentTotalDao()
-                                .queryBuilder()
-                                .where(PaymentTotalDao.Properties.UploadFlag.eq(1))
-                                .where(PaymentTotalDao.Properties.Timestamp.lt(date.getTime()))
-                                .list();
-
-                        if(paymentTotals.size()>0){
-                            for(PaymentTotal paymentTotal:paymentTotals) {
-                                List<PaymentItemEntity> items = paymentTotal.getDishTransRecordDatas();
-                                DBManager.getInstance().getPaymentItemEntityDao().deleteInTx(items);
-                            }
-                            DBManager.getInstance().getPaymentTotalDao().deleteInTx(paymentTotals);
-                        }
-                        playSound(true);
-
-
+                        CleanDataAsyncTask task = new CleanDataAsyncTask(date);
+                        task.execute();
                     }
                 },
                 "取消", new DialogInterface.OnClickListener() {
@@ -1988,5 +1917,58 @@ public class BaseActivity extends AppCompatActivity {
                         dialog.dismiss();
                     }
                 }, null);
+    }
+
+    /***
+     * 异步清除数据任务
+     */
+    private class CleanDataAsyncTask extends AsyncTask<String, Integer, Integer>{
+        Date date;
+        public CleanDataAsyncTask(Date date){
+            this.date = date;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProDialog("开始清除，稍等...");
+        }
+
+        @Override
+        protected Integer doInBackground(String... strings) {
+            DetLog.writeLog(TAG,"PayRecordEntity清除之前数据："+date.toString());
+            DBManager.getInstance().getPaymentRecordEntityDao()
+                    .queryBuilder()
+                    .where(PaymentRecordEntityDao.Properties.TransTime.lt(date))
+                    .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(1))
+                    .buildDelete()
+                    .executeDeleteWithoutDetachingEntities();
+
+            List<PaymentTotal> paymentTotals = DBManager.getInstance().getPaymentTotalDao()
+                    .queryBuilder()
+                    .where(PaymentTotalDao.Properties.UploadFlag.eq(1))
+                    .where(PaymentTotalDao.Properties.Timestamp.lt(date.getTime()))
+                    .list();
+
+            DetLog.writeLog(TAG,"PayRecordTotal: 数量 "+paymentTotals.size());
+
+            if(paymentTotals.size()>0){
+                for(PaymentTotal paymentTotal:paymentTotals) {
+                    List<PaymentItemEntity> items = paymentTotal.getDishTransRecordDatas();
+                    DBManager.getInstance().getPaymentItemEntityDao().deleteInTx(items);
+                }
+                DBManager.getInstance().getPaymentTotalDao().deleteInTx(paymentTotals);
+            }
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            missProDialog();
+
+            playSound(true);
+            showToast("清除完成！");
+        }
     }
 }

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.rankway.controller.R;
 import com.rankway.controller.entity.PaymentStatisticsRecordEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.utils.DateStringUtils;
 
 import java.util.List;
@@ -220,7 +221,7 @@ public class DeskPosPayRecordAdapter
             childrenHolder.payWay.setText("二维码");
         }
         childrenHolder.transTime.setText(DateStringUtils.dateToString(item.getTransTime()));
-        if(item.getUploadFlag()==0x01){
+        if(item.getUploadFlag()== PaymentTotal.UPLOADED){
             childrenHolder.uploadFlag.setText("已上传");
             childrenHolder.uploadFlag.setTextColor(Color.BLACK);
         }else{

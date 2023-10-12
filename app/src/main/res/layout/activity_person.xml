@@ -344,6 +344,21 @@
             android:background="@color/btn_gray_normal" />
 
         <TextView
+            android:id="@+id/tvPrintSuffix"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/seleted_status"
+            android:padding="5dp"
+            android:text="打印后缀"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/btn_gray_normal" />
+
+        <TextView
             android:id="@+id/upload_log"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

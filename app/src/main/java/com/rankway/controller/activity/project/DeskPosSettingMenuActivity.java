@@ -75,7 +75,7 @@ public class DeskPosSettingMenuActivity
                 break;
 
             case R.id.deskPosCleanData:
-                showAdvanedSetting();
+                inputPassword2CleanData();
                 break;
 
             case R.id.back_img:
@@ -100,7 +100,10 @@ public class DeskPosSettingMenuActivity
         return super.onKeyUp(keyCode, event);
     }
 
-    private void showAdvanedSetting() {
+    /***
+     * 输入密码区清理
+     */
+    private void inputPassword2CleanData() {
         // 展示提示框，进行数据清除
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = LayoutInflater.from(this).inflate(com.rankway.controller.R.layout.dialog_intput, null);
@@ -113,14 +116,20 @@ public class DeskPosSettingMenuActivity
             public void onClick(DialogInterface dialog, int which) {
                 String possword = editPossword.getText().toString().trim();
                 if (TextUtils.isEmpty(possword)) {
-                    ToastUtils.show(mContext, "请输入密码后编辑！");
-                } else {
-                    if (isAdvancedPasswordRight(possword)) {
-                        selectCleanDate();
-                    } else {
-                        ToastUtils.show(mContext, "密码错误！");
-                    }
+                    ToastUtils.show(mContext, "请输入密码后清理！");
+                    playSound(false);
+                    return;
                 }
+
+                if (!isAdvancedPasswordRight(possword)) {
+                    ToastUtils.show(mContext, "密码错误！");
+                    playSound(false);
+                    return;
+                }
+
+                dialog.dismiss();
+
+                selectCleanDate();
             }
         });
         builder.setNegativeButton(getString(com.rankway.controller.R.string.cancel), new DialogInterface.OnClickListener() {

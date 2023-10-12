@@ -19,6 +19,7 @@ import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.persistence.entity.PersonInfoEntity;
 import com.rankway.controller.persistence.entity.QrBlackListEntity;
 import com.rankway.controller.persistence.entity.UserInfoEntity;
@@ -273,7 +274,7 @@ public class DeskPosAuxillaryMenuActivity
                         sendProccessMessage(String.format("上传 IC卡离线交易%d/%d 成功",n,listCardRecord.size()));
                         DetLog.writeLog(TAG,"IC卡离线记录上送成功："+record.toString());
 
-                        record.setUploadFlag(1);
+                        record.setUploadFlag(PaymentTotal.UPLOADED);
                         record.setUploadTime(new Date());
                         DBManager.getInstance().getPaymentRecordEntityDao().save(record);
 
@@ -304,7 +305,7 @@ public class DeskPosAuxillaryMenuActivity
                         sendProccessMessage(String.format("上传 二维码离线交易%d/%d 成功",n,listCardRecord.size()));
                         DetLog.writeLog(TAG,"二维码离线记录上送成功："+record.toString());
 
-                        record.setUploadFlag(1);
+                        record.setUploadFlag(PaymentTotal.UPLOADED);
                         record.setUploadTime(new Date());
                         DBManager.getInstance().getPaymentRecordEntityDao().save(record);
 
