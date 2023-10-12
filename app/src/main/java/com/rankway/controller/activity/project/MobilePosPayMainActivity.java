@@ -40,7 +40,6 @@ import com.rankway.controller.webapi.cardInfo;
 import com.rankway.controller.webapi.decodeQRCode;
 import com.rankway.controller.webapi.payWebapi;
 import com.rankway.controller.webapi.posAudit;
-import com.rankway.sommerlibrary.utils.ToastUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -347,7 +346,7 @@ public class MobilePosPayMainActivity
             cardPaymentObj = decodeQRCode.decode(scanResult);
             if (null == cardPaymentObj) {
                 playSound(false);
-                ToastUtils.showLong(mContext, "无效的二维码");
+                showLongToast("无效的二维码");
                 return;
             }
 

@@ -135,7 +135,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/seleted_status"
             android:padding="8dp"
-            android:text="服务器IP"
+            android:text="支付服务器IP"
             android:textStyle="bold"
             android:textSize="16sp" />
         <TextView
@@ -166,7 +166,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/seleted_status"
             android:padding="8dp"
-            android:text="服务器端口"
+            android:text="支付服务器端口"
             android:textStyle="bold"
             android:textSize="16sp" />
         <TextView
@@ -177,6 +177,98 @@
             android:background="@drawable/seleted_status"
             android:padding="8dp"
             android:text="8804"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/btn_gray_normal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:background="@drawable/seleted_status"
+            android:padding="8dp"
+            android:text="升级服务器IP"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+        <TextView
+            android:id="@+id/menuServerIP"
+            android:layout_width="0dp"
+            android:layout_weight="1.5"
+            android:layout_height="wrap_content"
+            android:background="@drawable/seleted_status"
+            android:padding="8dp"
+            android:text="121.36.16.185"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/btn_gray_normal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:background="@drawable/seleted_status"
+            android:padding="8dp"
+            android:text="升级服务器端口"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+        <TextView
+            android:id="@+id/menuServerPort"
+            android:layout_width="0dp"
+            android:layout_weight="1.5"
+            android:layout_height="wrap_content"
+            android:background="@drawable/seleted_status"
+            android:padding="8dp"
+            android:text="6062"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/btn_gray_normal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:background="@drawable/seleted_status"
+            android:padding="8dp"
+            android:text="通信超时(毫秒)"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+        <TextView
+            android:id="@+id/tvHttpTimeout"
+            android:layout_width="0dp"
+            android:layout_weight="1.5"
+            android:layout_height="wrap_content"
+            android:background="@drawable/seleted_status"
+            android:padding="8dp"
+            android:text="15000"
+            android:maxLength="5"
+            android:inputType="number"
             android:textStyle="bold"
             android:textSize="16sp" />
     </LinearLayout>

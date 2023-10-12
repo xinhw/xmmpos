@@ -2,6 +2,9 @@ package com.rankway.controller.utils;
 
 import android.util.Log;
 
+import com.rankway.controller.activity.project.manager.SpManager;
+import com.rankway.controller.common.AppIntentString;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,7 +28,14 @@ public class HttpUtil {
     private final String TAG = "HttpUtil";
     private int responseCode;
 
-    private final int OVER_TIME_MS = 15000;      //  ms
+    public static final int DEFAULT_OVER_TIME = 5000;      //  ms
+    private int OVER_TIME_MS = DEFAULT_OVER_TIME;
+
+    public HttpUtil(){
+        OVER_TIME_MS = SpManager.getIntance().getSpInt(AppIntentString.HTTP_OVER_TIME);
+        if(OVER_TIME_MS<=0) OVER_TIME_MS = HttpUtil.DEFAULT_OVER_TIME;
+    }
+
 
     public String httpPost(String url,String contentType,String content){
         Log.d(TAG,String.format("httpPost(%s,%s)",url,content));

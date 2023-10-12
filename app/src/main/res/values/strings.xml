@@ -20,7 +20,6 @@
     <!--2020.11.18-->
     <string name="home_local_setting">系统设置</string>
     <string name="controller_sno">det_controller_num</string>
-    <string name="activity_map">地图</string>
 
     <!-- Strings used for fragments for navigation -->
 

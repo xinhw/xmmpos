@@ -1,5 +1,7 @@
 package com.rankway.controller.dto;
 
+import java.util.Date;
+
 /**
  * <pre>
  *   author : Xin Hongwei
@@ -15,6 +17,18 @@ public class PosInfoBean {
     int auditNo;
     String serverIP;
     int portNo;
+    String menuServerIP;
+    int menuPortNo;
+
+
+    String shiftNo;     //  班次号
+
+    int status;         //  状态：0--已经结班；1--未结班
+    public static final int STATUS_SETTLE_OUT = 0;      //  结班
+    public static final int STATUS_SETTLE_IN = 1;       //  班上
+
+    Date startTime;         //  开班时间
+    Date settleTime;        //  结班时间
 
     public String getCposno() {
         return cposno;
@@ -37,7 +51,11 @@ public class PosInfoBean {
     }
 
     public void setAuditNo(int auditNo) {
-        this.auditNo = auditNo;
+        if(auditNo>this.auditNo){
+            this.auditNo = auditNo;
+        }else{
+            this.auditNo++;
+        }
     }
 
     public String getServerIP() {
@@ -56,6 +74,54 @@ public class PosInfoBean {
         this.portNo = portNo;
     }
 
+    public String getShiftNo() {
+        return shiftNo;
+    }
+
+    public void setShiftNo(String shiftNo) {
+        this.shiftNo = shiftNo;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getSettleTime() {
+        return settleTime;
+    }
+
+    public void setSettleTime(Date settleTime) {
+        this.settleTime = settleTime;
+    }
+
+    public String getMenuServerIP() {
+        return menuServerIP;
+    }
+
+    public void setMenuServerIP(String menuServerIP) {
+        this.menuServerIP = menuServerIP;
+    }
+
+    public int getMenuPortNo() {
+        return menuPortNo;
+    }
+
+    public void setMenuPortNo(int menuPortNo) {
+        this.menuPortNo = menuPortNo;
+    }
+
     @Override
     public String toString() {
         return "PosInfoBean{" +
@@ -64,6 +130,12 @@ public class PosInfoBean {
                 ", auditNo=" + auditNo +
                 ", serverIP='" + serverIP + '\'' +
                 ", portNo=" + portNo +
+                ", menuServerIP='" + menuServerIP + '\'' +
+                ", menuPortNo=" + menuPortNo +
+                ", shiftNo='" + shiftNo + '\'' +
+                ", status=" + status +
+                ", startTime=" + startTime +
+                ", settleTime=" + settleTime +
                 '}';
     }
 }

@@ -24,16 +24,14 @@ import android.widget.Toast;
 
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
-import com.rankway.controller.activity.project.eventbus.MessageEvent;
 import com.rankway.controller.activity.project.manager.DataCleanManager;
+import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.common.AppConstants;
+import com.rankway.controller.common.AppIntentString;
 import com.rankway.controller.common.SemiServerAddress;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
-import com.rankway.sommerlibrary.utils.ToastUtils;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
+import com.rankway.controller.utils.HttpUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,6 +61,10 @@ public class MobilePosSettingsActivity
     private TextView tvServerIP;
     private TextView tvServerPort;
 
+    private TextView tvHttpTimeout;
+    private TextView menuServerIP;
+    private TextView menuServerPort;
+
     private  boolean passAdvancedPassword = false;
 
     @Override
@@ -80,7 +82,9 @@ public class MobilePosSettingsActivity
         int[] viewIds = {R.id.viewPosNo,R.id.viewUserCode,
                 R.id.viewServerIP,R.id.viewServerPort,
                 R.id.upload_log,R.id.about,
-                R.id.recover_data};
+                R.id.recover_data,
+                R.id.tvHttpTimeout,
+                R.id.menuServerIP,R.id.menuServerPort};
         setOnClickListener(viewIds);
 
         tvPosName = findViewById(R.id.posname);
@@ -89,6 +93,9 @@ public class MobilePosSettingsActivity
         tvAuditNo = findViewById(R.id.auditNo);
         tvServerIP = findViewById(R.id.serverIP);
         tvServerPort = findViewById(R.id.serverPort);
+        tvHttpTimeout = findViewById(R.id.tvHttpTimeout);
+        menuServerIP = findViewById(R.id.menuServerIP);
+        menuServerPort = findViewById(R.id.menuServerPort);
     }
 
     protected void setOnClickListener(int[] viewIds){
@@ -111,6 +118,8 @@ public class MobilePosSettingsActivity
             tvAuditNo.setText(str);
             tvServerIP.setText(str);
             tvServerPort.setText(str);
+            menuServerIP.setText("");
+            menuServerPort.setText("");
         }else{
             tvPosName.setText(infoBean.getCposno());
             tvPosNo.setText(infoBean.getCposno());
@@ -118,7 +127,15 @@ public class MobilePosSettingsActivity
             tvAuditNo.setText(infoBean.getAuditNo()+"");
             tvServerIP.setText(infoBean.getServerIP());
             tvServerPort.setText(infoBean.getPortNo()+"");
+            menuServerIP.setText(infoBean.getMenuServerIP());
+            menuServerPort.setText(infoBean.getMenuPortNo()+"");
         }
+
+        //  通信超时
+        int ret = SpManager.getIntance().getSpInt(AppIntentString.HTTP_OVER_TIME);
+        if(ret<=0) ret = HttpUtil.DEFAULT_OVER_TIME;
+        tvHttpTimeout.setText(ret+"");
+
         return;
     }
 
@@ -130,11 +147,6 @@ public class MobilePosSettingsActivity
     @Override
     protected void onStop() {
         super.onStop();
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(MessageEvent event) {
-        finish();
     }
 
     @Override
@@ -152,6 +164,9 @@ public class MobilePosSettingsActivity
             case R.id.viewUserCode:
             case R.id.viewServerIP:
             case R.id.viewServerPort:
+            case R.id.tvHttpTimeout:
+            case R.id.menuServerIP:
+            case R.id.menuServerPort:
                 showAdvanedSetting(v.getId());
                 break;
 
@@ -395,13 +410,13 @@ public class MobilePosSettingsActivity
             public void onClick(DialogInterface dialog, int which) {
                 String possword = editPossword.getText().toString().trim();
                 if (TextUtils.isEmpty(possword)) {
-                    ToastUtils.show(mContext, "请输入密码后编辑！");
+                    showToast("请输入密码后编辑！");
                 } else {
                     if (isAdvancedPasswordRight(possword)) {
                         passAdvancedPassword = true;
                         inputParam(type);
                     } else {
-                        ToastUtils.show(mContext, "密码错误！");
+                        showToast( "密码错误！");
                     }
                 }
             }
@@ -455,6 +470,32 @@ public class MobilePosSettingsActivity
                         new InputFilter.LengthFilter(5)
                 });
                 break;
+
+            case R.id.menuServerIP:
+                builder.setTitle("请设置服务器IP：");
+                editMsg.setInputType(InputType.TYPE_CLASS_TEXT);
+                String digits1 = "0123456789.";
+                editMsg.setKeyListener(DigitsKeyListener.getInstance(digits1));
+                editMsg.setFilters(new InputFilter[]{
+                        new InputFilter.LengthFilter(15)
+                });
+                break;
+
+            case R.id.menuServerPort:
+                builder.setTitle("请设置服务器端口：");
+                editMsg.setInputType(InputType.TYPE_CLASS_NUMBER);
+                editMsg.setFilters(new InputFilter[]{
+                        new InputFilter.LengthFilter(5)
+                });
+                break;
+
+            case R.id.tvHttpTimeout:
+                builder.setTitle("请通信超时时间(ms)：");
+                editMsg.setInputType(InputType.TYPE_CLASS_NUMBER);
+                editMsg.setFilters(new InputFilter[]{
+                        new InputFilter.LengthFilter(5)
+                });
+                break;
         }
 
         builder.setView(view);
@@ -463,7 +504,7 @@ public class MobilePosSettingsActivity
             public void onClick(DialogInterface dialog, int which) {
                 String msg = editMsg.getText().toString().trim();
                 if (TextUtils.isEmpty(msg)) {
-                    ToastUtils.show(mContext, "请输入信息！");
+                    showToast("请输入信息！");
                     return;
                 }
                 PosInfoBean bean = getPosInfoBean();
@@ -489,10 +530,33 @@ public class MobilePosSettingsActivity
                         tvServerPort.setText(msg);
                         bean.setPortNo(Integer.parseInt(msg));
                         break;
+
+                    case R.id.menuServerIP:
+                        menuServerIP.setText(msg);
+                        bean.setMenuServerIP(msg);
+                        break;
+
+                    case R.id.menuServerPort:
+                        menuServerPort.setText(msg);
+                        bean.setMenuPortNo(Integer.parseInt(msg));
+                        break;
+
+                    case R.id.tvHttpTimeout:
+                        try{
+                            int ret = Integer.parseInt(msg);
+                            SpManager.getIntance().saveSpInt(AppIntentString.HTTP_OVER_TIME,ret);
+                            tvHttpTimeout.setText(msg);
+                        }catch (Exception e){
+                            e.printStackTrace();
+
+                            showToast("输入数据有误！");
+                            playSound(false);
+                            return;
+                        }
                 }
                 savePosInfoBean(bean);
 
-                ToastUtils.show(mContext,"设置成功！");
+                showToast("设置成功！");
                 playSound(true);
             }
         });
@@ -516,12 +580,12 @@ public class MobilePosSettingsActivity
         builder.setPositiveButton("确认", (dialog, which) -> {
             String password = editPassword.getText().toString().trim();
             if (TextUtils.isEmpty(password)) {
-                ToastUtils.show(mContext, "请输入密码！");
+                showToast("请输入密码！");
             } else {
                 if (password.equals(AppConstants.CLEAN_DATA_PASSWORD)) {
                     resetAppData();
                 } else {
-                    ToastUtils.show(mContext, "输入密码有误！");
+                    showToast( "输入密码有误！");
                 }
             }
         });

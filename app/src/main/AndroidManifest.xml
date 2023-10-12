@@ -71,7 +71,6 @@
 <!--                <category android:name="android.intent.category.LAUNCHER" />-->
 <!--            </intent-filter>-->
         </activity>
-        <activity android:name=".activity.project.MapActivity" />
         <activity android:name=".activity.project.AboutActivity" /> <!-- <activity -->
         <!-- android:name=".activity.project.LoginActivity" -->
         <!-- android:theme="@style/activity_theme"> -->

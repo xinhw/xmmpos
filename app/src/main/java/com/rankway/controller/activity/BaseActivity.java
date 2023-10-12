@@ -33,12 +33,10 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
@@ -49,7 +47,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.maning.mndialoglibrary.MProgressDialog;
-import com.rankway.controller.IDialogResult;
 import com.rankway.controller.activity.project.NotificationDetail;
 import com.rankway.controller.activity.project.comment.AppSpSaveConstant;
 import com.rankway.controller.activity.project.eventbus.MessageEvent;
@@ -375,9 +372,7 @@ public class BaseActivity extends AppCompatActivity {
         int x = outSize.x;
         int y = outSize.y;
         // 通过吐司显示屏幕宽、高数据
-        ToastUtils.showCustom(this, "手机像素为：X:" + x + "||Y:" + y);
-
-
+        showToast("手机像素为：X:" + x + "||Y:" + y);
     }
 
     public <T> void setDataList(String tag, List<T> dataList) {
@@ -667,6 +662,18 @@ public class BaseActivity extends AppCompatActivity {
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+    //  http://47.117.132.63:6061/api/appVersions/"+APP_TYPE+"?sn=";
+    private String getCheckAppUrl(){
+        PosInfoBean posInfoBean = getPosInfoBean();
+        if(null==posInfoBean) return "";
+
+        String url = String.format("http://%s:%d/api/api/appVersions/handsetpos?sn=%s",
+                posInfoBean.getMenuServerIP(),
+                posInfoBean.getMenuPortNo(),
+                posInfoBean.getCposno());
+        return url;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //  APP和主控板程序升级
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -678,8 +685,8 @@ public class BaseActivity extends AppCompatActivity {
      * 检查服务器上版本信息
      */
     public void checkAppUpdate() {
-
-        UpdateAppUtils.checkAppUpdate(AppIntentString.APP_DOWNLOAD_URL, this, new UpdateAppUtils.AppUpdateCallback() {
+        String url = getUploadLogUrl();
+        UpdateAppUtils.checkAppUpdate(url, this, new UpdateAppUtils.AppUpdateCallback() {
             @Override
             public void onSuccess(AppUpdateBean updateInfo) {
                 Log.d(TAG, updateInfo.toString());
@@ -942,55 +949,6 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    protected void showInputDialog(String title, String defaultVal, int inType, IDialogResult dr) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = LayoutInflater.from(this).inflate(com.rankway.controller.R.layout.dialog_intput, null);
-        EditText editPossword = view.findViewById(com.rankway.controller.R.id.edit_msg);
-        editPossword.setText(defaultVal);
-        editPossword.setInputType(inType);
-        builder.setTitle(title);
-        builder.setView(view);
-        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (null != dr) dr.onOk(editPossword.getText().toString().trim());
-                dialog.dismiss();
-            }
-        });
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (null != dr) dr.onCancel();
-                dialog.dismiss();
-            }
-        });
-        builder.create().show();
-    }
-
-    protected void showConfirmDialog(String title, String msg, IDialogResult dr) {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        builder.setCancelable(false);
-        builder.setTitle(title);
-        builder.setMessage(msg);
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (null != dr) dr.onOk("");
-                dialog.dismiss();
-            }
-        });
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (null != dr) dr.onCancel();
-                dialog.dismiss();
-            }
-        });
-
-        builder.create().show();
-        return;
-    }
-
     protected void showUpdateMessage(String msg) {
         Log.d(TAG, "showUpdateMessage:" + msg);
     }
@@ -1097,15 +1055,24 @@ public class BaseActivity extends AppCompatActivity {
         return;
     }
 
-    public void httpPostLogFile(final ArrayList<String> logfiles, final File logfile) {
-        //  起爆器编号
-        String strsno = getPreInfo(getString(com.rankway.controller.R.string.controller_sno));
-        if (TextUtils.isEmpty(strsno))
-            strsno = "F00A8000000";
-        Log.d("LOG", String.format("起爆器编号：%s", strsno));
+    /**
+     * 获取日志上传地址
+     * @return
+     */
+    private String getUploadLogUrl(){
+        PosInfoBean posInfoBean = getPosInfoBean();
+        if(null==posInfoBean) return null;
 
+        String url = String.format("http://%s:%d/logs/upload/%s",
+                posInfoBean.getMenuServerIP(),
+                posInfoBean.getMenuPortNo(),
+                posInfoBean.getCposno());
+        return url;
+    }
+
+    public void httpPostLogFile(final ArrayList<String> logfiles, final File logfile) {
         //  上传地址
-        String url = String.format(SemiServerAddress.getUploadLogURL() + "/%s", strsno);
+        String url = getUploadLogUrl();
         url = url + "?gzip=1";
 
         AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
