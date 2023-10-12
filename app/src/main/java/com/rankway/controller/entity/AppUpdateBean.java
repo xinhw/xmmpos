@@ -3,14 +3,6 @@ package com.rankway.controller.entity;
 import java.io.Serializable;
 
 public class AppUpdateBean {
-
-    /**
-     * code : 40000
-     * message : 查询成功
-     * timestamp : 1609073942185
-     * result : {"app":{"version":"1.0.1","versionType":0,"versionNote":"更新了新的安卓APP，版本为1.0.1","downloadUrl":"http://47.117.132.63:6067/etk-resource/app-1.0.1.apk"},"mainBoard":{"version":"1.0.1","versionType":0,"versionNote":"更新了新的主控板程序，版本为1.0.1","downloadUrl":"http://47.117.132.63:6067/etk-resource/CoreBrd1768_Std_v1.0.13.bin"}}
-     */
-
     private int code;
     private String message;
     private long timestamp;
@@ -49,10 +41,6 @@ public class AppUpdateBean {
     }
 
     public static class ResultBean implements Serializable {
-        /**
-         * app : {"version":"1.0.1","versionType":0,"versionNote":"更新了新的安卓APP，版本为1.0.1","downloadUrl":"http://47.117.132.63:6067/etk-resource/app-1.0.1.apk"}
-         * mainBoard : {"version":"1.0.1","versionType":0,"versionNote":"更新了新的主控板程序，版本为1.0.1","downloadUrl":"http://47.117.132.63:6067/etk-resource/CoreBrd1768_Std_v1.0.13.bin"}
-         */
 
         private AppBean app;
 
@@ -118,6 +106,5 @@ public class AppUpdateBean {
                 this.downloadUrl = downloadUrl;
             }
         }
-
     }
 }

@@ -12,10 +12,9 @@ import android.support.v4.content.FileProvider;
 import android.util.Log;
 
 import com.elvishew.xlog.XLog;
-
+import com.google.gson.Gson;
 import com.rankway.controller.common.AppConstants;
 import com.rankway.controller.entity.AppUpdateBean;
-import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,11 +28,7 @@ import okhttp3.Response;
  * 更新管理器
  * <p>
  */
-@SuppressWarnings("unused")
 public class UpdateAppUtils {
-
-//    http://192.168.0.7:12018/api/DingJPackage/ERPGetExcel?strSheetId=M586-TFME2003020003&modelId=0
-
     private static final String TAG="UpdateAppUtils";
 
     public static void checkAppUpdate(String url, Context context, AppUpdateCallback updateCallback) {
@@ -79,14 +74,10 @@ public class UpdateAppUtils {
     @SuppressWarnings("unused")
     public static void downloadApk(
             Context context, String appUrl,
-            String infoName, String storeApk
-    ) {
+            String infoName, String storeApk) {
         if (!isDownloadManagerAvailable()) {
             return;
         }
-
-//        String description = updateInfo.data.descriponFailuretion;
-//        String appUrl = updateInfo.data.appURL;
 
         if (appUrl == null || appUrl.isEmpty()) {
             XLog.e( "请填写\"App下载地址\"");
@@ -130,15 +121,11 @@ public class UpdateAppUtils {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
     }
 
-
     public interface AppUpdateCallback {
         void onSuccess(AppUpdateBean updateInfo);
 
         void onError();
     }
-
-
-
 
     /**
      * 调用系统安装器安装apk
@@ -159,5 +146,4 @@ public class UpdateAppUtils {
         intent.setDataAndType(apkuri, "application/vnd.android.package-archive");
         context.startActivity(intent);
     }
-
 }

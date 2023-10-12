@@ -189,6 +189,16 @@ public class BaseActivity extends AppCompatActivity {
         return outMetrics.widthPixels;
     }
 
+    protected String getVersionCode(){
+        int versionCode = 0;
+        try{
+            versionCode = mContext.getPackageManager()
+                    .getPackageInfo(mContext.getPackageName(),0).versionCode;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return "1.0." + versionCode;
+    }
 
     @Nullable
     protected Activity findActivity() {
@@ -631,7 +641,7 @@ public class BaseActivity extends AppCompatActivity {
 
         HandesetInfo hi = new HandesetInfo();
         hi.initData(getStringInfo(getString(com.rankway.controller.R.string.controller_sno)));
-        hi.setAppVersion(AppConstants.APP_VERSION_NAME);
+        hi.setAppVersion(getVersionCode());
         hi.setMbVersion(hardver);
         hi.setAppName(AppUtils.getAppName(this));
         hi.setUserName(loginUser);
@@ -661,10 +671,6 @@ public class BaseActivity extends AppCompatActivity {
             }
         });
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    //  黑白名单同步
-    ////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1073,7 +1079,7 @@ public class BaseActivity extends AppCompatActivity {
         String url = String.format("http://%s/api/logs/upload/%s?gzip=1&appVersion=%s",
                 posInfoBean.getUpgradeUrl(),
                 posInfoBean.getCposno(),
-                AppConstants.APP_VERSION);
+                getVersionCode());
         return url;
     }
 
@@ -1470,7 +1476,7 @@ public class BaseActivity extends AppCompatActivity {
         SemiEventList eventList = new SemiEventList(sno,
                 userName,
                 AppUtils.getAppName(this),
-                AppConstants.APP_VERSION_NAME,
+                getVersionCode(),
                 hardver);
         eventList.setEventList(events);
 
