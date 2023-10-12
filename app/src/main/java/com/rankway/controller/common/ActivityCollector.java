@@ -1,4 +1,4 @@
-package com.rankway.sommerlibrary.common;
+package com.rankway.controller.common;
 
 import android.app.Activity;
 

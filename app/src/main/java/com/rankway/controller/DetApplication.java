@@ -15,7 +15,7 @@ import com.rankway.controller.common.AliPushServiceRegister;
 import com.rankway.controller.common.AppConstants;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.utils.location.DLocationUtils;
-import com.rankway.sommerlibrary.app.BaseApplication;
+import com.rankway.controller.app.BaseApplication;
 import com.tencent.mmkv.MMKV;
 
 

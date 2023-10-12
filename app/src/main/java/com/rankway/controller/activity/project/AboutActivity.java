@@ -14,7 +14,7 @@ import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.common.WhiteBlackListMode;
 import com.rankway.controller.utils.SommerUtils;
-import com.rankway.sommerlibrary.utils.NetUtil;
+import com.rankway.controller.utils.NetUtil;
 
 public class AboutActivity extends BaseActivity implements View.OnClickListener {
 

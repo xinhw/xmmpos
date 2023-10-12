@@ -55,10 +55,6 @@ android {
     sourceSets {
         main {
             jniLibs.srcDir 'libs'
-//            manifest.srcFile 'AndroidManifest.xml'
-//            java.srcDirs = ['src']
-//            assets.srcDirs = ['assets']
-//            res.srcDirs = ['res']
         }
 
         // Move the tests to tests/java, tests/res, etc...
@@ -74,19 +70,10 @@ android {
         release.setRoot('build-types/release')
         android.applicationVariants.all { variant ->
             variant.outputs.all { output ->
-                outputFileName = "WXSEMICON_FEB_${variant.versionCode}-${variant.versionName}-${releaseTime()}.apk"
-//                def outputFile = output.outputFile
-//                if (outputFile != null && outputFile.name.endsWith('.apk')) {
-//                    // 这里修改apk名称 
-//                    def fileName = outputFile.name.replace("app", "det_${defaultConfig.versionName}_${defaultConfig.versionCode}_${releaseTime()}")
-//                    outputFileName = new File("/", fileName)
-//                }
+                outputFileName = "SUMG_HANDSET_POS_${variant.versionCode}-${variant.versionName}-${releaseTime()}.apk"
             }
         }
-
-
     }
-//    buildToolsVersion '28.0.3'
 }
 
 greendao {

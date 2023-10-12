@@ -1,7 +1,7 @@
-package com.rankway.sommerlibrary.utils.parser;
+package com.rankway.controller.utils.parser;
 
 
-import com.rankway.sommerlibrary.utils.LogConstant;
+import com.rankway.controller.utils.LogConstant;
 
 /**
  * @Description: 解析器接口

@@ -74,11 +74,10 @@ import com.rankway.controller.utils.DateStringUtils;
 import com.rankway.controller.utils.UpdateAppUtils;
 import com.rankway.controller.utils.VibrateUtil;
 import com.rankway.controller.widget.MyAlertDialog;
-import com.rankway.sommerlibrary.R;
-import com.rankway.sommerlibrary.common.ActivityCollector;
-import com.rankway.sommerlibrary.utils.FileUtils;
-import com.rankway.sommerlibrary.utils.StringTool;
-import com.rankway.sommerlibrary.utils.ToastUtils;
+import com.rankway.controller.R;
+import com.rankway.controller.common.ActivityCollector;
+import com.rankway.controller.utils.StringTool;
+import com.rankway.controller.utils.ToastUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.greenrobot.eventbus.Subscribe;
@@ -759,7 +758,9 @@ public class BaseActivity extends AppCompatActivity {
                     case appUpdate:
                         downloadUrl = app.getDownloadUrl();
                         if (!TextUtils.isEmpty(downloadUrl) && downloadUrl.startsWith("http")) {
-                            downLoadFile(flag, downloadUrl, FileUtils.ExternalStorageDirectory + File.separator + "test", "posapp.apk");
+                            downLoadFile(flag, downloadUrl,
+                                    Environment.getExternalStorageDirectory().getPath() + File.separator + "test",
+                                    "posapp.apk");
                         } else {
                             showUpdateMessage("连接错误，无法更新！");
                         }

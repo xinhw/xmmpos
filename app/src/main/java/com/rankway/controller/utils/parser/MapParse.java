@@ -1,6 +1,6 @@
-package com.rankway.sommerlibrary.utils.parser;
+package com.rankway.controller.utils.parser;
 
-import com.rankway.sommerlibrary.utils.StringTool;
+import com.rankway.controller.utils.StringTool;
 
 
 import java.util.Map;

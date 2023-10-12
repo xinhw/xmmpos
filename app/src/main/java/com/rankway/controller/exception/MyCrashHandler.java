@@ -1,10 +1,10 @@
-package com.rankway.sommerlibrary.exception;
+package com.rankway.controller.exception;
 
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.rankway.sommerlibrary.app.BaseApplication;
+import com.rankway.controller.app.BaseApplication;
 
 import java.io.File;
 import java.io.FileWriter;

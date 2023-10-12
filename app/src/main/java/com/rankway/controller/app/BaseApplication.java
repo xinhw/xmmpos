@@ -1,4 +1,4 @@
-package com.rankway.sommerlibrary.app;
+package com.rankway.controller.app;
 
 
 import android.app.Application;
@@ -6,23 +6,18 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Environment;
 
-
+import com.elvishew.xlog.BuildConfig;
 import com.elvishew.xlog.LogConfiguration;
 import com.elvishew.xlog.LogLevel;
 import com.elvishew.xlog.XLog;
 import com.elvishew.xlog.flattener.ClassicFlattener;
-
 import com.elvishew.xlog.printer.AndroidPrinter;
-
 import com.elvishew.xlog.printer.Printer;
 import com.elvishew.xlog.printer.file.FilePrinter;
-
 import com.elvishew.xlog.printer.file.backup.FileSizeBackupStrategy;
 import com.elvishew.xlog.printer.file.naming.DateFileNameGenerator;
-import com.rankway.sommerlibrary.BuildConfig;
-import com.rankway.sommerlibrary.R;
-import com.rankway.sommerlibrary.exception.MyCrashHandler;
-import com.rankway.sommerlibrary.utils.ContextUtils;
+import com.rankway.controller.exception.MyCrashHandler;
+import com.rankway.controller.R;
 
 import java.io.File;
 
@@ -44,12 +39,7 @@ public class BaseApplication extends Application {
         // 程序创建的时候执行
 
         appContext = this;
-        ContextUtils.init(this);
 
-        //        if (BuildConfig.DEBUG) {
-        //Timber日志打印
-//        Timber.plant(new Timber.DebugTree());
-//        }
         if (!BuildConfig.DEBUG) {
             MyCrashHandler handler = new MyCrashHandler();
             Thread.setDefaultUncaughtExceptionHandler(handler);

@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
-import com.rankway.sommerlibrary.utils.DateUtil;
+import com.rankway.controller.utils.DateStringUtils;
 
 public class NotificationDetail extends BaseActivity
         implements View.OnClickListener {
@@ -36,7 +36,7 @@ public class NotificationDetail extends BaseActivity
         tv.setText(str);
 
         long lt = intent.getLongExtra("TIME", System.currentTimeMillis());
-        str = "时间：" + DateUtil.getDateDStr(lt);
+        str = "时间：" + DateStringUtils.getDateDStr(lt);
         tv = findViewById(R.id.tv_time);
         tv.setText(str);
 

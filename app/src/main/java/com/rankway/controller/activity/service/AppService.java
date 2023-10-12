@@ -9,7 +9,7 @@ import android.util.Log;
 
 import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.activity.project.manager.SpManager;
-import com.rankway.sommerlibrary.utils.NetUtil;
+import com.rankway.controller.utils.NetUtil;
 
 /**
  * <pre>

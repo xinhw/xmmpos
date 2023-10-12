@@ -1,4 +1,4 @@
-package com.rankway.sommerlibrary.utils;
+package com.rankway.controller.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

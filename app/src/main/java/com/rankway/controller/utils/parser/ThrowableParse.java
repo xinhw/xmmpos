@@ -1,4 +1,4 @@
-package com.rankway.sommerlibrary.utils.parser;
+package com.rankway.controller.utils.parser;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

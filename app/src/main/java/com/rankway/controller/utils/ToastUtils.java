@@ -1,11 +1,11 @@
-package com.rankway.sommerlibrary.utils;
+package com.rankway.controller.utils;
 
 import android.content.Context;
 import android.os.Looper;
 import android.view.Gravity;
 import android.widget.Toast;
 
-import com.rankway.sommerlibrary.R;
+import com.rankway.controller.R;
 import com.maning.mndialoglibrary.MToast;
 import com.maning.mndialoglibrary.config.MToastConfig;
 

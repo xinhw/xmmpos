@@ -1,8 +1,8 @@
-package com.rankway.sommerlibrary.utils;
+package com.rankway.controller.utils;
 
 import android.graphics.Paint;
 
-import com.rankway.sommerlibrary.utils.parser.Parser;
+import com.rankway.controller.utils.parser.Parser;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

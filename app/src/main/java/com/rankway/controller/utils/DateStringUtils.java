@@ -32,5 +32,9 @@ public class DateStringUtils {
         return new SimpleDateFormat(formatType).format(data);
     }
 
+    public static   String getDateDStr (long lms){
+        SimpleDateFormat   sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        return sdf.format(lms);
+    }
 
 }

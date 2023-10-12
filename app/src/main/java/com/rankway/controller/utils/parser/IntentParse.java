@@ -1,4 +1,4 @@
-package com.rankway.sommerlibrary.utils.parser;
+package com.rankway.controller.utils.parser;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;

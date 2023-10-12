@@ -9,7 +9,7 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
-import com.rankway.sommerlibrary.utils.NetUtil;
+import com.rankway.controller.utils.NetUtil;
 
 import java.util.List;
 

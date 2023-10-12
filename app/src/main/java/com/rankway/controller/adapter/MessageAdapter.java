@@ -7,7 +7,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.rankway.controller.R;
 import com.rankway.controller.persistence.entity.MessageDetail;
-import com.rankway.sommerlibrary.utils.DateUtil;
+import com.rankway.controller.utils.DateStringUtils;
 
 import java.util.List;
 
@@ -28,6 +28,6 @@ public class MessageAdapter extends BaseQuickAdapter<MessageDetail, BaseViewHold
         if(content.length()>60) content = item.getContent().substring(0,60)+"...";
         helper.setText(R.id.message_content,content);
         helper.setText(R.id.message_source,"来自:"+ item.getFrom());
-        helper.setText(R.id.message_time, "时间：" + DateUtil.getDateDStr(item.getTime()));
+        helper.setText(R.id.message_time, "时间：" + DateStringUtils.getDateDStr(item.getTime()));
     }
 }
