@@ -1089,6 +1089,7 @@ public class BaseActivity extends AppCompatActivity {
 
         //  上传地址
         String url = getUploadLogUrl();
+        if(StringUtils.isEmpty(url)) return;
 
         AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
         asyncHttpCilentUtil.httpsPostFile(url, null, "file", logfile, new Callback() {

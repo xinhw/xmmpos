@@ -124,7 +124,7 @@ public class DeskPosLoginActivity
         } catch (Exception e) {
             e.printStackTrace();
         }
-        DetLog.writeLog(TAG, "启动程序，版本号：1.0." + nAppVer + " 数据版本号：" + nDBVer);
+        DetLog.writeLog(TAG, "启动程序，版本号：" + nAppVer + " 数据版本号：" + nDBVer);
     }
 
     @Override
