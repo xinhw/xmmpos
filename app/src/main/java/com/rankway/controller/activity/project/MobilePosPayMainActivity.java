@@ -474,11 +474,14 @@ public class MobilePosPayMainActivity
         tvRemain.setText("");
         etAmount.setText("");
         tvPayment.setVisibility(View.GONE);
+
+        cardPaymentObj = null;
     }
 
 
     private void startQuery(int payType) {
         clearLastPayment();
+
         AsynTaskQuery task = new AsynTaskQuery(payType);
         task.execute();
     }
@@ -552,6 +555,7 @@ public class MobilePosPayMainActivity
 
                 return;
             }
+
             lastQueryTime = SystemClock.elapsedRealtime();
             tvPayment.setVisibility(View.VISIBLE);
 
@@ -562,6 +566,10 @@ public class MobilePosPayMainActivity
 
             //  消费金额获取焦点
             etAmount.setText("");
+
+            etAmount.setFocusable(true);
+            etAmount.setFocusableInTouchMode(true);
+            etAmount.requestFocus();
 
             //  显示输入法
             showInputKeyboard(etAmount);
@@ -579,6 +587,13 @@ public class MobilePosPayMainActivity
      */
     private void startPayment() {
         Log.d(TAG, "startPayment");
+
+        if(null==cardPaymentObj){
+            showToast("先读卡或扫二维码");
+            playSound(false);
+            return;
+        }
+
         float amount = 0;
         /***
          * 有效性判断
@@ -625,8 +640,10 @@ public class MobilePosPayMainActivity
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            showProDialog("请稍等...");
+
             isPaying = true;
+
+            showProDialog("请稍等...");
         }
 
         @Override
@@ -680,14 +697,17 @@ public class MobilePosPayMainActivity
                 refreshStatistics(totalCount, totalAmount);
 
                 DetLog.writeLog(TAG, "支付成功：" + cardPaymentObj.toString());
-            } else {
-                playSound(false);
-
-                showLongToast(errString);
-                playSound(false);
-
-                DetLog.writeLog(TAG, "支付失败：" + errString);
+                return;
             }
+
+            //  支付失败
+            playSound(false);
+
+            showLongToast(errString);
+            playSound(false);
+
+            DetLog.writeLog(TAG, "支付失败：" + errString);
+
             return;
         }
     }
@@ -741,7 +761,11 @@ public class MobilePosPayMainActivity
         }
     };
 
-
+    /***
+     * 保存支付记录
+     * @param amount
+     * @param uploadFlag
+     */
     private void savePaymentRecord(float amount, int uploadFlag) {
         PaymentRecord record = new PaymentRecord(cardPaymentObj, amount, posInfoBean);
 
@@ -787,53 +811,4 @@ public class MobilePosPayMainActivity
 
         return;
     }
-
-
-//    private void enumAllUsbDevice(){
-//        Log.d(TAG,"enumAllUsbDevice");
-//
-//        UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-//        HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
-//        Log.d(TAG,"UsbDeviceCount: "+deviceList.size());
-//
-//        Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
-//        while(deviceIterator.hasNext()) {
-//            UsbDevice device = deviceIterator.next();
-//            if(null!=device) Log.d(TAG,devicesString(device));
-//
-//            //获取设备接口
-//            for (int i = 0; i < device.getInterfaceCount(); ) {
-//                // 一般来说一个设备都是一个接口，你可以通过getInterfaceCount()查看接口的个数
-//                // 这个接口上有两个端点，分别对应OUT 和 IN
-//                UsbInterface usbInterface = device.getInterface(i);
-//                if(null==usbInterface) continue;
-//
-//                Log.d(TAG,"UsbInterface Id:"+usbInterface.getId()+" Name:"+usbInterface.getName()
-//                        + " Class:"+usbInterface.getClass()+" Procotocol:"+usbInterface.getInterfaceProtocol()
-//                        +" EndPointCount:"+usbInterface.getEndpointCount());
-//
-//                for(int j=0;j< usbInterface.getEndpointCount();j++){
-//                    UsbEndpoint endpoint = usbInterface.getEndpoint(j);
-//                    if(endpoint==null) continue;
-//
-//                    Log.d(TAG,"UsbEndpoint Address:"+endpoint.getAddress() +
-//                            " Attributes:"+endpoint.getAttributes() +
-//                            " Direction:"+endpoint.getDirection());
-//                }
-//                break;
-//            }
-//        }
-//    }
-//
-//    private String devicesString(UsbDevice device){
-//        StringBuilder builder = new StringBuilder("UsbDevice Name=" + device.getDeviceName() +
-//                " VendorId=" + device.getVendorId() + " ProductId=" + device.getProductId() +
-//                " mClass=" + device.getClass() + " mSubclass=" + device.getDeviceSubclass() +
-//                " mProtocol=" + device.getDeviceProtocol() + " mManufacturerName=" +" mSerialNumber=" +
-//                " InterfaceCount="+device.getInterfaceCount() +
-//                "  ");
-//        return builder.toString();
-//    }
-
-
 }

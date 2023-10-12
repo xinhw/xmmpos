@@ -662,12 +662,13 @@ public class BaseActivity extends AppCompatActivity {
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    //  http://47.117.132.63:6061/api/appVersions/"+APP_TYPE+"?sn=";
     private String getCheckAppUrl(){
         PosInfoBean posInfoBean = getPosInfoBean();
         if(null==posInfoBean) return "";
 
-        String url = String.format("http://%s:%d/api/api/appVersions/handsetpos?sn=%s",
+        //  http://ip2:serverPort2/api/appVersions/{appType}?sn=10003
+        //  sn为pos机编号，appType暂定两种(Desktop-POS/Handset-POS)
+        String url = String.format("http://%s:%d/api/appVersions/Handset-POS?sn=%s",
                 posInfoBean.getMenuServerIP(),
                 posInfoBean.getMenuPortNo(),
                 posInfoBean.getCposno());
@@ -685,7 +686,7 @@ public class BaseActivity extends AppCompatActivity {
      * 检查服务器上版本信息
      */
     public void checkAppUpdate() {
-        String url = getUploadLogUrl();
+        String url = getCheckAppUrl();
         UpdateAppUtils.checkAppUpdate(url, this, new UpdateAppUtils.AppUpdateCallback() {
             @Override
             public void onSuccess(AppUpdateBean updateInfo) {
@@ -1063,17 +1064,18 @@ public class BaseActivity extends AppCompatActivity {
         PosInfoBean posInfoBean = getPosInfoBean();
         if(null==posInfoBean) return null;
 
-        String url = String.format("http://%s:%d/logs/upload/%s",
+        //  http://ip2:serverPort2/api/logs/upload/{posno}?gzip=1&appVersion=1.2.0
+        String url = String.format("http://%s:%d/api/logs/upload/%s?gzip=1&appVersion=%s",
                 posInfoBean.getMenuServerIP(),
                 posInfoBean.getMenuPortNo(),
-                posInfoBean.getCposno());
+                posInfoBean.getCposno(),
+                AppConstants.APP_VERSION);
         return url;
     }
 
     public void httpPostLogFile(final ArrayList<String> logfiles, final File logfile) {
         //  上传地址
         String url = getUploadLogUrl();
-        url = url + "?gzip=1";
 
         AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
         asyncHttpCilentUtil.httpsPostFile(url, null, "file", logfile, new Callback() {
