@@ -550,8 +550,8 @@ public class MobilePosSettingsActivity
             case R.id.appUpgradeUrl:
                 builder.setTitle("APP升级地址：");
                 editMsg.setInputType(InputType.TYPE_CLASS_TEXT);
-                String digits12 = "0123456789.:";
-                editMsg.setKeyListener(DigitsKeyListener.getInstance(digits12));
+//                String digits12 = "0123456789.:";
+//                editMsg.setKeyListener(DigitsKeyListener.getInstance(digits12));
                 editMsg.setFilters(new InputFilter[]{
                         new InputFilter.LengthFilter(21)
                 });

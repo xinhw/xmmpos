@@ -17,10 +17,6 @@ import org.greenrobot.greendao.annotation.Id;
  */
 @Entity
 public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
-    @JSONField(serialize = false)
-    @Id(autoincrement = true)
-    Long id;
-
     String posSerialChild;
     String dishCode;
     String dishName;
@@ -32,16 +28,17 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
     String dishTypeName;
 
     @JSONField(serialize = false)
+    @Id(autoincrement = true)
+    Long id;
+    @JSONField(serialize = false)
     long timestamp;
-
     @JSONField(serialize = false)
     long paymentTotalId;
     
-    @Generated(hash = 1661599674)
-    public PaymentItemEntity(Long id, String posSerialChild, String dishCode, String dishName,
-            float price, int quantity, float transMoney, String dishTypeCode, String dishTypeName,
+    @Generated(hash = 313456292)
+    public PaymentItemEntity(String posSerialChild, String dishCode, String dishName, float price,
+            int quantity, float transMoney, String dishTypeCode, String dishTypeName, Long id,
             long timestamp, long paymentTotalId) {
-        this.id = id;
         this.posSerialChild = posSerialChild;
         this.dishCode = dishCode;
         this.dishName = dishName;
@@ -50,6 +47,7 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
         this.transMoney = transMoney;
         this.dishTypeCode = dishTypeCode;
         this.dishTypeName = dishTypeName;
+        this.id = id;
         this.timestamp = timestamp;
         this.paymentTotalId = paymentTotalId;
     }
@@ -171,30 +169,19 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
         this.posSerialChild = seqNo+"";
         this.dishCode = dishEntity.getDishCode().trim();
         this.dishName = dishEntity.getDishName().trim();
-        this.price = dishEntity.getPrice();
+        this.price = (float)(dishEntity.getPrice()*0.01);
         this.quantity = dishEntity.getCount();
-        this.transMoney = dishEntity.getCount()* dishEntity.getPrice();
+        this.transMoney = (float)(dishEntity.getCount()* dishEntity.getPrice()*0.01);
         this.timestamp = System.currentTimeMillis();
         this.paymentTotalId = paymentTotalId;
-        DishTypeEntity dishType = dishEntity.getDishType();
-        if(null!=dishType) {
-            this.dishTypeCode = dishType.getDishTypeCode();
-            this.dishTypeName = dishType.getDishTypeName();
-        }
+
+        this.dishTypeCode = dishEntity.getDishTypeCode();
+        this.dishTypeName = dishEntity.getDishTypeName();
+
     }
 
     @Generated(hash = 558064288)
     public PaymentItemEntity() {
     }
-
-    public PaymentItemEntity(int subSeqNo,String dishCode,String dishName,int quantity,float price) {
-        this.posSerialChild = subSeqNo+"";
-        this.dishCode = dishCode;
-        this.dishName = dishName;
-        this.price = price;
-        this.quantity = quantity;
-        this.transMoney = price*quantity;
-        this.timestamp = System.currentTimeMillis();
-    }
-
+    
 }

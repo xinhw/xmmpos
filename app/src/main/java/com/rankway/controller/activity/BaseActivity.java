@@ -697,6 +697,8 @@ public class BaseActivity extends AppCompatActivity {
      */
     public void checkAppUpdate() {
         String url = getCheckAppUrl();
+        if(StringUtils.isEmpty(url)) return;
+
         UpdateAppUtils.checkAppUpdate(url, this, new UpdateAppUtils.AppUpdateCallback() {
             @Override
             public void onSuccess(AppUpdateBean updateInfo) {
@@ -1825,7 +1827,7 @@ public class BaseActivity extends AppCompatActivity {
 
             List<DishEntity> dishes = new ArrayList<>();
             for(Dish dish:dishType.getDishs()){
-                DishEntity dishitem = new DishEntity(dish);
+                DishEntity dishitem = new DishEntity(dishType,dish);
                 dishitem.setTypeId(typeitem.getId());
                 dishes.add(dishitem);
             }
