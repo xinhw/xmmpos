@@ -66,10 +66,7 @@ public class DBManager {
         getPaymentRecordDao().deleteInTx(list);
     }
 
-
-
-
-
-
-
+    public int getDatabaseVerion(){
+        return mDaoMaster.SCHEMA_VERSION;
+    }
 }

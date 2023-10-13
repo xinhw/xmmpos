@@ -104,6 +104,13 @@ public class MobilePosPayMainActivity
         initScanner();
 
         mHandler.sendEmptyMessageDelayed(100, 1000);
+
+        checkAppUpdate();
+
+        DetLog.writeLog(TAG, "启动程序，版本号："
+                + getVersionCode()
+                + " 数据版本号："
+                + DBManager.getInstance().getDatabaseVerion());
     }
 
     private void initView() {

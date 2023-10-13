@@ -696,7 +696,14 @@ public class BaseActivity extends AppCompatActivity {
      * 检查服务器上版本信息
      */
     public void checkAppUpdate() {
+        Log.d(TAG,"checkAppUpdate");
+
         String url = getCheckAppUrl();
+        if(StringUtils.isEmpty(url)){
+            Log.d(TAG,"APP升级地址为空");
+            return;
+        }
+
         UpdateAppUtils.checkAppUpdate(url, this, new UpdateAppUtils.AppUpdateCallback() {
             @Override
             public void onSuccess(AppUpdateBean updateInfo) {
@@ -1074,7 +1081,7 @@ public class BaseActivity extends AppCompatActivity {
      */
     private String getUploadLogUrl(){
         PosInfoBean posInfoBean = getPosInfoBean();
-        if(null==posInfoBean) return null;
+        if(null==posInfoBean) return "";
 
         //  http://ip2:serverPort2/api/logs/upload/{posno}?gzip=1&appVersion=1.2.0
         String url = String.format("http://%s:%d/api/logs/upload/%s?gzip=1&appVersion=%s",
@@ -1086,8 +1093,14 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void httpPostLogFile(final ArrayList<String> logfiles, final File logfile) {
+        Log.d(TAG,"httpPostLogFile");
+
         //  上传地址
         String url = getUploadLogUrl();
+        if(StringUtils.isEmpty(url)){
+            Log.d(TAG,"日志上传地址为空");
+            return;
+        }
 
         AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
         asyncHttpCilentUtil.httpsPostFile(url, null, "file", logfile, new Callback() {

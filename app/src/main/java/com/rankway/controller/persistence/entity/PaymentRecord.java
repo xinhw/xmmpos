@@ -1,10 +1,8 @@
 package com.rankway.controller.persistence.entity;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.persistence.gen.DaoSession;
 import com.rankway.controller.persistence.gen.PaymentRecordDao;
-import com.rankway.controller.persistence.gen.PaymentTotalDao;
 import com.rankway.controller.webapi.cardInfo;
 
 import org.greenrobot.greendao.DaoException;
@@ -12,8 +10,6 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Keep;
-import org.greenrobot.greendao.annotation.NotNull;
-import org.greenrobot.greendao.annotation.ToOne;
 
 import java.util.Date;
 
@@ -54,28 +50,12 @@ public class PaymentRecord implements Comparable<PaymentRecord>{
     int uploadFlag;     //  上传标志
     Date uploadTime;    //  上传时间
 
-    long paymentTotalId;
-    @JSONField(serialize = false)
-    @ToOne(joinProperty = "paymentTotalId")
-    PaymentTotal total;
 
-    /** Used to resolve relations */
-    @Generated(hash = 2040040024)
-    private transient DaoSession daoSession;
-
-    /** Used for active entity operations. */
-    @Generated(hash = 1519637118)
-    private transient PaymentRecordDao myDao;
-
-    @Generated(hash = 1707628587)
-    private transient Long total__resolvedKey;
-
-    @Generated(hash = 469486794)
-    public PaymentRecord(Long id, int auditNo, String posNo, int postype,
-            int payway, String userCode, int cardno, float remain, float amount,
-            float balance, int typeid, Date transTime, String cardSNO,
-            String workNo, String workName, String userId, int qrType, int systemId,
-            int uploadFlag, Date uploadTime, long paymentTotalId) {
+    @Generated(hash = 1812159161)
+    public PaymentRecord(Long id, int auditNo, String posNo, int postype, int payway,
+            String userCode, int cardno, float remain, float amount, float balance,
+            int typeid, Date transTime, String cardSNO, String workNo, String workName,
+            String userId, int qrType, int systemId, int uploadFlag, Date uploadTime) {
         this.id = id;
         this.auditNo = auditNo;
         this.posNo = posNo;
@@ -96,7 +76,6 @@ public class PaymentRecord implements Comparable<PaymentRecord>{
         this.systemId = systemId;
         this.uploadFlag = uploadFlag;
         this.uploadTime = uploadTime;
-        this.paymentTotalId = paymentTotalId;
     }
 
     @Keep
@@ -319,89 +298,5 @@ public class PaymentRecord implements Comparable<PaymentRecord>{
     @Override
     public int compareTo(PaymentRecord o) {
         return (int)(this.id-o.getId());
-    }
-
-    public long getPaymentTotalId() {
-        return this.paymentTotalId;
-    }
-
-    public void setPaymentTotalId(long paymentTotalId) {
-        this.paymentTotalId = paymentTotalId;
-    }
-
-    /** To-one relationship, resolved on first access. */
-    @Generated(hash = 1555494400)
-    public PaymentTotal getTotal() {
-        long __key = this.paymentTotalId;
-        if (total__resolvedKey == null || !total__resolvedKey.equals(__key)) {
-            final DaoSession daoSession = this.daoSession;
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            PaymentTotalDao targetDao = daoSession.getPaymentTotalDao();
-            PaymentTotal totalNew = targetDao.load(__key);
-            synchronized (this) {
-                total = totalNew;
-                total__resolvedKey = __key;
-            }
-        }
-        return total;
-    }
-
-    /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 2114216022)
-    public void setTotal(@NotNull PaymentTotal total) {
-        if (total == null) {
-            throw new DaoException(
-                    "To-one property 'paymentTotalId' has not-null constraint; cannot set to-one to null");
-        }
-        synchronized (this) {
-            this.total = total;
-            paymentTotalId = total.getId();
-            total__resolvedKey = paymentTotalId;
-        }
-    }
-
-    /**
-     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
-     * Entity must attached to an entity context.
-     */
-    @Generated(hash = 128553479)
-    public void delete() {
-        if (myDao == null) {
-            throw new DaoException("Entity is detached from DAO context");
-        }
-        myDao.delete(this);
-    }
-
-    /**
-     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#refresh(Object)}.
-     * Entity must attached to an entity context.
-     */
-    @Generated(hash = 1942392019)
-    public void refresh() {
-        if (myDao == null) {
-            throw new DaoException("Entity is detached from DAO context");
-        }
-        myDao.refresh(this);
-    }
-
-    /**
-     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#update(Object)}.
-     * Entity must attached to an entity context.
-     */
-    @Generated(hash = 713229351)
-    public void update() {
-        if (myDao == null) {
-            throw new DaoException("Entity is detached from DAO context");
-        }
-        myDao.update(this);
-    }
-
-    /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1270212992)
-    public void __setDaoSession(DaoSession daoSession) {
-        this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getPaymentRecordDao() : null;
     }
 }
