@@ -166,12 +166,12 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
     }
 
     public PaymentItemEntity(int seqNo, long paymentTotalId, DishEntity dishEntity){
-        this.posSerialChild = seqNo+"";
+        this.posSerialChild = String.format("%04d",seqNo);
         this.dishCode = dishEntity.getDishCode().trim();
         this.dishName = dishEntity.getDishName().trim();
-        this.price = (float)(dishEntity.getPrice()*0.01);
+        this.price = dishEntity.getPrice();
         this.quantity = dishEntity.getCount();
-        this.transMoney = (float)(dishEntity.getCount()* dishEntity.getPrice()*0.01);
+        this.transMoney = (float)(dishEntity.getCount()* dishEntity.getPrice());
         this.timestamp = System.currentTimeMillis();
         this.paymentTotalId = paymentTotalId;
 

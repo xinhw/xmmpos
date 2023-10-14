@@ -1404,9 +1404,12 @@ public class BaseActivity extends AppCompatActivity {
                 int ret = obj.pushOfflineCardPaymentRecords(record);
                 if(0!=ret){
                     DetLog.writeLog(TAG,"IC卡离线记录上送失败："+record.toString());
+                    record.setUploadFlag(PaymentTotal.UNUPLOAD);
+                    record.setUploadTime(new Date());
+                    DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
                 }else{
                     DetLog.writeLog(TAG,"IC卡离线记录上送成功："+record.toString());
-                    record.setUploadFlag(PaymentTotal.UNUPLOAD);
+                    record.setUploadFlag(PaymentTotal.UPLOADED);
                     record.setUploadTime(new Date());
                     DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
                 }
@@ -1426,11 +1429,14 @@ public class BaseActivity extends AppCompatActivity {
                 n++;
                 int ret = obj.pushOfflineCardPaymentRecords(record);
                 if(0!=ret){
+                    record.setUploadFlag(PaymentTotal.UNUPLOAD);
+                    record.setUploadTime(new Date());
+                    DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
                     DetLog.writeLog(TAG,"二维码离线记录上送失败："+record.toString());
                 }else{
                     DetLog.writeLog(TAG,"二维码离线记录上送成功："+record.toString());
 
-                    record.setUploadFlag(PaymentTotal.UNUPLOAD);
+                    record.setUploadFlag(PaymentTotal.UPLOADED);
                     record.setUploadTime(new Date());
                     DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
                 }
@@ -1806,12 +1812,6 @@ public class BaseActivity extends AppCompatActivity {
         //  缓存菜品版本信息
         String s = result.getResult().getSiteVersion();
         if(s==null) return;
-
-        String s1 = SpManager.getIntance().getSpString(AppIntentString.DISH_TYPE_VER);
-        if(s.compareTo(s1)<=0){
-            Log.d(TAG,String.format("版本%s低于或等于%s，不更新",s,s1));
-            return;
-        }
 
         SpManager.getIntance().saveSpString(AppIntentString.DISH_TYPE_VER,s);
 

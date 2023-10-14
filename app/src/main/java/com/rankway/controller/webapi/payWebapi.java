@@ -1746,6 +1746,9 @@ public class payWebapi {
                 try {
                     Result result = JSON.parseObject(strjson, Result.class);
                     Log.d(TAG,"Result:"+result.toString());
+
+                    paymentTotal.setUploadFlag(PaymentTotal.UPLOADED);
+                    DBManager.getInstance().getPaymentTotalDao().save(paymentTotal);
                     DetLog.writeLog(TAG, "上传明细成功：" + JSON.toJSONString(paymentTotal));
                 }catch (Exception e){
                     e.printStackTrace();
