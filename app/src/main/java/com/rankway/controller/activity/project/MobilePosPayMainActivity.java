@@ -481,8 +481,6 @@ public class MobilePosPayMainActivity
         tvRemain.setText("");
         etAmount.setText("");
         tvPayment.setVisibility(View.GONE);
-
-        cardPaymentObj = null;
     }
 
 
@@ -522,7 +520,7 @@ public class MobilePosPayMainActivity
             // 1. 获取POS流水
             posAudit audit = obj.getPosAuditNo(posInfoBean.getCposno());
             if (null == audit) {
-                errString = "获取POS流水号失败！";
+                errString = "网络不通，请检查网络连接！";
                 return -1;
             }
 
@@ -656,13 +654,12 @@ public class MobilePosPayMainActivity
         @Override
         protected Integer doInBackground(String... strings) {
             int ret = -1;
-            String str = "";
             payWebapi obj = payWebapi.getInstance();
 
             // 1. 获取POS流水
             posAudit audit = obj.getPosAuditNo(posInfoBean.getCposno());
             if (null == audit) {
-                errString = "获取POS流水号失败！";
+                errString = "网络不通，请检查网络连接！";
                 return -1;
             }
 

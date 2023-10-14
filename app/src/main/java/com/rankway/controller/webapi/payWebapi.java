@@ -108,9 +108,8 @@ public class payWebapi {
         }else{
             errCode = httpUtil.getResponseCode();
             errMsg = "获取accessToken失败，网络有问题";
+            return null;
         }
-
-        return accessToken;
     }
 
     /***
@@ -123,6 +122,10 @@ public class payWebapi {
 
         String accessToken = accessToken();
         Log.d(TAG,"accessToken:"+accessToken);
+        if(null==accessToken){
+            errMsg = "网络不通，请检查网络连接";
+            return null;
+        }
 
         String jsonData = String.format("posno=%s",posno);
 
@@ -192,6 +195,10 @@ public class payWebapi {
         Log.d(TAG,"getPersonInfoByWorkNo");
 
         String accessToken = accessToken();
+        if(null==accessToken){
+            errMsg = "网络不通，请检查网络连接";
+            return null;
+        }
 
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
         String url = serverPort + String.format("/api/personinfo/%s?accessToken=",workNo) + accessToken;
@@ -320,6 +327,10 @@ public class payWebapi {
         Log.d(TAG,"getCardPersonInfo");
 
         String accessToken = accessToken();
+        if(null==accessToken){
+            errMsg = "网络不通，请检查网络连接";
+            return null;
+        }
 
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
         String url = serverPort + "/api/personinfo?accessToken=" + accessToken;
@@ -543,6 +554,10 @@ public class payWebapi {
         Log.d(TAG,"cardPayRecords");
 
         String accessToken = accessToken();
+        if(null==accessToken){
+            errMsg = "网络不通，请检查网络连接";
+            return null;
+        }
 
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
         String url = serverPort + String.format("/api/payrecords/%s/?accessToken=%s",cardsno,accessToken);
@@ -601,6 +616,10 @@ public class payWebapi {
         Log.d(TAG,"qrPayRecords");
 
         String accessToken = accessToken();
+        if(null==accessToken){
+            errMsg = "网络不通，请检查网络连接";
+            return null;
+        }
 
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
         String url = serverPort + "/api/qr/V2/payrecords?accessToken=" + accessToken;

@@ -275,7 +275,7 @@ public class MobilePosPayRecordListActivity
         int[] location = new int[2];
         view.getLocationInWindow(location);
         View popuView = getLayoutInflater().inflate(R.layout.popuwindow_view, null, false);
-        PopupWindow popupWindow = new PopupWindow(popuView, 300, 200);
+        PopupWindow popupWindow = new PopupWindow(popuView, 300, 100);
         popupWindow.setFocusable(true);
 
         TextView vw = popuView.findViewById(R.id.delete_item);
@@ -293,6 +293,7 @@ public class MobilePosPayRecordListActivity
 
         vw = popuView.findViewById(R.id.insert_item);
         vw.setText("生成");
+        vw.setVisibility(View.GONE);
         vw.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -64,26 +64,17 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <action android:name="android.nfc.action.TECH_DISCOVERED" />-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.nfc.action.TECH_DISCOVERED" />
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".activity.project.AboutActivity" /> <!-- <activity -->
-        <!-- android:name=".activity.project.LoginActivity" -->
-        <!-- android:theme="@style/activity_theme"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.MAIN" /> -->
-        <!-- <action android:name="android.nfc.action.TECH_DISCOVERED" /> -->
-        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-        <!-- </intent-filter> -->
-        <!-- </activity> -->
-        <activity android:name=".activity.project.MobilePosSettingsActivity" /> <!-- <activity -->
-        <!-- android:name=".activity.project.HomeActivity2" -->
-        <!-- android:launchMode="singleTask" -->
-        <!-- android:theme="@style/AppTheme.NoActionBar" /> -->
+
+        <activity android:name=".activity.project.MobilePosSettingsActivity" />
+
         <activity
             android:name=".activity.project.MessageListActivity"
             android:exported="true"
