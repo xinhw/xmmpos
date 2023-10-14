@@ -29,7 +29,6 @@ import com.rankway.controller.activity.project.manager.DataCleanManager;
 import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.common.AppConstants;
 import com.rankway.controller.common.AppIntentString;
-import com.rankway.controller.common.SemiServerAddress;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.HttpUtil;
@@ -384,16 +383,8 @@ public class MobilePosSettingsActivity
      * @param logfile
      */
     private void postLogFile(final ArrayList<String> logfiles, final File logfile) {
-        String strsno = "00000";
-        PosInfoBean posInfoBean = getPosInfoBean();
-
-        if (posInfoBean != null) {
-            if (!TextUtils.isEmpty(posInfoBean.getCposno())) strsno = posInfoBean.getCposno();
-        }
-
         //  上传地址
-        String url = String.format(SemiServerAddress.getUploadLogURL() + "/%s", strsno);
-        url = url + "?gzip=1";
+        String url = getUploadLogUrl();
 
         //  HTTP请求
         ProgressDialog pDialog = ProgressDialog.show(mContext, "提示", "请稍等...", true, false);

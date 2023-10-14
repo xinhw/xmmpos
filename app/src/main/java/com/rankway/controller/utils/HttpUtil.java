@@ -113,6 +113,8 @@ public class HttpUtil {
                 inputStream.close();
                 message.close();
 
+                isOnline = true;
+
                 //  返回字符串
                 String msg = new String(message.toByteArray());
                 Log.d(TAG,"msg:"+msg);
@@ -185,6 +187,8 @@ public class HttpUtil {
                 //  返回字符串
                 String msg = new String(message.toByteArray());
                 Log.d(TAG,"msg:"+msg);
+
+                isOnline = true;
                 return msg;
             }
         }catch (IOException e){
@@ -278,6 +282,8 @@ public class HttpUtil {
                 String header = httpURLConnection.getHeaderField("Location");
                 setHeaderLocation(header);
             }
+
+            isOnline = true;
             return msg;
         }catch (Exception e){
             isOnline = false;
