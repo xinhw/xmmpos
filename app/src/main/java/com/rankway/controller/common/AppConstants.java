@@ -19,4 +19,10 @@ public  class AppConstants {
     //  扫描头的VENDOR_ID和PRODUCT_ID
     public static final int USB_QR_SCAN_VENDOR_ID = 1046;
     public static final int USB_QR_SCAN_PRODUCT_ID = 2337;
+
+    //  VendorId=7851 ProductId=9250
+    public static final int USB_QRSCAN_NLSFR20_VENDOR_ID = 7851;
+    public static final int USB_QRSCAN_NLSFR20_PRODUCT_ID = 9250;
+
+
 }

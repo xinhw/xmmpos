@@ -44,7 +44,6 @@ import com.rankway.controller.utils.HttpUtil;
 import com.rankway.controller.webapi.cardInfo;
 import com.rankway.controller.webapi.decodeQRCode;
 import com.rankway.controller.webapi.payWebapi;
-import com.rankway.controller.webapi.posAudit;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -333,14 +332,11 @@ public class PaymentDialog
             obj.setPortNo(posInfoBean.getPortNo());
 
             // 1. 获取POS流水
-            posAudit audit = obj.getPosAuditNo(posInfoBean.getCposno());
-            if (null == audit) {
-                errString = "网络不通，请检查网络连接！";
-                return -1;
-            }
+            int auditNo = posInfoBean.getAuditNo();
+            auditNo++;
 
             //  设置POS流水号
-            posInfoBean.setAuditNo(audit.getPosCno());
+            posInfoBean.setAuditNo(auditNo);
             baseActivity.savePosInfoBean(posInfoBean);
 
             obj.setCposno(posInfoBean.getCposno());
@@ -351,7 +347,7 @@ public class PaymentDialog
             if (payMode == PAY_MODE_CARD) {
                 DetLog.writeLog(TAG, "IC卡支付查询：");
                 cardInfoObj = obj.getPersonInfoBySNO(cardPaymentObj.getGsno());
-                cardInfoObj.setGsno(cardPaymentObj.getGsno());
+                if(null!=cardInfoObj) cardInfoObj.setGsno(cardPaymentObj.getGsno());
                 DetLog.writeLog(TAG, "getPersonBySNO:" + cardInfoObj);
             } else {
                 DetLog.writeLog(TAG, "二维码支付查询：");

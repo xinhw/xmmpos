@@ -29,6 +29,7 @@ import com.rankway.controller.persistence.gen.UserInfoEntityDao;
 import com.rankway.controller.utils.ClickUtil;
 import com.rankway.controller.webapi.menu.Result;
 import com.rankway.controller.webapi.payWebapi;
+import com.rankway.controller.webapi.posAudit;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -233,6 +234,14 @@ public class DeskPosLoginActivity
 
                 obj.setMenuServerIP(posInfoBean.getMenuServerIP());
                 obj.setMenuPortNo(posInfoBean.getMenuPortNo());
+
+                //  获取POS机流水号
+                posAudit audit = obj.getPosAuditNo(posInfoBean.getCposno());
+                if (null != audit) {
+                    //  设置POS流水号
+                    posInfoBean.setAuditNo(audit.getPosCno());
+                }
+                savePosInfoBean(posInfoBean);
             }
 
             //  1. 操作员信息

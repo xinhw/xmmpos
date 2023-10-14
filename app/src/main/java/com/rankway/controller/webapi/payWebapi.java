@@ -316,6 +316,12 @@ public class payWebapi {
     public cardInfo getPersonInfoBySNO(String sno){
         Log.d(TAG,"getPersonBySNO");
 
+        String accessToken = accessToken();
+        if(null==accessToken){
+            errMsg = "网络不通，请检查网络连接！";
+            return null;
+        }
+
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
         String url = serverPort + String.format("/api/PersoninfoFromSnoV2/%s?accessToken=",sno) + sessionAccessToken;
         Log.d(TAG,"URL:"+url);
@@ -459,6 +465,12 @@ public class payWebapi {
      */
     public cardInfo getPersonInfoByQrCode(int systemId,int qrType,String userId) {
         Log.d(TAG,"getQrPersonInfo");
+
+        String accessToken = accessToken();
+        if(null==accessToken){
+            errMsg = "网络不通，请检查网络连接！";
+            return null;
+        }
 
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
         String url = serverPort + "/api/qr/personinfo?accessToken=" + sessionAccessToken;

@@ -61,6 +61,7 @@ import com.rankway.controller.utils.HttpUtil;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class DeskPosPayMainActivity
@@ -218,6 +219,12 @@ public class DeskPosPayMainActivity
         listDishEntities.clear();
         if (listDishTypeEntities.size() > 0) {
             List<DishEntity> dishList = getLocalDish(listDishTypeEntities.get(0));
+            dishList.sort(new Comparator<DishEntity>() {
+                @Override
+                public int compare(DishEntity o1, DishEntity o2) {
+                    return o1.getDishName().compareTo(o2.getDishName());
+                }
+            });
             if (dishList.size() > 0) listDishEntities.addAll(dishList);
         }
         if (listDishEntities.size() > 0) {
@@ -369,6 +376,13 @@ public class DeskPosPayMainActivity
 
         List<DishEntity> dishList = getLocalDish(dishTypeEntity);
         if (dishList.size() > 0) {
+            dishList.sort(new Comparator<DishEntity>() {
+                @Override
+                public int compare(DishEntity o1, DishEntity o2) {
+                    return o1.getDishName().compareTo(o2.getDishName());
+                }
+            });
+
             dishRecyclerView.setVisibility(View.VISIBLE);
             noDishView.setVisibility(View.GONE);
             listDishEntities.addAll(dishList);
@@ -768,6 +782,13 @@ public class DeskPosPayMainActivity
                         showLongToast("二维码扫描头被插入");
                         playSound(false);
                     }
+                    if ((usbDevice.getVendorId() == AppConstants.USB_QRSCAN_NLSFR20_VENDOR_ID)
+                            && (usbDevice.getProductId() == AppConstants.USB_QRSCAN_NLSFR20_PRODUCT_ID)) {
+                        Log.d(TAG, "二维码扫描头插入");
+
+                        showLongToast("二维码扫描头被插入");
+                        playSound(false);
+                    }
                     break;
 
                 case UsbManager.ACTION_USB_DEVICE_DETACHED:     //  拔出USB设备
@@ -787,6 +808,13 @@ public class DeskPosPayMainActivity
                     }
                     if ((usbDevice.getVendorId() == AppConstants.USB_QR_SCAN_VENDOR_ID)
                             && (usbDevice.getProductId() == AppConstants.USB_QR_SCAN_PRODUCT_ID)) {
+                        Log.d(TAG, "二维码扫描头拔出");
+
+                        showLongToast("二维码扫描头被拔出，不支持二维码消费");
+                        playSound(false);
+                    }
+                    if ((usbDevice.getVendorId() == AppConstants.USB_QRSCAN_NLSFR20_VENDOR_ID)
+                            && (usbDevice.getProductId() == AppConstants.USB_QRSCAN_NLSFR20_PRODUCT_ID)) {
                         Log.d(TAG, "二维码扫描头拔出");
 
                         showLongToast("二维码扫描头被拔出，不支持二维码消费");
