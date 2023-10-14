@@ -28,10 +28,11 @@ import com.rankway.controller.activity.project.manager.DataCleanManager;
 import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.common.AppConstants;
 import com.rankway.controller.common.AppIntentString;
-import com.rankway.controller.common.SemiServerAddress;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.HttpUtil;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -343,15 +344,11 @@ public class MobilePosSettingsActivity
      * @param logfile
      */
     private void postLogFile(final ArrayList<String> logfiles, final File logfile) {
-        //  起爆器编号
-        String strsno = getPreInfo(getString(com.rankway.controller.R.string.controller_sno));
-        if (TextUtils.isEmpty(strsno))
-            strsno = "F00A8000000";
-        Log.d("LOG", String.format("起爆器编号：%s", strsno));
-
-        //  上传地址
-        String url = String.format(SemiServerAddress.getUploadLogURL() + "/%s", strsno);
-        url = url + "?gzip=1";
+        String url = getUploadLogUrl();
+        if(StringUtils.isEmpty(url)){
+            Log.d(TAG,"日志上传地址为空");
+            return;
+        }
 
         //  HTTP请求
         ProgressDialog pDialog = ProgressDialog.show(mContext, "提示", "请稍等...", true, false);

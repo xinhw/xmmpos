@@ -1079,7 +1079,7 @@ public class BaseActivity extends AppCompatActivity {
      * 获取日志上传地址
      * @return
      */
-    private String getUploadLogUrl(){
+    protected String getUploadLogUrl(){
         PosInfoBean posInfoBean = getPosInfoBean();
         if(null==posInfoBean) return "";
 
