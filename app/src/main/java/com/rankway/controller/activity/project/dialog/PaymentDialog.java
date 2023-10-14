@@ -335,7 +335,7 @@ public class PaymentDialog
             // 1. 获取POS流水
             posAudit audit = obj.getPosAuditNo(posInfoBean.getCposno());
             if (null == audit) {
-                errString = "获取POS流水号失败！";
+                errString = "网络不通，请检查网络连接！";
                 return -1;
             }
 
