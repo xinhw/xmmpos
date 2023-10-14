@@ -33,6 +33,7 @@ import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.HttpUtil;
 
+import org.apache.commons.lang3.StringUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -385,6 +386,7 @@ public class MobilePosSettingsActivity
     private void postLogFile(final ArrayList<String> logfiles, final File logfile) {
         //  上传地址
         String url = getUploadLogUrl();
+        if(StringUtils.isEmpty(url)) return;
 
         //  HTTP请求
         ProgressDialog pDialog = ProgressDialog.show(mContext, "提示", "请稍等...", true, false);
