@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,7 +55,12 @@ public class DishAdapter
         DishEntity item = data.get(i);
 
         float price = (float) (item.getPrice() * 0.01);
-        String str = String.format("%s(%.2f)", item.getDishName().trim(), price);
+        String str = "";
+        if(TextUtils.isEmpty(item.getDishName())){
+            str = String.format("菜品%s\n(%.2f)", item.getDishCode().trim(), price);
+        }else {
+            str = String.format("%s(%.2f)", item.getDishName().trim(), price);
+        }
         holder.tvDish.setText(str);
         holder.rootView.setOnClickListener(new View.OnClickListener() {
             @Override
