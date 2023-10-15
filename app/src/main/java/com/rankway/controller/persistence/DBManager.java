@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.rankway.controller.persistence.gen.DaoMaster;
 import com.rankway.controller.persistence.gen.DaoSession;
 import com.rankway.controller.persistence.gen.DishEntityDao;
+import com.rankway.controller.persistence.gen.DishSubTypeEntityDao;
 import com.rankway.controller.persistence.gen.DishTypeEntityDao;
 import com.rankway.controller.persistence.gen.MessageDetailDao;
 import com.rankway.controller.persistence.gen.PaymentItemEntityDao;
@@ -88,5 +89,9 @@ public class DBManager {
 
     public int getDatabaseVerion(){
         return DaoMaster.SCHEMA_VERSION;
+    }
+
+    public DishSubTypeEntityDao getDishSubTypeEntityDao(){
+        return mDaoSession.getDishSubTypeEntityDao();
     }
 }

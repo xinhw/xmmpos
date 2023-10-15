@@ -21,6 +21,7 @@ import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.DishEntity;
+import com.rankway.controller.persistence.entity.DishSubTypeEntity;
 import com.rankway.controller.persistence.entity.DishTypeEntity;
 import com.rankway.controller.persistence.entity.PersonInfoEntity;
 import com.rankway.controller.persistence.entity.QrBlackListEntity;
@@ -240,6 +241,7 @@ public class DeskPosLoginActivity
                 if (null != audit) {
                     //  设置POS流水号
                     posInfoBean.setAuditNo(audit.getPosCno());
+                    posInfoBean.setPosName(audit.getPosName());
                 }
                 savePosInfoBean(posInfoBean);
             }
@@ -354,89 +356,110 @@ public class DeskPosLoginActivity
         DBManager.getInstance().getDishTypeEntityDao().deleteAll();
 
         //  荤菜
-        DishTypeEntity dishTypeEntity = new DishTypeEntity("10001", "大荤");
+        DishTypeEntity dishTypeEntity = new DishTypeEntity("10", "荤菜");
         DBManager.getInstance().getDishTypeEntityDao().save(dishTypeEntity);
 
-        DishEntity dishEntity = new DishEntity("10001-01", "虾仁豆腐炖蛋", 190, dishTypeEntity);
+        DishSubTypeEntity dishSubTypeEntity = new DishSubTypeEntity("1010","大荤",dishTypeEntity);
+        DBManager.getInstance().getDishSubTypeEntityDao().save(dishSubTypeEntity);
+
+        DishEntity dishEntity = new DishEntity("10001-01", "虾仁豆腐炖蛋", 190, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("10001-02", "砂锅鱼头煲", 180, dishTypeEntity);
+        dishEntity = new DishEntity("10001-02", "砂锅鱼头煲", 180, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("10001-03", "农家小炒肉", 170, dishTypeEntity);
+        dishEntity = new DishEntity("10001-03", "农家小炒肉", 170, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("10001-04", "蛤蜊炖蛋", 160, dishTypeEntity);
+        dishEntity = new DishEntity("10001-04", "蛤蜊炖蛋", 160, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("10001-05", "海鲜毛血旺", 110, dishTypeEntity);
+        dishSubTypeEntity = new DishSubTypeEntity("1011","小荤",dishTypeEntity);
+        DBManager.getInstance().getDishSubTypeEntityDao().save(dishSubTypeEntity);
+
+        dishEntity = new DishEntity("10001-05", "海鲜毛血旺", 110, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("10001-06", "香煎鲍鱼", 300, dishTypeEntity);
+        dishEntity = new DishEntity("10001-06", "香煎鲍鱼", 300, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("10001-07", "炸里脊", 250, dishTypeEntity);
+        dishEntity = new DishEntity("10001-07", "炸里脊", 250, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("10001-08", "鱼香茄子", 200, dishTypeEntity);
+        dishEntity = new DishEntity("10001-08", "鱼香茄子", 200, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("10001-09", "红烧肉", 210, dishTypeEntity);
+        dishSubTypeEntity = new DishSubTypeEntity("1012","中荤",dishTypeEntity);
+        DBManager.getInstance().getDishSubTypeEntityDao().save(dishSubTypeEntity);
+
+        dishEntity = new DishEntity("10001-09", "红烧肉", 210, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("10001-10", "回锅肉", 120, dishTypeEntity);
+        dishEntity = new DishEntity("10001-10", "回锅肉", 120, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("10001-11", "清蒸鲈鱼", 210, dishTypeEntity);
+        dishEntity = new DishEntity("10001-11", "清蒸鲈鱼", 210, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
         //  小荤
-        dishTypeEntity = new DishTypeEntity("20001", "小荤");
+        dishTypeEntity = new DishTypeEntity("20001", "特色菜");
         DBManager.getInstance().getDishTypeEntityDao().save(dishTypeEntity);
 
-        dishEntity = new DishEntity("20001-01", "西红柿炒鸡蛋", 110, dishTypeEntity);
+        dishSubTypeEntity = new DishSubTypeEntity("1013","全部",dishTypeEntity);
+        DBManager.getInstance().getDishSubTypeEntityDao().save(dishSubTypeEntity);
+
+        dishEntity = new DishEntity("20001-01", "西红柿炒鸡蛋", 110, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("20001-02", "干锅花菜", 120, dishTypeEntity);
+        dishEntity = new DishEntity("20001-02", "干锅花菜", 120, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("20001-03", "千叶豆腐", 130, dishTypeEntity);
+        dishEntity = new DishEntity("20001-03", "千叶豆腐", 130, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
         //  素菜
         dishTypeEntity = new DishTypeEntity("30001", "素菜");
         DBManager.getInstance().getDishTypeEntityDao().save(dishTypeEntity);
 
-        dishEntity = new DishEntity("30001-01", "蒜蓉菠菜", 50, dishTypeEntity);
+        dishSubTypeEntity = new DishSubTypeEntity("1014","全部",dishTypeEntity);
+        DBManager.getInstance().getDishSubTypeEntityDao().save(dishSubTypeEntity);
+
+        dishEntity = new DishEntity("30001-01", "蒜蓉菠菜", 50, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("30001-02", "清炒鸡毛菜", 40, dishTypeEntity);
+        dishEntity = new DishEntity("30001-02", "清炒鸡毛菜", 40, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("30001-03", "红烧土豆", 70, dishTypeEntity);
+        dishEntity = new DishEntity("30001-03", "红烧土豆", 70, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
         //  主食
         dishTypeEntity = new DishTypeEntity("40001", "主食");
         DBManager.getInstance().getDishTypeEntityDao().save(dishTypeEntity);
 
-        dishEntity = new DishEntity("40001-01", "米饭", 10, dishTypeEntity);
+        dishSubTypeEntity = new DishSubTypeEntity("1015","全部",dishTypeEntity);
+        DBManager.getInstance().getDishSubTypeEntityDao().save(dishSubTypeEntity);
+
+        dishEntity = new DishEntity("40001-01", "米饭", 10, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("40001-02", "馒头", 5, dishTypeEntity);
+        dishEntity = new DishEntity("40001-02", "馒头", 5, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("40001-03", "葱油拌面", 50, dishTypeEntity);
+        dishEntity = new DishEntity("40001-03", "葱油拌面", 50, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
         //  汤
         dishTypeEntity = new DishTypeEntity("50001", "汤");
         DBManager.getInstance().getDishTypeEntityDao().save(dishTypeEntity);
 
-        dishEntity = new DishEntity("50001-01", "西红柿蛋汤", 150, dishTypeEntity);
+        dishSubTypeEntity = new DishSubTypeEntity("1016","全部",dishTypeEntity);
+        DBManager.getInstance().getDishSubTypeEntityDao().save(dishSubTypeEntity);
+
+        dishEntity = new DishEntity("50001-01", "西红柿蛋汤", 150, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
-        dishEntity = new DishEntity("50001-02", "榨菜紫菜汤", 100, dishTypeEntity);
+        dishEntity = new DishEntity("50001-02", "榨菜紫菜汤", 100, dishTypeEntity,dishSubTypeEntity);
         DBManager.getInstance().getDishEntityDao().save(dishEntity);
 
     }

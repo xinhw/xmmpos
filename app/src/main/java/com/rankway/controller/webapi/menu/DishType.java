@@ -15,7 +15,7 @@ public class DishType {
     String dishTypeCode;
     String dishTypeName;
     int status;
-    List<Dish> dishs;
+    List<DishSubType> dishSubTypes;
 
     public String getDishTypeCode() {
         return dishTypeCode;
@@ -41,12 +41,12 @@ public class DishType {
         this.status = status;
     }
 
-    public List<Dish> getDishs() {
-        return dishs;
+    public List<DishSubType> getDishSubTypes() {
+        return dishSubTypes;
     }
 
-    public void setDishs(List<Dish> dishs) {
-        this.dishs = dishs;
+    public void setDishSubTypes(List<DishSubType> dishSubTypes) {
+        this.dishSubTypes = dishSubTypes;
     }
 
     @Override
@@ -55,7 +55,7 @@ public class DishType {
                 "dishTypeCode='" + dishTypeCode + '\'' +
                 ", dishTypeName='" + dishTypeName + '\'' +
                 ", status=" + status +
-                ", dishs=" + dishs +
+                ", dishSubTypes=" + dishSubTypes +
                 '}';
     }
 }

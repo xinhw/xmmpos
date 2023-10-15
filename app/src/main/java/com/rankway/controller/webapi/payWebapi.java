@@ -49,8 +49,8 @@ public class payWebapi {
     private String secret = "6D119911B0B34BE894AB1A0C82518281";
     private String clientId = "1234567887654321";
 
-    private String serverIP = "119.3.3.227";
-    private int portNo = 8803;
+    private String serverIP = "10.100.31.4";
+    private int portNo = 8806;
 
     private String cposno;
     private String cusercode;
@@ -61,8 +61,8 @@ public class payWebapi {
     private int errCode;
     private String errMsg;
 
-    private String menuServerIP = "121.36.16.185";
-    private int menuPortNo = 6602;
+    private String menuServerIP = "10.100.31.2";
+    private int menuPortNo = 6068;
 
     private String sessionAccessToken = "9e9a3635b1caff8d0ae6512e8d5e303d";
     private final int MAX_TRY_TIMES = 3;

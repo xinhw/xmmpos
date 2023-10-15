@@ -18,6 +18,7 @@ import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -39,12 +40,14 @@ import com.rankway.controller.activity.project.dialog.PaymentDialog;
 import com.rankway.controller.activity.service.AppService;
 import com.rankway.controller.adapter.DishAdapter;
 import com.rankway.controller.adapter.DishSelectedAdapter;
+import com.rankway.controller.adapter.DishSubTypeAdapter;
 import com.rankway.controller.adapter.DishTypeAdapter;
 import com.rankway.controller.common.AppConstants;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.DishEntity;
+import com.rankway.controller.persistence.entity.DishSubTypeEntity;
 import com.rankway.controller.persistence.entity.DishTypeEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.persistence.entity.PaymentTotal;
@@ -61,7 +64,6 @@ import com.rankway.controller.utils.HttpUtil;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class DeskPosPayMainActivity
@@ -70,12 +72,13 @@ public class DeskPosPayMainActivity
         DishSelectedAdapter.OnItemClickListener,
         DishAdapter.OnItemClickListener,
         DishTypeAdapter.OnItemClickListener,
+        DishSubTypeAdapter.OnItemClickListener,
         PaymentDialog.OnPaymentResult {
 
     private final String TAG = "DeskPosPayMainActivity";
 
     RecyclerView selectedRecyclerView;
-    List<DishEntity> listSelectedDishEntities = new ArrayList<>();        //  选中的菜品
+    List<DishEntity> listSelectedDishEntities = new ArrayList<>();        //  选中菜品
     DishSelectedAdapter selectedAdapter;
     int selectedDishPosition = -1;
 
@@ -83,9 +86,12 @@ public class DeskPosPayMainActivity
     TextView tvSubAmount;
 
     RecyclerView dishTypeRecyclerView;
-    List<DishTypeEntity> listDishTypeEntities = new ArrayList<>();       //  菜品类别
+    List<DishTypeEntity> listDishTypeEntities = new ArrayList<>();       //  菜品主类
     DishTypeAdapter dishTypeAdapter;
-    int selectedDishTypePosition = -1;
+
+    RecyclerView dishSubTypeRecyclerView;
+    List<DishSubTypeEntity> listDishSubTypeEntities = new ArrayList<>();    //  菜品子类
+    DishSubTypeAdapter dishSubTypeAdapter;
 
     RecyclerView dishRecyclerView;
     List<DishEntity> listDishEntities = new ArrayList<>();              //  菜品明细
@@ -141,19 +147,26 @@ public class DeskPosPayMainActivity
         tvSubCount = findViewById(R.id.tvSubCount);
         tvSubAmount = findViewById(R.id.tvSubAmount);
 
-        //  选中的菜品
+        //  选中菜品
         selectedRecyclerView = findViewById(R.id.selectedRecyclerView);
         selectedRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         selectedAdapter = new DishSelectedAdapter(mContext, listSelectedDishEntities);
         selectedRecyclerView.setAdapter(selectedAdapter);
         selectedAdapter.setOnItemClickListener(this);
 
-        //  菜品种类
+        //  菜品主类
         dishTypeRecyclerView = findViewById(R.id.dishTypeRecyclerView);
         setLayoutManager(dishTypeRecyclerView);
         dishTypeAdapter = new DishTypeAdapter(mContext, listDishTypeEntities);
         dishTypeRecyclerView.setAdapter(dishTypeAdapter);
         dishTypeAdapter.setOnItemClickListener(this);
+
+        //  菜品子类
+        dishSubTypeRecyclerView = findViewById(R.id.dishSubTypeRecyclerView);
+        setLayoutManager(dishSubTypeRecyclerView);
+        dishSubTypeAdapter = new DishSubTypeAdapter(mContext,listDishSubTypeEntities);
+        dishSubTypeRecyclerView.setAdapter(dishSubTypeAdapter);
+        dishSubTypeAdapter.setOnItemClickListener(this);
 
         //  菜品明细
         noDishView = findViewById(R.id.noDishView);
@@ -207,33 +220,25 @@ public class DeskPosPayMainActivity
             return;
         }
         tvPosNo.setText(String.format("POS号：%s", posInfoBean.getCposno()));
-
-        //  菜品种类
+        if(!TextUtils.isEmpty(posInfoBean.getPosName())){
+            TextView textView = findViewById(R.id.tvTitle);
+            textView.setText(String.format("上海报业餐厅POS机--%s",posInfoBean.getPosName()));
+        }
+        //  菜品主类
         listDishTypeEntities.clear();
         List<DishTypeEntity> dishTypeList = getLocalDishType();
         Log.d(TAG, "dishTypeList " + dishTypeList.size());
         if (dishTypeList.size() > 0) listDishTypeEntities.addAll(dishTypeList);
         dishTypeAdapter.notifyDataSetChanged();
 
-        //  菜品明细（选中第一个）
-        listDishEntities.clear();
-        if (listDishTypeEntities.size() > 0) {
-            List<DishEntity> dishList = getLocalDish(listDishTypeEntities.get(0));
-            dishList.sort(new Comparator<DishEntity>() {
-                @Override
-                public int compare(DishEntity o1, DishEntity o2) {
-                    return o1.getDishName().compareTo(o2.getDishName());
-                }
-            });
-            if (dishList.size() > 0) listDishEntities.addAll(dishList);
-        }
-        if (listDishEntities.size() > 0) {
-            dishRecyclerView.setVisibility(View.VISIBLE);
-            noDishView.setVisibility(View.GONE);
+        if(listDishTypeEntities.size()>0) {
+            refreshDishTypeItems(0);
+        }else{
+            listDishSubTypeEntities.clear();
+            dishSubTypeAdapter.notifyDataSetChanged();
+
+            listDishEntities.clear();
             dishAdapter.notifyDataSetChanged();
-        } else {
-            dishRecyclerView.setVisibility(View.GONE);
-            noDishView.setVisibility(View.VISIBLE);
         }
 
         //  刷新合计
@@ -253,6 +258,49 @@ public class DeskPosPayMainActivity
             showLongToast("设备离线运行，请检查网络！");
             playSound(false);
         }
+    }
+
+    /***
+     * 刷新菜品主类
+     * @param index
+     */
+    private void refreshDishTypeItems(int index){
+        Log.d(TAG,"refreshDishTypeItems");
+
+        //  菜品子类
+        List<DishSubTypeEntity> dishSubTypeList = getLocalDishSubType(listDishTypeEntities.get(index).getId());
+        listDishSubTypeEntities.clear();
+        listDishSubTypeEntities.addAll(dishSubTypeList);
+        dishSubTypeAdapter.notifyDataSetChanged();
+
+        listDishEntities.clear();
+        if(listDishSubTypeEntities.size()>0){
+            refreshDishSubTypeItems(0);
+        }else{
+            dishAdapter.notifyDataSetChanged();
+        }
+    }
+
+    /***
+     * 刷新菜品子类
+     * @param index
+     */
+    private void refreshDishSubTypeItems(int index){
+        Log.d(TAG,"refreshDishSubTypeItems");
+
+        //  菜品明细
+        List<DishEntity> dishList = getLocalDish(listDishSubTypeEntities.get(index));
+
+        listDishEntities.clear();
+        if (dishList.size() > 0) {
+            dishRecyclerView.setVisibility(View.VISIBLE);
+            noDishView.setVisibility(View.GONE);
+            listDishEntities.addAll(dishList);
+        } else {
+            dishRecyclerView.setVisibility(View.GONE);
+            noDishView.setVisibility(View.VISIBLE);
+        }
+        dishAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -367,30 +415,13 @@ public class DeskPosPayMainActivity
     @Override
     public void onDishTypeItemClick(View view, int position) {
         Log.d(TAG, "onDishTypeItemClick " + position);
-        if (selectedDishTypePosition == position) return;
+        refreshDishTypeItems(position);
+    }
 
-        selectedDishTypePosition = position;
-
-        DishTypeEntity dishTypeEntity = listDishTypeEntities.get(position);
-        listDishEntities.clear();
-
-        List<DishEntity> dishList = getLocalDish(dishTypeEntity);
-        if (dishList.size() > 0) {
-            dishList.sort(new Comparator<DishEntity>() {
-                @Override
-                public int compare(DishEntity o1, DishEntity o2) {
-                    return o1.getDishName().compareTo(o2.getDishName());
-                }
-            });
-
-            dishRecyclerView.setVisibility(View.VISIBLE);
-            noDishView.setVisibility(View.GONE);
-            listDishEntities.addAll(dishList);
-        } else {
-            dishRecyclerView.setVisibility(View.GONE);
-            noDishView.setVisibility(View.VISIBLE);
-        }
-        dishAdapter.notifyDataSetChanged();
+    @Override
+    public void onDishSubTypeItemClick(View view, int position) {
+        Log.d(TAG,"onDishSubTypeItemClick");
+        refreshDishSubTypeItems(position);
     }
 
     @Override
@@ -745,6 +776,7 @@ public class DeskPosPayMainActivity
         }
         DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(list);
     }
+
 
     /***
      * 监听USB设备的插入和拔出

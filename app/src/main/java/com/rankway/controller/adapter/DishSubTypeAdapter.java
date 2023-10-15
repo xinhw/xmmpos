@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rankway.controller.R;
-import com.rankway.controller.persistence.entity.DishTypeEntity;
+import com.rankway.controller.persistence.entity.DishSubTypeEntity;
 
 import java.util.List;
 
@@ -19,22 +19,22 @@ import java.util.List;
  * <pre>
  *   author : Xin Hongwei
  *   e-mail : xinhw@wxsemicon.com
- *   time  : 2023/09/30
+ *   time  : 2023/10/14
  *   desc  :
  *   version: 1.0
  * </pre>
  */
-public class DishTypeAdapter
-        extends RecyclerView.Adapter<DishTypeAdapter.DishTypeViewHolder> {
-    private final String TAG = "DishTypeAdapter";
+public class DishSubTypeAdapter
+        extends RecyclerView.Adapter<DishSubTypeAdapter.DishSubTypeViewHolder> {
+    private final String TAG = "DishSubTypeAdapter";
 
-    List<DishTypeEntity> data;
+    List<DishSubTypeEntity> data;
     private OnItemClickListener onItemClickListener;
 
     private int selectedItem = -1;
     private Context mContext;
 
-    public DishTypeAdapter(Context context, List<DishTypeEntity> types) {
+    public DishSubTypeAdapter(Context context, List<DishSubTypeEntity> types) {
         this.mContext = context;
         this.data = types;
     }
@@ -42,24 +42,24 @@ public class DishTypeAdapter
     @NonNull
     @androidx.annotation.NonNull
     @Override
-    public DishTypeViewHolder onCreateViewHolder(@NonNull @androidx.annotation.NonNull ViewGroup viewGroup, int i) {
-        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_dish_type, viewGroup, false);
-        DishTypeViewHolder viewHolder = new DishTypeViewHolder(inflate);
+    public DishSubTypeViewHolder onCreateViewHolder(@NonNull @androidx.annotation.NonNull ViewGroup viewGroup, int i) {
+        View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_dish_sub_type, viewGroup, false);
+        DishSubTypeViewHolder viewHolder = new DishSubTypeViewHolder(inflate);
         return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull @androidx.annotation.NonNull DishTypeViewHolder holder, @SuppressLint("RecyclerView") int i) {
+    public void onBindViewHolder(@NonNull @androidx.annotation.NonNull DishSubTypeViewHolder holder, @SuppressLint("RecyclerView") int i) {
         holder.itemView.setSelected(i == selectedItem);
-        DishTypeEntity item = data.get(i);
+        DishSubTypeEntity item = data.get(i);
         Log.d(TAG, "item:" + item.toString());
-        holder.tvDishType.setText(item.getDishTypeCode()+"\n"+item.getDishTypeName().trim());
+        holder.tvDishSubType.setText(item.getDishSubTypeCode()+"\n"+item.getDishSubTypeName().trim());
 
         holder.rootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selectedItem = i;
-                if (null != onItemClickListener) onItemClickListener.onDishTypeItemClick(v, i);
+                if (null != onItemClickListener) onItemClickListener.onDishSubTypeItemClick(v, i);
             }
         });
     }
@@ -72,21 +72,22 @@ public class DishTypeAdapter
 
 
     public interface OnItemClickListener {
-        void onDishTypeItemClick(View view, int position);
+        void onDishSubTypeItemClick(View view, int position);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.onItemClickListener = listener;
     }
 
-    public class DishTypeViewHolder extends RecyclerView.ViewHolder {
+    public class DishSubTypeViewHolder extends RecyclerView.ViewHolder {
         View rootView;
-        TextView tvDishType;
+        TextView tvDishSubType;
 
-        public DishTypeViewHolder(@NonNull @androidx.annotation.NonNull View itemView) {
+        public DishSubTypeViewHolder(@NonNull @androidx.annotation.NonNull View itemView) {
             super(itemView);
             rootView = itemView.findViewById(R.id.rootView);
-            tvDishType = itemView.findViewById(R.id.tvDishType);
+            tvDishSubType = itemView.findViewById(R.id.tvDishType);
         }
     }
 }
+

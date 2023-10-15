@@ -31,6 +31,8 @@ public class PosInfoBean {
 
     String upgradeUrl;      //  升级地址
 
+    String posName;         //  POS机名称
+
     public String getCposno() {
         return cposno;
     }
@@ -123,6 +125,22 @@ public class PosInfoBean {
         this.menuPortNo = menuPortNo;
     }
 
+    public String getUpgradeUrl() {
+        return upgradeUrl;
+    }
+
+    public void setUpgradeUrl(String upgradeUrl) {
+        this.upgradeUrl = upgradeUrl;
+    }
+
+    public String getPosName() {
+        return posName;
+    }
+
+    public void setPosName(String posName) {
+        this.posName = posName;
+    }
+
     @Override
     public String toString() {
         return "PosInfoBean{" +
@@ -138,14 +156,7 @@ public class PosInfoBean {
                 ", startTime=" + startTime +
                 ", settleTime=" + settleTime +
                 ", upgradeUrl='" + upgradeUrl + '\'' +
+                ", posName='" + posName + '\'' +
                 '}';
-    }
-
-    public String getUpgradeUrl() {
-        return upgradeUrl;
-    }
-
-    public void setUpgradeUrl(String upgradeUrl) {
-        this.upgradeUrl = upgradeUrl;
     }
 }

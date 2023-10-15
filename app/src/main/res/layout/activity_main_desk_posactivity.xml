@@ -327,7 +327,24 @@
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="5dp"
+                    android:layout_height="3dp"
+                    android:background="@color/btn_gray_normal" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+                    <!-- 商品类别-->
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/dishSubTypeRecyclerView"
+                        android:scrollbars="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="3dp"
                     android:background="@color/btn_gray_normal" />
 
                 <LinearLayout
@@ -368,7 +385,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.8"
+            android:layout_weight="0.5"
             android:orientation="horizontal">
             <!-- 显示一些提示信息，比如时间等-->
 

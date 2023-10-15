@@ -2,7 +2,7 @@ package com.rankway.controller.persistence.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.rankway.controller.persistence.gen.DaoSession;
-import com.rankway.controller.persistence.gen.DishEntityDao;
+import com.rankway.controller.persistence.gen.DishSubTypeEntityDao;
 import com.rankway.controller.persistence.gen.DishTypeEntityDao;
 import com.rankway.controller.webapi.menu.DishType;
 
@@ -34,7 +34,7 @@ public class DishTypeEntity {
     int status;
 
     @ToMany(referencedJoinProperty = "typeId")
-    List<DishEntity> dishs;
+    List<DishSubTypeEntity> dishSubTypes;
 
     @JSONField(serialize = false)
     long timestamp;
@@ -102,18 +102,6 @@ public class DishTypeEntity {
     }
 
 
-    @Override
-    public String toString() {
-        return "DishType{" +
-                "id=" + id +
-                ", dishTypeCode='" + dishTypeCode + '\'' +
-                ", dishTypeName='" + dishTypeName + '\'' +
-                ", satus=" + status +
-                ", timestamp=" + timestamp +
-                ", dishs=" + dishs +
-                '}';
-    }
-
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
      * Entity must attached to an entity context.
@@ -161,28 +149,41 @@ public class DishTypeEntity {
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
      */
-    @Generated(hash = 1432046668)
-    public List<DishEntity> getDishs() {
-        if (dishs == null) {
+    @Generated(hash = 140841664)
+    public List<DishSubTypeEntity> getDishSubTypes() {
+        if (dishSubTypes == null) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            DishEntityDao targetDao = daoSession.getDishEntityDao();
-            List<DishEntity> dishsNew = targetDao._queryDishTypeEntity_Dishs(id);
+            DishSubTypeEntityDao targetDao = daoSession.getDishSubTypeEntityDao();
+            List<DishSubTypeEntity> dishSubTypesNew = targetDao
+                    ._queryDishTypeEntity_DishSubTypes(id);
             synchronized (this) {
-                if (dishs == null) {
-                    dishs = dishsNew;
+                if (dishSubTypes == null) {
+                    dishSubTypes = dishSubTypesNew;
                 }
             }
         }
-        return dishs;
+        return dishSubTypes;
     }
 
     /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    @Generated(hash = 1915619626)
-    public synchronized void resetDishs() {
-        dishs = null;
+    @Generated(hash = 915988784)
+    public synchronized void resetDishSubTypes() {
+        dishSubTypes = null;
+    }
+
+    @Override
+    public String toString() {
+        return "DishTypeEntity{" +
+                "id=" + id +
+                ", dishTypeCode='" + dishTypeCode + '\'' +
+                ", dishTypeName='" + dishTypeName + '\'' +
+                ", status=" + status +
+                ", dishSubTypes=" + dishSubTypes +
+                ", timestamp=" + timestamp +
+                '}';
     }
 
     public DishTypeEntity(DishTypeEntity obj){

@@ -35,9 +35,11 @@ public class PaymentItemEntityDao extends AbstractDao<PaymentItemEntity, Long> {
         public final static Property TransMoney = new Property(5, float.class, "transMoney", false, "TRANS_MONEY");
         public final static Property DishTypeCode = new Property(6, String.class, "dishTypeCode", false, "DISH_TYPE_CODE");
         public final static Property DishTypeName = new Property(7, String.class, "dishTypeName", false, "DISH_TYPE_NAME");
-        public final static Property Id = new Property(8, Long.class, "id", true, "_id");
-        public final static Property Timestamp = new Property(9, long.class, "timestamp", false, "TIMESTAMP");
-        public final static Property PaymentTotalId = new Property(10, long.class, "paymentTotalId", false, "PAYMENT_TOTAL_ID");
+        public final static Property DishSubTypeCode = new Property(8, String.class, "dishSubTypeCode", false, "DISH_SUB_TYPE_CODE");
+        public final static Property DishSubTypeName = new Property(9, String.class, "dishSubTypeName", false, "DISH_SUB_TYPE_NAME");
+        public final static Property Id = new Property(10, Long.class, "id", true, "_id");
+        public final static Property Timestamp = new Property(11, long.class, "timestamp", false, "TIMESTAMP");
+        public final static Property PaymentTotalId = new Property(12, long.class, "paymentTotalId", false, "PAYMENT_TOTAL_ID");
     }
 
     private Query<PaymentItemEntity> paymentTotal_DishTransRecordDatasQuery;
@@ -62,9 +64,11 @@ public class PaymentItemEntityDao extends AbstractDao<PaymentItemEntity, Long> {
                 "\"TRANS_MONEY\" REAL NOT NULL ," + // 5: transMoney
                 "\"DISH_TYPE_CODE\" TEXT," + // 6: dishTypeCode
                 "\"DISH_TYPE_NAME\" TEXT," + // 7: dishTypeName
-                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 8: id
-                "\"TIMESTAMP\" INTEGER NOT NULL ," + // 9: timestamp
-                "\"PAYMENT_TOTAL_ID\" INTEGER NOT NULL );"); // 10: paymentTotalId
+                "\"DISH_SUB_TYPE_CODE\" TEXT," + // 8: dishSubTypeCode
+                "\"DISH_SUB_TYPE_NAME\" TEXT," + // 9: dishSubTypeName
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 10: id
+                "\"TIMESTAMP\" INTEGER NOT NULL ," + // 11: timestamp
+                "\"PAYMENT_TOTAL_ID\" INTEGER NOT NULL );"); // 12: paymentTotalId
     }
 
     /** Drops the underlying database table. */
@@ -105,12 +109,22 @@ public class PaymentItemEntityDao extends AbstractDao<PaymentItemEntity, Long> {
             stmt.bindString(8, dishTypeName);
         }
  
+        String dishSubTypeCode = entity.getDishSubTypeCode();
+        if (dishSubTypeCode != null) {
+            stmt.bindString(9, dishSubTypeCode);
+        }
+ 
+        String dishSubTypeName = entity.getDishSubTypeName();
+        if (dishSubTypeName != null) {
+            stmt.bindString(10, dishSubTypeName);
+        }
+ 
         Long id = entity.getId();
         if (id != null) {
-            stmt.bindLong(9, id);
+            stmt.bindLong(11, id);
         }
-        stmt.bindLong(10, entity.getTimestamp());
-        stmt.bindLong(11, entity.getPaymentTotalId());
+        stmt.bindLong(12, entity.getTimestamp());
+        stmt.bindLong(13, entity.getPaymentTotalId());
     }
 
     @Override
@@ -145,17 +159,27 @@ public class PaymentItemEntityDao extends AbstractDao<PaymentItemEntity, Long> {
             stmt.bindString(8, dishTypeName);
         }
  
+        String dishSubTypeCode = entity.getDishSubTypeCode();
+        if (dishSubTypeCode != null) {
+            stmt.bindString(9, dishSubTypeCode);
+        }
+ 
+        String dishSubTypeName = entity.getDishSubTypeName();
+        if (dishSubTypeName != null) {
+            stmt.bindString(10, dishSubTypeName);
+        }
+ 
         Long id = entity.getId();
         if (id != null) {
-            stmt.bindLong(9, id);
+            stmt.bindLong(11, id);
         }
-        stmt.bindLong(10, entity.getTimestamp());
-        stmt.bindLong(11, entity.getPaymentTotalId());
+        stmt.bindLong(12, entity.getTimestamp());
+        stmt.bindLong(13, entity.getPaymentTotalId());
     }
 
     @Override
     public Long readKey(Cursor cursor, int offset) {
-        return cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8);
+        return cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10);
     }    
 
     @Override
@@ -169,9 +193,11 @@ public class PaymentItemEntityDao extends AbstractDao<PaymentItemEntity, Long> {
             cursor.getFloat(offset + 5), // transMoney
             cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // dishTypeCode
             cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // dishTypeName
-            cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8), // id
-            cursor.getLong(offset + 9), // timestamp
-            cursor.getLong(offset + 10) // paymentTotalId
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // dishSubTypeCode
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // dishSubTypeName
+            cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10), // id
+            cursor.getLong(offset + 11), // timestamp
+            cursor.getLong(offset + 12) // paymentTotalId
         );
         return entity;
     }
@@ -186,9 +212,11 @@ public class PaymentItemEntityDao extends AbstractDao<PaymentItemEntity, Long> {
         entity.setTransMoney(cursor.getFloat(offset + 5));
         entity.setDishTypeCode(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
         entity.setDishTypeName(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
-        entity.setId(cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8));
-        entity.setTimestamp(cursor.getLong(offset + 9));
-        entity.setPaymentTotalId(cursor.getLong(offset + 10));
+        entity.setDishSubTypeCode(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setDishSubTypeName(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setId(cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10));
+        entity.setTimestamp(cursor.getLong(offset + 11));
+        entity.setPaymentTotalId(cursor.getLong(offset + 12));
      }
     
     @Override

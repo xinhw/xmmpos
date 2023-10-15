@@ -69,6 +69,7 @@ import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.hardware.util.SoundPoolHelp;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.DishEntity;
+import com.rankway.controller.persistence.entity.DishSubTypeEntity;
 import com.rankway.controller.persistence.entity.DishTypeEntity;
 import com.rankway.controller.persistence.entity.MessageDetail;
 import com.rankway.controller.persistence.entity.PaymentItemEntity;
@@ -76,6 +77,7 @@ import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.persistence.entity.SemiEventEntity;
 import com.rankway.controller.persistence.gen.DishEntityDao;
+import com.rankway.controller.persistence.gen.DishSubTypeEntityDao;
 import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.persistence.gen.PaymentTotalDao;
 import com.rankway.controller.persistence.gen.SemiEventEntityDao;
@@ -86,6 +88,7 @@ import com.rankway.controller.utils.DateStringUtils;
 import com.rankway.controller.utils.UpdateAppUtils;
 import com.rankway.controller.utils.VibrateUtil;
 import com.rankway.controller.webapi.menu.Dish;
+import com.rankway.controller.webapi.menu.DishSubType;
 import com.rankway.controller.webapi.menu.DishType;
 import com.rankway.controller.webapi.menu.Result;
 import com.rankway.controller.webapi.payWebapi;
@@ -1719,18 +1722,37 @@ public class BaseActivity extends AppCompatActivity {
         return allTypes;
     }
 
+    protected List<DishSubTypeEntity> getLocalDishSubType(long typeid){
+        List<DishSubTypeEntity> allTypes = new ArrayList<>();
+        allTypes.clear();
+
+        List<DishSubTypeEntity> list = DBManager.getInstance().getDishSubTypeEntityDao()
+                .queryBuilder()
+                .where(DishSubTypeEntityDao.Properties.TypeId.eq(typeid))
+                .list();
+        list.sort(new Comparator<DishSubTypeEntity>() {
+            @Override
+            public int compare(DishSubTypeEntity o1, DishSubTypeEntity o2) {
+                return o1.getDishSubTypeCode().compareTo(o2.getDishSubTypeCode());
+            }
+        });
+
+        allTypes.addAll(list);
+        return allTypes;
+    }
+
     /***
      * 获取本地的菜品信息（参数为菜品种类）
-     * @param dishTypeEntity
+     * @param dishSubTypeEntity
      * @return
      */
-    protected List<DishEntity> getLocalDish(DishTypeEntity dishTypeEntity){
+    protected List<DishEntity> getLocalDish(DishSubTypeEntity dishSubTypeEntity){
         List<DishEntity> allDishEntities = new ArrayList<>();
         allDishEntities.clear();
 
         List<DishEntity> list = DBManager.getInstance().getDishEntityDao()
                 .queryBuilder()
-                .where(DishEntityDao.Properties.TypeId.eq(dishTypeEntity.getId()))
+                .where(DishEntityDao.Properties.SubTypeId.eq(dishSubTypeEntity.getId()))
                 .list();
         list.sort(new Comparator<DishEntity>() {
             @Override
@@ -1817,24 +1839,37 @@ public class BaseActivity extends AppCompatActivity {
 
         //  清除数据库里的菜品类型和菜品
         DBManager.getInstance().getDishEntityDao().deleteAll();
+        DBManager.getInstance().getDishSubTypeEntityDao().deleteAll();
         DBManager.getInstance().getDishTypeEntityDao().deleteAll();
 
         //  按菜品类型逐一处理
         for(DishType dishType:result.getResult().getDishTypes()){
-            Log.d(TAG,"菜品类型："+dishType.getDishTypeName());
+            Log.d(TAG,"菜品主类型："+dishType.getDishTypeName());
 
             DishTypeEntity typeitem = new DishTypeEntity(dishType);
             DBManager.getInstance().getDishTypeEntityDao().save(typeitem);
 
-            List<DishEntity> dishes = new ArrayList<>();
-            for(Dish dish:dishType.getDishs()){
-                DishEntity dishitem = new DishEntity(dishType,dish);
-                dishitem.setTypeId(typeitem.getId());
-                dishes.add(dishitem);
-            }
-            Log.d(TAG,"菜品明细个数："+dishes.size());
+            if(null==dishType.getDishSubTypes()) continue;
 
-            DBManager.getInstance().getDishEntityDao().saveInTx(dishes);
+            Log.d(TAG,"菜品子类型个数："+dishType.getDishSubTypes().size());
+            for(DishSubType dishSubType:dishType.getDishSubTypes()){
+                Log.d(TAG,"菜品子类型："+dishSubType.getDishSubTypeName());
+
+                DishSubTypeEntity subtypeitem = new DishSubTypeEntity(typeitem,dishSubType);
+                DBManager.getInstance().getDishSubTypeEntityDao().save(subtypeitem);
+
+                Log.d(TAG,"菜品个数："+dishSubType.getDishs().size());
+
+                //  子类型所属菜品
+                List<DishEntity> listDishes = new ArrayList<>();
+                for(Dish dish:dishSubType.getDishs()){
+                    Log.d(TAG,"菜品："+dish.getDishName());
+                    DishEntity dishitem = new DishEntity(typeitem,subtypeitem,dish);
+                    listDishes.add(dishitem);
+                }
+                DBManager.getInstance().getDishEntityDao().saveInTx(listDishes);
+            }
+
         }
         return;
     }

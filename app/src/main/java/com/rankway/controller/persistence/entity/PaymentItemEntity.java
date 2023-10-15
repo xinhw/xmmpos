@@ -27,6 +27,9 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
     String dishTypeCode;
     String dishTypeName;
 
+    String dishSubTypeCode;
+    String dishSubTypeName;
+
     @JSONField(serialize = false)
     @Id(autoincrement = true)
     Long id;
@@ -35,10 +38,11 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
     @JSONField(serialize = false)
     long paymentTotalId;
     
-    @Generated(hash = 313456292)
+    @Generated(hash = 970326061)
     public PaymentItemEntity(String posSerialChild, String dishCode, String dishName, float price,
-            int quantity, float transMoney, String dishTypeCode, String dishTypeName, Long id,
-            long timestamp, long paymentTotalId) {
+            int quantity, float transMoney, String dishTypeCode, String dishTypeName,
+            String dishSubTypeCode, String dishSubTypeName, Long id, long timestamp,
+            long paymentTotalId) {
         this.posSerialChild = posSerialChild;
         this.dishCode = dishCode;
         this.dishName = dishName;
@@ -47,6 +51,8 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
         this.transMoney = transMoney;
         this.dishTypeCode = dishTypeCode;
         this.dishTypeName = dishTypeName;
+        this.dishSubTypeCode = dishSubTypeCode;
+        this.dishSubTypeName = dishSubTypeName;
         this.id = id;
         this.timestamp = timestamp;
         this.paymentTotalId = paymentTotalId;
@@ -127,14 +133,18 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
 
     @Override
     public String toString() {
-        return "PaymentItem{" +
-                "id=" + id +
-                ", posSerialChild=" + posSerialChild +
+        return "PaymentItemEntity{" +
+                "posSerialChild='" + posSerialChild + '\'' +
                 ", dishCode='" + dishCode + '\'' +
                 ", dishName='" + dishName + '\'' +
                 ", price=" + price +
                 ", quantity=" + quantity +
                 ", transMoney=" + transMoney +
+                ", dishTypeCode='" + dishTypeCode + '\'' +
+                ", dishTypeName='" + dishTypeName + '\'' +
+                ", dishSubTypeCode='" + dishSubTypeCode + '\'' +
+                ", dishSubTypeName='" + dishSubTypeName + '\'' +
+                ", id=" + id +
                 ", timestamp=" + timestamp +
                 ", paymentTotalId=" + paymentTotalId +
                 '}';
@@ -165,6 +175,22 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
         this.dishTypeName = dishTypeName;
     }
 
+    public String getDishSubTypeCode() {
+        return this.dishSubTypeCode;
+    }
+
+    public void setDishSubTypeCode(String dishSubTypeCode) {
+        this.dishSubTypeCode = dishSubTypeCode;
+    }
+
+    public String getDishSubTypeName() {
+        return this.dishSubTypeName;
+    }
+
+    public void setDishSubTypeName(String dishSubTypeName) {
+        this.dishSubTypeName = dishSubTypeName;
+    }
+
     public PaymentItemEntity(int seqNo, long paymentTotalId, DishEntity dishEntity){
         this.posSerialChild = String.format("%04d",seqNo);
         this.dishCode = dishEntity.getDishCode().trim();
@@ -178,6 +204,8 @@ public class PaymentItemEntity implements Comparable<PaymentItemEntity>{
         this.dishTypeCode = dishEntity.getDishTypeCode();
         this.dishTypeName = dishEntity.getDishTypeName();
 
+        this.dishSubTypeCode = dishEntity.getDishSubTypeCode();
+        this.dishSubTypeName = dishEntity.getDishSubTypeName();
     }
 
     @Generated(hash = 558064288)
