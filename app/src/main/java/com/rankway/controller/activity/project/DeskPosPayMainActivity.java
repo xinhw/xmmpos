@@ -664,6 +664,14 @@ public class DeskPosPayMainActivity
     public void onPaymentCancel() {
         Log.d(TAG, "onPaymentCancel 取消支付");
         playSound(false);
+
+        if (HttpUtil.isOnline) {
+            imgNetworkConnect.setVisibility(View.VISIBLE);
+            imgNetworkDisconnect.setVisibility(View.GONE);
+        } else {
+            imgNetworkConnect.setVisibility(View.GONE);
+            imgNetworkDisconnect.setVisibility(View.VISIBLE);
+        }
     }
 
     private AppService appService = null;

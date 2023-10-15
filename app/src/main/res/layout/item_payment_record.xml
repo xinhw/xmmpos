@@ -129,7 +129,7 @@
         android:padding="5dp"
         android:textColor="@color/black"
         android:gravity="center"
-        android:text="方式" />
+        android:text="状态" />
 
 </LinearLayout>
 

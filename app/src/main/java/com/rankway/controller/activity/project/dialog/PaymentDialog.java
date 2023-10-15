@@ -588,8 +588,10 @@ public class PaymentDialog
             }
 
             //  支付失败，显示失败信息
-            baseActivity.playSound(false);
             baseActivity.showToast(errString);
+            if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentCancel();
+
+            dismiss();
 
             return;
         }

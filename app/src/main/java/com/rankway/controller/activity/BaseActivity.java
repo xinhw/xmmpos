@@ -1714,7 +1714,7 @@ public class BaseActivity extends AppCompatActivity {
         list.sort(new Comparator<DishTypeEntity>() {
             @Override
             public int compare(DishTypeEntity o1, DishTypeEntity o2) {
-                return (int)(o1.getId()-o2.getId());
+                return o1.getDishTypeName().compareTo(o2.getDishTypeName());
             }
         });
 
@@ -1733,7 +1733,7 @@ public class BaseActivity extends AppCompatActivity {
         list.sort(new Comparator<DishSubTypeEntity>() {
             @Override
             public int compare(DishSubTypeEntity o1, DishSubTypeEntity o2) {
-                return o1.getDishSubTypeCode().compareTo(o2.getDishSubTypeCode());
+                return o1.getDishSubTypeName().compareTo(o2.getDishSubTypeName());
             }
         });
 
@@ -1835,6 +1835,10 @@ public class BaseActivity extends AppCompatActivity {
         String s = result.getResult().getSiteVersion();
         if(s==null) return;
 
+        //  没有菜品主类
+        if(null==result.getResult().getDishTypes()) return;
+        if(result.getResult().getDishTypes().size()==0) return;
+
         SpManager.getIntance().saveSpString(AppIntentString.DISH_TYPE_VER,s);
 
         //  清除数据库里的菜品类型和菜品
@@ -1849,7 +1853,9 @@ public class BaseActivity extends AppCompatActivity {
             DishTypeEntity typeitem = new DishTypeEntity(dishType);
             DBManager.getInstance().getDishTypeEntityDao().save(typeitem);
 
+            //  菜品子类为空
             if(null==dishType.getDishSubTypes()) continue;
+            if(dishType.getDishSubTypes().size()==0) continue;
 
             Log.d(TAG,"菜品子类型个数："+dishType.getDishSubTypes().size());
             for(DishSubType dishSubType:dishType.getDishSubTypes()){
@@ -1857,6 +1863,10 @@ public class BaseActivity extends AppCompatActivity {
 
                 DishSubTypeEntity subtypeitem = new DishSubTypeEntity(typeitem,dishSubType);
                 DBManager.getInstance().getDishSubTypeEntityDao().save(subtypeitem);
+
+                //  菜品子类中菜品为空
+                if(null==dishSubType.getDishs()) continue;
+                if(dishSubType.getDishs().size()==0) continue;
 
                 Log.d(TAG,"菜品个数："+dishSubType.getDishs().size());
 

@@ -98,7 +98,7 @@ public class DeskPosLoginActivity
         } catch (Exception e) {
             e.printStackTrace();
         }
-        tvAppVersion.setText(String.format("程序版本：1.0." + versionCode));
+        tvAppVersion.setText("程序版本：1.0." + versionCode);
 
         //  上次缓存的用户名
         String str = SpManager.getIntance().getSpString(AppIntentString.LAST_LOGIN_USER);
@@ -160,7 +160,8 @@ public class DeskPosLoginActivity
 
     /***
      * 验证操作员密码
-     * @return
+     * @return  true        验证成功
+     *          false       验证失败
      */
     private boolean verifyUserCode() {
         String struserid = etUserCode.getText().toString().trim();
@@ -254,8 +255,10 @@ public class DeskPosLoginActivity
             } else {
                 sendProccessMessage("同步 操作员信息 成功");
                 Log.d(TAG, "操作员个数：" + listUserInfo.size());
-                DBManager.getInstance().getUserInfoEntityDao().deleteAll();
-                DBManager.getInstance().getUserInfoEntityDao().saveInTx(listUserInfo);
+                if(listUserInfo.size()>0) {
+                    DBManager.getInstance().getUserInfoEntityDao().deleteAll();
+                    DBManager.getInstance().getUserInfoEntityDao().saveInTx(listUserInfo);
+                }
                 n++;
             }
 

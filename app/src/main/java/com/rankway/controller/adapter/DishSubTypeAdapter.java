@@ -53,7 +53,7 @@ public class DishSubTypeAdapter
         holder.itemView.setSelected(i == selectedItem);
         DishSubTypeEntity item = data.get(i);
         Log.d(TAG, "item:" + item.toString());
-        holder.tvDishSubType.setText(item.getDishSubTypeCode()+"\n"+item.getDishSubTypeName().trim());
+        holder.tvDishSubType.setText(item.getDishSubTypeName().trim());
 
         holder.rootView.setOnClickListener(new View.OnClickListener() {
             @Override

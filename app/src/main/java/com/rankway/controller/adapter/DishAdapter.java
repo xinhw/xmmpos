@@ -54,7 +54,7 @@ public class DishAdapter
         DishEntity item = data.get(i);
 
         float price = (float) (item.getPrice() * 0.01);
-        String str = String.format("%s\n(%.2f)", item.getDishName().trim(), price);
+        String str = String.format("%s(%.2f)", item.getDishName().trim(), price);
         holder.tvDish.setText(str);
         holder.rootView.setOnClickListener(new View.OnClickListener() {
             @Override
