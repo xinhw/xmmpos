@@ -24,6 +24,8 @@ public class cardInfo {
     long timeStamp;
     String mac;
 
+    int amount;
+
     public int getCardno() {
         return cardno;
     }
@@ -120,6 +122,14 @@ public class cardInfo {
         this.mac = mac;
     }
 
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
     @Override
     public String toString() {
         return "cardInfo{" +
@@ -135,6 +145,7 @@ public class cardInfo {
                 ", qrStatus=" + qrStatus +
                 ", timeStamp=" + timeStamp +
                 ", mac='" + mac + '\'' +
+                ", amount=" + amount +
                 '}';
     }
 

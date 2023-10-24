@@ -70,7 +70,7 @@ public class MobilePosPayMainActivity
     TextView tvRemain;
     EditText etAmount;
 
-    boolean isPaying = false;           //  是否在支付中
+    boolean isPaying = false;           //  是否在查询or支付中
     TextView tvPayment;
 
     final int MAX_IDLE_TIME_MS = 60 * 1000;       //  最大未支付时间（毫秒）
@@ -292,11 +292,12 @@ public class MobilePosPayMainActivity
 
     //  启用扫描
     private void enableScanner() {
+        Log.d(TAG,"enableScanner");
+
         scanner = ScannerFactory.getScannerObject(this);
         if (null == scanner) return;
 
         scanner.open();
-        Log.d(TAG, "lockScanKey");
         scanner.lockScanKey();
         scanner.setOutputMode(1);
 
@@ -486,6 +487,7 @@ public class MobilePosPayMainActivity
 
     private void startQuery(int payType) {
         clearLastPayment();
+        if(isPaying) return;
 
         AsynTaskQuery task = new AsynTaskQuery(payType);
         task.execute();
@@ -508,6 +510,8 @@ public class MobilePosPayMainActivity
         protected void onPreExecute() {
             super.onPreExecute();
             showProDialog("查询中,请稍等...");
+
+            isPaying = true;
         }
 
         @Override
@@ -548,6 +552,9 @@ public class MobilePosPayMainActivity
         @Override
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
+
+            isPaying = false;
+
             missProDialog();
 
             if (null == cardInfoObj) {
@@ -667,6 +674,8 @@ public class MobilePosPayMainActivity
             posInfoBean.setAuditNo(audit.getPosCno());
             savePosInfoBean(posInfoBean);
 
+            cardPaymentObj.setAmount((int) (famount * 100));
+
             Log.d(TAG, "cardPaymentObj:" + cardPaymentObj.toString());
 
             if (cardPaymentObj.getQrType() == 1) {
@@ -700,7 +709,7 @@ public class MobilePosPayMainActivity
 
                 refreshStatistics(totalCount, totalAmount);
 
-                DetLog.writeLog(TAG, "支付成功：" + cardPaymentObj.toString());
+//                DetLog.writeLog(TAG, "支付成功：" + cardPaymentObj.toString());
                 return;
             }
 
@@ -772,6 +781,7 @@ public class MobilePosPayMainActivity
      */
     private void savePaymentRecord(float amount, int uploadFlag) {
         PaymentRecord record = new PaymentRecord(cardPaymentObj, amount, posInfoBean);
+        DetLog.writeLog(TAG,"支付成功："+record.toString());
 
         record.setUploadFlag(uploadFlag);
         DBManager.getInstance().getPaymentRecordDao().save(record);
