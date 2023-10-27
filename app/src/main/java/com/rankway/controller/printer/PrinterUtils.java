@@ -7,8 +7,10 @@ import com.rankway.controller.common.AppIntentString;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.persistence.entity.DishEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.entity.PaymentShiftEntity;
 import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.utils.DateStringUtils;
+import com.rankway.sommerlibrary.utils.DateUtil;
 
 import java.util.List;
 
@@ -139,28 +141,7 @@ public class PrinterUtils {
     /**
      * 结班打印
      */
-    public void printShiftSettle(PrinterBase printer,
-                                 PosInfoBean posInfoBean,
-                                 List<PaymentRecordEntity> records){
-
-        int totalCount,cardCount,qrCount;
-        float totalAmount,cardAmount,qrAmount;
-
-        totalCount = cardCount = qrCount = 0;
-        totalAmount = cardAmount = qrAmount = 0.00f;
-
-        for(PaymentRecordEntity record:records){
-            if(record.getQrType()==0){
-                cardCount++;
-                cardAmount = cardAmount + record.getAmount();
-            }else{
-                qrCount++;
-                qrAmount = qrAmount + record.getAmount();
-            }
-        }
-        totalCount = cardCount + qrCount;
-        totalAmount = cardAmount + qrAmount;
-
+    public void printShiftSettle(PrinterBase printer,PaymentShiftEntity shiftEntity){
         String s = "";
 
         //  走纸5行
@@ -171,7 +152,7 @@ public class PrinterUtils {
 
         //  放大字体
         printer.printBytes(PrinterFormatUtils.getFontSizeCommand(true));
-        printer.printString(title);
+        printer.printString(centralPrintLine(16,title));
 
         //  字体正常
         printer.printBytes(PrinterFormatUtils.getFontSizeCommand(false));
@@ -179,40 +160,46 @@ public class PrinterUtils {
         s = "--------------------------------";
         printer.printString(s);
 
-//        //  班次号
-//        s = String.format(" 班次号：%s",posInfoBean.getShiftNo());
-//        printer.printString(s);
-
         //  POS机号
-        s =combinePrintLine(12," POS号：",posInfoBean.getCposno());
+        s =combinePrintLine(12,"POS号：",shiftEntity.getPosNo());
         printer.printString(s);
 
-        //  收银员
-        s = combinePrintLine(12," 收银员：",posInfoBean.getUsercode());
+        //  POS机号
+        s =combinePrintLine(12,"收银员：",shiftEntity.getOperatorNo());
+        printer.printString(s);
+
+
+        //  开班流水
+        s =combinePrintLine(12,"开班流水：",shiftEntity.getShiftOnAuditNo()+"");
         printer.printString(s);
 
         //  起始时间
-        s = combinePrintLine(12," 起始时间：",DateStringUtils.dateToString(posInfoBean.getStartTime()));
+        s =combinePrintLine(12,"起始时间：", DateUtil.getDateDStr(shiftEntity.getShiftOnTime()));
+        printer.printString(s);
+
+        //  结班流水
+        s =combinePrintLine(12,"结班流水：",shiftEntity.getShiftOffAuditNo()+"");
         printer.printString(s);
 
         //  结束时间
-        s = String.format(" 结束时间：%s",DateStringUtils.dateToString(posInfoBean.getSettleTime()));
+        s =combinePrintLine(12,"结束时间：", DateUtil.getDateDStr(shiftEntity.getShiftOffTime()));
         printer.printString(s);
 
-        //  总笔数
-        s = String.format(" 总笔数：%d",totalCount);
+        //  交易次数
+        s =combinePrintLine(12,"交易次数：",shiftEntity.getTotalCount()+"");
         printer.printString(s);
 
-        //  总金额
-        s = String.format(" 总金额：%.2f",totalAmount);
+        //  交易金额
+        s =combinePrintLine(12,"交易金额：",String.format("￥%.2f",shiftEntity.getTotalAmount()*0.01));
         printer.printString(s);
 
-        s = "--------------------------------";
+        //  报表时间
+        s =combinePrintLine(12,"报表时间：", DateUtil.getDateDStr(shiftEntity.getReportTime()));
         printer.printString(s);
 
-        //  打印时间
-        s = String.format(" 打印时间：%s",DateStringUtils.getCurrentTime());
-        printer.printString(s);
+        //  走纸3行
+        printer.printBytes(PrinterFormatUtils.getFeedCommand(3));
+        return;
     }
 
     private String padLeftSpace(String s,int length){

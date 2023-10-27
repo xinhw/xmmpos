@@ -10,4 +10,6 @@ public class AppIntentString {
     public static final String OFFLINE_MAX_AMOUNT = "offlineMaxAmount";           //  脱机消费最大金额
     public static final String PRINTER_HEADER = "printerHeader";           //  打印头
     public static final String PRINTER_SUFFIX = "printerSuffix";           //  打印后缀
+    public static final String REMEMBER_LOGIN_PIN = "remeberLoginPin";     //  记住登录密码
+    public static final String PAYMENT_SHIFT_ID = "paymentShiftId";        //   班次对象Id
 }

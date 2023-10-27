@@ -50,6 +50,7 @@ import com.rankway.controller.persistence.entity.DishEntity;
 import com.rankway.controller.persistence.entity.DishSubTypeEntity;
 import com.rankway.controller.persistence.entity.DishTypeEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.entity.PaymentShiftEntity;
 import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.printer.PrinterBase;
@@ -347,10 +348,6 @@ public class DeskPosPayMainActivity
         stopAppService();
 
         unregisterReceiver();
-
-        detSleep(100);
-
-        System.exit(0);
     }
 
     @Override
@@ -362,7 +359,7 @@ public class DeskPosPayMainActivity
 
         switch (v.getId()) {
             case R.id.tvExit:
-                finishPrompt();
+                finish();
                 break;
 
             case R.id.tvClearSelected:
@@ -613,7 +610,7 @@ public class DeskPosPayMainActivity
     };
 
     @Override
-    public void onPaymentSuccess(int flag, PaymentRecordEntity record) {
+    public void onPaymentSuccess(int type,int flag, PaymentRecordEntity record) {
         Log.d(TAG, "onPaymentSuccess " + record.toString());
 
         //  缓存打印信息
@@ -653,6 +650,8 @@ public class DeskPosPayMainActivity
 
         fTotalAmount = fTotalAmount + record.getAmount();
         refreshTotalCount();
+
+        refreshShiftEntity(type,record);
     }
 
     private void refreshTotalCount() {
@@ -748,28 +747,6 @@ public class DeskPosPayMainActivity
         }
     }
 
-    /***
-     * 询问是否退出APP
-     */
-    private void finishPrompt() {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        builder.setCancelable(false);
-        builder.setMessage("是否要退出APP？");
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                finish();
-            }
-        });
-        builder.create().show();
-        return;
-    }
 
     @TestOnly
     private void makeUploadRecord() {
@@ -888,4 +865,28 @@ public class DeskPosPayMainActivity
         }
         mUsbReceiver = null;
     }
+
+    /***
+     * 班次统计信息
+     * @param type
+     * @param record
+     */
+    private void refreshShiftEntity(int type,PaymentRecordEntity record){
+        Log.d(TAG,"refreshShiftEntity");
+
+        PaymentShiftEntity shiftEntity = DeskPosLoginActivity.getShiftEntity();
+
+        if(null==shiftEntity) return;
+        if(null==record) return;
+
+        if(type==PaymentDialog.PAY_MODE_CARD){
+            shiftEntity.setSubCardCount(shiftEntity.getSubCardCount()+1);
+            shiftEntity.setSubCardAmount(shiftEntity.getSubCardAmount()+(int)(record.getAmount()*100));
+        }else{
+            shiftEntity.setSubQrCount(shiftEntity.getSubQrCount()+1);
+            shiftEntity.setSubQrAmount(shiftEntity.getSubQrAmount()+(int)(record.getAmount()*100));
+        }
+        savePaymentShiftEntity(shiftEntity);
+    }
+    
 }

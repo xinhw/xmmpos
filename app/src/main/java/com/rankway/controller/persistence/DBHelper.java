@@ -8,6 +8,7 @@ import com.rankway.controller.persistence.gen.DishEntityDao;
 import com.rankway.controller.persistence.gen.DishTypeEntityDao;
 import com.rankway.controller.persistence.gen.PaymentItemEntityDao;
 import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
+import com.rankway.controller.persistence.gen.PaymentShiftEntityDao;
 import com.rankway.controller.persistence.gen.PaymentTotalDao;
 import com.rankway.controller.persistence.gen.PersonInfoEntityDao;
 import com.rankway.controller.persistence.gen.QrBlackListEntityDao;
@@ -26,13 +27,31 @@ public class DBHelper extends DaoMaster.DevOpenHelper {
     }
     @Override
     public void onUpgrade(Database db, int oldVersion, int newVersion) {
+        if(oldVersion<=12) {
+            //   需要进行数据迁移更新的实体类 ，新增的不用加
+            DBMigrationHelper.getInstance().migrate(db,
+                    DishEntityDao.class,
+                    DishTypeEntityDao.class,
+
+                    PaymentItemEntityDao.class,
+                    PaymentRecordEntityDao.class,
+                    PaymentTotalDao.class,
+
+                    PersonInfoEntityDao.class,
+
+                    QrBlackListEntityDao.class,
+
+                    SemiEventEntity.class,               //  事件列表
+
+                    UserInfoEntityDao.class
+            );
+            return;
+        }
+
         //   需要进行数据迁移更新的实体类 ，新增的不用加
         DBMigrationHelper.getInstance().migrate(db,
-
                 DishEntityDao.class,
                 DishTypeEntityDao.class,
-
-                // MessageDetailDao.class,
 
                 PaymentItemEntityDao.class,
                 PaymentRecordEntityDao.class,
@@ -44,7 +63,9 @@ public class DBHelper extends DaoMaster.DevOpenHelper {
 
                 SemiEventEntity.class,               //  事件列表
 
-                UserInfoEntityDao.class
+                UserInfoEntityDao.class,
+
+                PaymentShiftEntityDao.class
         );
     }
 }

@@ -182,7 +182,7 @@ public class PaymentDialog
 
 
     public interface OnPaymentResult{
-        void onPaymentSuccess(int flag,PaymentRecordEntity record);
+        void onPaymentSuccess(int type,int flag,PaymentRecordEntity record);
         void onPaymentCancel();
     }
 
@@ -580,7 +580,7 @@ public class PaymentDialog
                 DBManager.getInstance().getPaymentRecordEntityDao().save(record);
 
                 Log.d(TAG,"record:"+record.toString());
-                if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentSuccess(flag,record);
+                if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentSuccess(payMode,flag,record);
 
                 //  支付成功，关闭对话框
                 dismiss();

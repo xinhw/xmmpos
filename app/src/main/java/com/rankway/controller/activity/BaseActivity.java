@@ -74,11 +74,13 @@ import com.rankway.controller.persistence.entity.DishTypeEntity;
 import com.rankway.controller.persistence.entity.MessageDetail;
 import com.rankway.controller.persistence.entity.PaymentItemEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.entity.PaymentShiftEntity;
 import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.persistence.entity.SemiEventEntity;
 import com.rankway.controller.persistence.gen.DishEntityDao;
 import com.rankway.controller.persistence.gen.DishSubTypeEntityDao;
 import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
+import com.rankway.controller.persistence.gen.PaymentShiftEntityDao;
 import com.rankway.controller.persistence.gen.PaymentTotalDao;
 import com.rankway.controller.persistence.gen.SemiEventEntityDao;
 import com.rankway.controller.pushmessage.ETEKMessageProcess;
@@ -2006,4 +2008,27 @@ public class BaseActivity extends AppCompatActivity {
             showToast("清除完成！");
         }
     }
+
+    /***
+     * 获取班次对象
+     * @param shiftid
+     * @return
+     */
+    protected PaymentShiftEntity getPaymentShiftEntity(long shiftid){
+        PaymentShiftEntity shiftEntity = DBManager.getInstance().getPaymentShiftEntityDao()
+                .queryBuilder()
+                .where(PaymentShiftEntityDao.Properties.Id.eq(shiftid))
+                .unique();
+        return shiftEntity;
+    }
+
+    /***
+     * 保存班次对象
+     * @param shiftEntity
+     */
+    protected void savePaymentShiftEntity(PaymentShiftEntity shiftEntity){
+        if(null==shiftEntity) return;
+        DBManager.getInstance().getPaymentShiftEntityDao().save(shiftEntity);
+    }
+
 }

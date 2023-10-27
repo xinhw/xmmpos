@@ -1,5 +1,6 @@
 package com.rankway.controller.activity.project;
 
+import android.content.DialogInterface;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
@@ -10,6 +11,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -23,10 +25,14 @@ import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.DishEntity;
 import com.rankway.controller.persistence.entity.DishSubTypeEntity;
 import com.rankway.controller.persistence.entity.DishTypeEntity;
+import com.rankway.controller.persistence.entity.PaymentShiftEntity;
 import com.rankway.controller.persistence.entity.PersonInfoEntity;
 import com.rankway.controller.persistence.entity.QrBlackListEntity;
 import com.rankway.controller.persistence.entity.UserInfoEntity;
 import com.rankway.controller.persistence.gen.UserInfoEntityDao;
+import com.rankway.controller.printer.PrinterBase;
+import com.rankway.controller.printer.PrinterFactory;
+import com.rankway.controller.printer.PrinterUtils;
 import com.rankway.controller.utils.ClickUtil;
 import com.rankway.controller.webapi.menu.Result;
 import com.rankway.controller.webapi.payWebapi;
@@ -47,6 +53,9 @@ public class DeskPosLoginActivity
     EditText etPassword;
     TextView tvAppVersion;
     TextView tvProcess;
+    CheckBox checkBox;
+
+    private static PaymentShiftEntity shiftEntity = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +95,14 @@ public class DeskPosLoginActivity
                 etPassword.setText("");
             }
         });
+
+        textView = findViewById(R.id.tvShiftOn);
+        textView.setOnClickListener(this);
+
+        textView = findViewById(R.id.tvShiftOff);
+        textView.setOnClickListener(this);
+
+        checkBox = findViewById(R.id.chkboxRemeberPIN);
     }
 
     private void initData() {
@@ -127,8 +144,28 @@ public class DeskPosLoginActivity
             e.printStackTrace();
         }
         DetLog.writeLog(TAG, "启动程序，版本号：" + nAppVer + " 数据版本号：" + nDBVer);
+
+        versionCode = getIntInfo(AppIntentString.REMEMBER_LOGIN_PIN);
+        if(0==versionCode){
+            checkBox.setChecked(false);
+            etPassword.setText("");
+        }else{
+            checkBox.setChecked(true);
+        }
     }
 
+    @Override
+    protected void onResume(){
+        super.onResume();
+        long shiftId = getLongInfo(AppIntentString.PAYMENT_SHIFT_ID);
+        if(shiftId<=0){
+            shiftEntity = new PaymentShiftEntity();
+            savePaymentShiftEntity(shiftEntity);
+            setLongInfo(AppIntentString.PAYMENT_SHIFT_ID,shiftEntity.getId());
+        }else{
+            shiftEntity = getPaymentShiftEntity(shiftId);
+        }
+    }
     @Override
     public void onClick(View v) {
         if (ClickUtil.isFastDoubleClick(v.getId())) {
@@ -143,19 +180,52 @@ public class DeskPosLoginActivity
                     break;
                 }
 
+                //  判断是否已经结班
+                if(shiftEntity==null) break;
+                if(shiftEntity.getStatus()==PaymentShiftEntity.SHIFT_STATUS_OFF){
+                    playSound(false);
+                    showToast("已经请先开班");
+                    break;
+                }
+
                 playSound(true);
                 startActivity(DeskPosPayMainActivity.class);
-                finish();
-
                 break;
 
             case R.id.tvExit:
-                finish();
+                finishPrompt();
+                break;
+
+            case R.id.tvShiftOn:
+                if (!verifyUserCode()) {
+                    playSound(false);
+                    break;
+                }
+
+                shiftOn();
+                break;
+
+            case R.id.tvShiftOff:
+                if (!verifyUserCode()) {
+                    playSound(false);
+                    break;
+                }
+
+                shiftOff();
                 break;
 
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        detSleep(100);
+
+        System.exit(0);
     }
 
     /***
@@ -467,5 +537,97 @@ public class DeskPosLoginActivity
 
     }
 
+    public static PaymentShiftEntity getShiftEntity(){
+        return shiftEntity;
+    }
 
+    /***
+     * 询问是否退出APP
+     */
+    private void finishPrompt() {
+        showDialogMessage(null, "是否要退出APP？",
+                "确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                },
+                "取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.v(TAG, "取消退出！");
+                        dialog.dismiss();
+                    }
+                });
+        return;
+    }
+
+    private void shiftOn(){
+        //  判断是否已经开班
+        if(shiftEntity==null) return;
+        if(shiftEntity.getStatus()==PaymentShiftEntity.SHIFT_STATUS_ON){
+            playSound(false);
+            showToast("已经开班");
+            return;
+        }
+
+        shiftEntity = new PaymentShiftEntity();
+
+        shiftEntity.setSubCardCount(0);
+        shiftEntity.setSubCardAmount(0);
+
+        shiftEntity.setSubQrCount(0);
+        shiftEntity.setSubQrAmount(0);
+
+        shiftEntity.setShiftOnTime(System.currentTimeMillis());
+
+        shiftEntity.setStatus(PaymentShiftEntity.SHIFT_STATUS_ON);
+
+        PosInfoBean posInfoBean = getPosInfoBean();
+        if(null!=posInfoBean){
+            shiftEntity.setShiftOnAuditNo(posInfoBean.getAuditNo());
+            shiftEntity.setPosNo(posInfoBean.getCposno());
+        }
+        savePaymentShiftEntity(shiftEntity);
+
+        setLongInfo(AppIntentString.PAYMENT_SHIFT_ID,shiftEntity.getId());
+    }
+
+    private void shiftOff(){
+        //  判断是否已经结班
+        if(shiftEntity==null) return;
+        if(shiftEntity.getStatus()==PaymentShiftEntity.SHIFT_STATUS_ON) {
+            //  结班时间
+            shiftEntity.setShiftOffTime(System.currentTimeMillis());
+
+            //  签退流水
+            PosInfoBean posInfoBean = getPosInfoBean();
+            if (null != posInfoBean) {
+                shiftEntity.setShiftOnAuditNo(posInfoBean.getAuditNo());
+            }
+
+            //  结班状态
+            shiftEntity.setStatus(PaymentShiftEntity.SHIFT_STATUS_OFF);
+
+            savePaymentShiftEntity(shiftEntity);
+        }
+
+        if(shiftEntity.getTotalCount()==0){
+            Log.d(TAG,"记录数位0，无需打印");
+            return;
+        }
+
+        //  打印部分
+        PrinterBase printer = PrinterFactory.getPrinter(mContext);
+        int ret = printer.openPrinter();
+        if (0 != ret) {
+            playSound(false);
+            showLongToast("打印机初始化失败，请检查连接");
+        } else {
+            PrinterUtils printerUtils = new PrinterUtils();
+            printerUtils.printShiftSettle(printer, shiftEntity);
+            printer.closePrinter();
+        }
+        return;
+    }
 }

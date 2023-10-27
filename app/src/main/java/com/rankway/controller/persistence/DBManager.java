@@ -11,6 +11,7 @@ import com.rankway.controller.persistence.gen.DishTypeEntityDao;
 import com.rankway.controller.persistence.gen.MessageDetailDao;
 import com.rankway.controller.persistence.gen.PaymentItemEntityDao;
 import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
+import com.rankway.controller.persistence.gen.PaymentShiftEntityDao;
 import com.rankway.controller.persistence.gen.PaymentTotalDao;
 import com.rankway.controller.persistence.gen.PersonInfoEntityDao;
 import com.rankway.controller.persistence.gen.QrBlackListEntityDao;
@@ -94,4 +95,9 @@ public class DBManager {
     public DishSubTypeEntityDao getDishSubTypeEntityDao(){
         return mDaoSession.getDishSubTypeEntityDao();
     }
+
+    public PaymentShiftEntityDao getPaymentShiftEntityDao(){
+        return mDaoSession.getPaymentShiftEntityDao();
+    }
+
 }
