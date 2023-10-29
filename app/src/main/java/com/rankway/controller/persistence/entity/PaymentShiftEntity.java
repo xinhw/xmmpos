@@ -185,4 +185,36 @@ public class PaymentShiftEntity
     public long getTotalAmount(){
         return this.subCardAmount+this.subQrAmount;
     }
+
+    public void subCardCountInc(int n){
+        this.subCardCount = this.subCardCount+n;
+    }
+    public void subQrCountInc(int n){
+        this.subQrCount = this.subQrCount + n;
+    }
+    public void subCardAmountInc(int amount){
+        this.subCardAmount = this.subCardAmount+amount;
+    }
+    public void subQrAmountInc(int amount){
+        this.subQrAmount = this.subQrAmount + amount;
+    }
+
+    @Override
+    public String toString() {
+        return "PaymentShiftEntity{" +
+                "id=" + id +
+                ", posNo='" + posNo + '\'' +
+                ", operatorNo='" + operatorNo + '\'' +
+                ", shiftOnAuditNo=" + shiftOnAuditNo +
+                ", shiftOnTime=" + shiftOnTime +
+                ", shiftOffAuditNo=" + shiftOffAuditNo +
+                ", shiftOffTime=" + shiftOffTime +
+                ", reportTime=" + reportTime +
+                ", subCardCount=" + subCardCount +
+                ", subCardAmount=" + subCardAmount +
+                ", subQrCount=" + subQrCount +
+                ", subQrAmount=" + subQrAmount +
+                ", status=" + status +
+                '}';
+    }
 }

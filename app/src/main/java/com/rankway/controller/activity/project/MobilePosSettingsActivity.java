@@ -567,6 +567,12 @@ public class MobilePosSettingsActivity
                     case R.id.viewPosNo:
                         tvPosNo.setText(msg);
                         bean.setCposno(msg);
+
+                        //  刷新开结班POS机号
+                        if(null!=DeskPosLoginActivity.getShiftEntity()) {
+                            DeskPosLoginActivity.getShiftEntity().setPosNo(msg);
+                            savePaymentShiftEntity(DeskPosLoginActivity.getShiftEntity());
+                        }
                         break;
 
                     case R.id.viewUserCode:

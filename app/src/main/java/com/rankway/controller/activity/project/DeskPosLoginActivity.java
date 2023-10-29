@@ -1,15 +1,18 @@
 package com.rankway.controller.activity.project;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -55,6 +58,8 @@ public class DeskPosLoginActivity
     TextView tvProcess;
     CheckBox checkBox;
 
+    TextView tvShiftStatus;
+    PosInfoBean posInfoBean = null;
     private static PaymentShiftEntity shiftEntity = null;
 
     @Override
@@ -103,6 +108,8 @@ public class DeskPosLoginActivity
         textView.setOnClickListener(this);
 
         checkBox = findViewById(R.id.chkboxRemeberPIN);
+
+        tvShiftStatus = findViewById(R.id.tvShiftStatus);
     }
 
     private void initData() {
@@ -132,8 +139,6 @@ public class DeskPosLoginActivity
         }
         tvProcess.setText("");
 
-        beginSyncDataTask();
-
         int nDBVer = DBManager.getInstance().getDatabaseVerion();
         String nAppVer = "";
         try {
@@ -152,19 +157,67 @@ public class DeskPosLoginActivity
         }else{
             checkBox.setChecked(true);
         }
+
+        initPosConfig();
     }
+
+    /***
+     * 初始化POS配置信息
+     * 必须要有PosNo和UserCode
+     */
+    private void initPosConfig(){
+        //  查看配置信息
+        posInfoBean = getPosInfoBean();
+
+        if(null==posInfoBean){
+            //  信息没有被配置，直接进入到设置界面
+            Intent intent = new Intent(mContext, MobilePosSettingsActivity.class);
+            startActivityForResult(intent, 210);
+            return;
+        }
+
+        //  PosNo或UserCode不能是空
+        if(StringUtils.isEmpty(posInfoBean.getCposno())
+                ||StringUtils.isEmpty(posInfoBean.getUsercode())){
+            //  信息没有被配置，直接进入到设置界面
+            Intent intent = new Intent(mContext, MobilePosSettingsActivity.class);
+            startActivityForResult(intent, 210);
+        }
+
+        //  信息如果被配置，进入到数据同步界面
+        beginSyncDataTask();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d(TAG, String.format("requestCode=%d,resultCode=%d", requestCode, resultCode));
+        if (requestCode == 210) {
+            //  信息同步
+            initPosConfig();
+        }
+    }
+
 
     @Override
     protected void onResume(){
         super.onResume();
-        long shiftId = getLongInfo(AppIntentString.PAYMENT_SHIFT_ID);
-        if(shiftId<=0){
-            shiftEntity = new PaymentShiftEntity();
-            savePaymentShiftEntity(shiftEntity);
-            setLongInfo(AppIntentString.PAYMENT_SHIFT_ID,shiftEntity.getId());
-        }else{
-            shiftEntity = getPaymentShiftEntity(shiftId);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Log.d(TAG, "onKeyDown " + keyCode);
+
+        //  右下角返回键
+        if (KeyEvent.KEYCODE_BACK == keyCode) {
+            return true;
         }
+        if (KeyEvent.KEYCODE_HOME == keyCode) {
+            return true;
+        }
+
+        return super.onKeyUp(keyCode, event);
     }
     @Override
     public void onClick(View v) {
@@ -184,7 +237,7 @@ public class DeskPosLoginActivity
                 if(shiftEntity==null) break;
                 if(shiftEntity.getStatus()==PaymentShiftEntity.SHIFT_STATUS_OFF){
                     playSound(false);
-                    showToast("已经请先开班");
+                    showToast("请先开班");
                     break;
                 }
 
@@ -265,6 +318,12 @@ public class DeskPosLoginActivity
             SpManager.getIntance().saveSpString(AppIntentString.LAST_LOGIN_PASSWORD,
                     etPassword.getText().toString().trim());
 
+            if(checkBox.isChecked()){
+                setIntInfo(AppIntentString.REMEMBER_LOGIN_PIN,1);
+            }else{
+                setIntInfo(AppIntentString.REMEMBER_LOGIN_PIN,0);
+            }
+
             return true;
         }
         showToast("操作员代码或密码错误");
@@ -299,7 +358,7 @@ public class DeskPosLoginActivity
             int n = 0;
 
             payWebapi obj = payWebapi.getInstance();
-            PosInfoBean posInfoBean = getPosInfoBean();
+            sendProccessMessage("同步 POS流水信息，请稍等...");
             if (null != posInfoBean) {
                 obj.setServerIP(posInfoBean.getServerIP());
                 obj.setPortNo(posInfoBean.getPortNo());
@@ -313,8 +372,13 @@ public class DeskPosLoginActivity
                     //  设置POS流水号
                     posInfoBean.setAuditNo(audit.getPosCno());
                     posInfoBean.setPosName(audit.getPosName());
+
+                    sendProccessMessage("同步 POS流水信息 成功");
+
+                    savePosInfoBean(posInfoBean);
+                }else{
+                    sendProccessMessage("同步 POS流水信息 失败");
                 }
-                savePosInfoBean(posInfoBean);
             }
 
             //  1. 操作员信息
@@ -388,6 +452,19 @@ public class DeskPosLoginActivity
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
             missProDialog();
+
+            //  刷新班次新信息
+            long shiftId = getLongInfo(AppIntentString.PAYMENT_SHIFT_ID);
+            if(shiftId<=0){
+                shiftEntity = new PaymentShiftEntity();
+                savePaymentShiftEntity(shiftEntity);
+                setLongInfo(AppIntentString.PAYMENT_SHIFT_ID,shiftEntity.getId());
+            }else{
+                shiftEntity = getPaymentShiftEntity(shiftId);
+            }
+            Log.d(TAG,"PaymentShiftEntity:"+shiftEntity.toString());
+
+            refreshShiftStatus();
         }
     }
 
@@ -549,6 +626,7 @@ public class DeskPosLoginActivity
                 "确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        Log.d(TAG,"finish");
                         finish();
                     }
                 },
@@ -558,10 +636,13 @@ public class DeskPosLoginActivity
                         Log.v(TAG, "取消退出！");
                         dialog.dismiss();
                     }
-                });
+                },null);
         return;
     }
 
+    /***
+     * 开班
+     */
     private void shiftOn(){
         //  判断是否已经开班
         if(shiftEntity==null) return;
@@ -579,32 +660,38 @@ public class DeskPosLoginActivity
         shiftEntity.setSubQrCount(0);
         shiftEntity.setSubQrAmount(0);
 
+        if(null!=posInfoBean){
+            shiftEntity.setShiftOnAuditNo(posInfoBean.getAuditNo());
+        }
         shiftEntity.setShiftOnTime(System.currentTimeMillis());
+
+        shiftEntity.setPosNo(posInfoBean.getCposno());
+        shiftEntity.setOperatorNo(etUserCode.getText().toString());
 
         shiftEntity.setStatus(PaymentShiftEntity.SHIFT_STATUS_ON);
 
-        PosInfoBean posInfoBean = getPosInfoBean();
-        if(null!=posInfoBean){
-            shiftEntity.setShiftOnAuditNo(posInfoBean.getAuditNo());
-            shiftEntity.setPosNo(posInfoBean.getCposno());
-        }
         savePaymentShiftEntity(shiftEntity);
 
         setLongInfo(AppIntentString.PAYMENT_SHIFT_ID,shiftEntity.getId());
+
+        refreshShiftStatus();
+
+        DetLog.writeLog(TAG,"开班："+shiftEntity.toString());
     }
 
+    /***
+     * 结班和打印
+     */
     private void shiftOff(){
         //  判断是否已经结班
         if(shiftEntity==null) return;
         if(shiftEntity.getStatus()==PaymentShiftEntity.SHIFT_STATUS_ON) {
+            //  签退流水
+            if (null != posInfoBean) {
+                shiftEntity.setShiftOffAuditNo(posInfoBean.getAuditNo());
+            }
             //  结班时间
             shiftEntity.setShiftOffTime(System.currentTimeMillis());
-
-            //  签退流水
-            PosInfoBean posInfoBean = getPosInfoBean();
-            if (null != posInfoBean) {
-                shiftEntity.setShiftOnAuditNo(posInfoBean.getAuditNo());
-            }
 
             //  结班状态
             shiftEntity.setStatus(PaymentShiftEntity.SHIFT_STATUS_OFF);
@@ -612,10 +699,17 @@ public class DeskPosLoginActivity
             savePaymentShiftEntity(shiftEntity);
         }
 
-        if(shiftEntity.getTotalCount()==0){
-            Log.d(TAG,"记录数位0，无需打印");
-            return;
-        }
+        //  报表时间
+        shiftEntity.setReportTime(System.currentTimeMillis());
+
+        refreshShiftStatus();
+
+        DetLog.writeLog(TAG,"结班："+shiftEntity.toString());
+
+//        if(shiftEntity.getTotalCount()==0){
+//            Log.d(TAG,"记录数位0，无需打印");
+//            return;
+//        }
 
         //  打印部分
         PrinterBase printer = PrinterFactory.getPrinter(mContext);
@@ -629,5 +723,18 @@ public class DeskPosLoginActivity
             printer.closePrinter();
         }
         return;
+    }
+
+
+    /***
+     * 刷新班次状态
+     */
+    private void refreshShiftStatus(){
+        Log.d(TAG,"refreshShiftStatus");
+        if(shiftEntity.getStatus()==PaymentShiftEntity.SHIFT_STATUS_ON){
+            tvShiftStatus.setText("当前状态：已开班");
+        }else{
+            tvShiftStatus.setText("当前状态：未开班");
+        }
     }
 }

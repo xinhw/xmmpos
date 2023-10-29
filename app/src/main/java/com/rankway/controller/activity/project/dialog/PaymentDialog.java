@@ -566,8 +566,10 @@ public class PaymentDialog
 
             //  支付成功
             if (0 == integer) {
+                //  支付成功，关闭对话框
+                dismiss();
+
                 baseActivity.playSound(true);
-                DetLog.writeLog(TAG, "支付成功：" + cardPaymentObj.toString());
 
                 PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, famount, posInfoBean);
 
@@ -579,11 +581,9 @@ public class PaymentDialog
                 record.setUploadFlag(flag);
                 DBManager.getInstance().getPaymentRecordEntityDao().save(record);
 
-                Log.d(TAG,"record:"+record.toString());
+                DetLog.writeLog(TAG, "支付成功：" + record.toString());
                 if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentSuccess(payMode,flag,record);
 
-                //  支付成功，关闭对话框
-                dismiss();
                 return;
             }
 

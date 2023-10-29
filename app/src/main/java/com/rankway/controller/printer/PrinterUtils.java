@@ -177,9 +177,9 @@ public class PrinterUtils {
         s =combinePrintLine(12,"起始时间：", DateUtil.getDateDStr(shiftEntity.getShiftOnTime()));
         printer.printString(s);
 
-        //  结班流水
-        s =combinePrintLine(12,"结班流水：",shiftEntity.getShiftOffAuditNo()+"");
-        printer.printString(s);
+//        //  结班流水
+//        s =combinePrintLine(12,"结班流水：",shiftEntity.getShiftOffAuditNo()+"");
+//        printer.printString(s);
 
         //  结束时间
         s =combinePrintLine(12,"结束时间：", DateUtil.getDateDStr(shiftEntity.getShiftOffTime()));

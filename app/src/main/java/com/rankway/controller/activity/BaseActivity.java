@@ -1609,6 +1609,10 @@ public class BaseActivity extends AppCompatActivity {
     }
 
 
+    /***
+     *
+     * @return
+     */
     public PosInfoBean getPosInfoBean(){
         String str = getPreInfo(AppIntentString.POS_INFO_BEAN);
         Log.d(TAG,"getPosInfoBean "+str);
@@ -1624,6 +1628,10 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
+    /***
+     *
+     * @param bean
+     */
     public void savePosInfoBean(PosInfoBean bean){
         String str = JSON.toJSONString(bean);
         Log.d(TAG,"savePosInfoBean "+str);

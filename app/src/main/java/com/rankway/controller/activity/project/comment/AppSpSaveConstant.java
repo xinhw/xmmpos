@@ -5,7 +5,6 @@ package com.rankway.controller.activity.project.comment;
  */
 public class AppSpSaveConstant {
 
-
     /**
      * 用户信息设置界面
      */
@@ -16,12 +15,10 @@ public class AppSpSaveConstant {
      */
     public static final String USER_NAME = "User_Name";
 
-
     //  缓存的后台命令
     public static final String PUSH_MESSAGE_CACHE_LIST ="pushMessageCacheList";
 
     public static final String UPLOAD_EVENT_LEVEL = "uploadEventLevel";
 
     public static final String LOGIN_USER = "loginUser";
-
 }

@@ -45,14 +45,11 @@ import com.rankway.controller.adapter.DishTypeAdapter;
 import com.rankway.controller.common.AppConstants;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
-import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.DishEntity;
 import com.rankway.controller.persistence.entity.DishSubTypeEntity;
 import com.rankway.controller.persistence.entity.DishTypeEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.persistence.entity.PaymentShiftEntity;
-import com.rankway.controller.persistence.entity.PaymentTotal;
-import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.printer.PrinterBase;
 import com.rankway.controller.printer.PrinterFactory;
 import com.rankway.controller.printer.PrinterGP58;
@@ -61,8 +58,6 @@ import com.rankway.controller.reader.ReaderCS230Z;
 import com.rankway.controller.utils.ClickUtil;
 import com.rankway.controller.utils.DateStringUtils;
 import com.rankway.controller.utils.HttpUtil;
-
-import org.jetbrains.annotations.TestOnly;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,11 +97,9 @@ public class DeskPosPayMainActivity
 
     private PosInfoBean posInfoBean = null;
 
-    private TextView tvPosNo;
     private TextView tvTime;
     private TextView tvTotalCount;
     private TextView tvTotalAmount;
-    float fTotalAmount = 0;
 
     private List<PaymentRecordEntity> payRecords = new ArrayList<>();
 
@@ -181,7 +174,6 @@ public class DeskPosPayMainActivity
                 R.id.tvCardPay, R.id.tvQRPay, R.id.tvPrintAgain};
         findViewIdSetOnClickListener(ids);
 
-        tvPosNo = findViewById(R.id.tvPosNo);
         tvTime = findViewById(R.id.tvTime);
         tvTotalCount = findViewById(R.id.tvTotalCount);
         tvTotalAmount = findViewById(R.id.tvTotalAmount);
@@ -208,6 +200,8 @@ public class DeskPosPayMainActivity
         mHandler.sendEmptyMessageDelayed(121, 1000);
 
         startAppService();
+
+        DetLog.writeLog(TAG,"进入点菜");
     }
 
     @Override
@@ -220,7 +214,8 @@ public class DeskPosPayMainActivity
             startActivity(MobilePosSettingsActivity.class);
             return;
         }
-        tvPosNo.setText(String.format("POS号：%s", posInfoBean.getCposno()));
+        TextView tvPosNo = findViewById(R.id.tvPosNo);
+        tvPosNo.setText(String.format("POS机：%s", posInfoBean.getPosName()));
         if(!TextUtils.isEmpty(posInfoBean.getPosName())){
             TextView textView = findViewById(R.id.tvTitle);
             textView.setText(String.format("上海报业餐厅POS机--%s",posInfoBean.getPosName()));
@@ -243,9 +238,6 @@ public class DeskPosPayMainActivity
         }
 
         //  刷新合计
-        fTotalAmount = 0;
-        for (PaymentRecordEntity record : payRecords)
-            fTotalAmount = fTotalAmount + record.getAmount();
         refreshTotalCount();
 
         //  在线，离线标志
@@ -648,14 +640,27 @@ public class DeskPosPayMainActivity
         //  缓存
         payRecords.add(record);
 
-        fTotalAmount = fTotalAmount + record.getAmount();
-        refreshTotalCount();
+        //  刷新班次累计
+        PaymentShiftEntity shiftEntity = DeskPosLoginActivity.getShiftEntity();
+        if (type == PaymentDialog.PAY_MODE_CARD) {
+            shiftEntity.subCardCountInc(1);
+            shiftEntity.subCardAmountInc((int)(record.getAmount()*100));
+        }else{
+            shiftEntity.subQrCountInc(1);
+            shiftEntity.subQrAmountInc((int)(record.getAmount()*100));
+        }
+        savePaymentShiftEntity(shiftEntity);
 
-        refreshShiftEntity(type,record);
+        refreshTotalCount();
     }
 
     private void refreshTotalCount() {
-        tvTotalCount.setText("总数：" + payRecords.size());
+        Log.d(TAG,"refreshTotalCount");
+        PaymentShiftEntity shiftEntity = DeskPosLoginActivity.getShiftEntity();
+
+        tvTotalCount.setText("总数：" + shiftEntity.getTotalCount());
+
+        float fTotalAmount = (float)(shiftEntity.getTotalAmount()*0.01);
         tvTotalAmount.setText(String.format("总金额：%.2f", fTotalAmount));
     }
 
@@ -745,21 +750,6 @@ public class DeskPosPayMainActivity
         } else {
             paymentDialog.show(getSupportFragmentManager(), "iccard pay");
         }
-    }
-
-
-    @TestOnly
-    private void makeUploadRecord() {
-        List<PaymentRecordEntity> list = DBManager.getInstance().getPaymentRecordEntityDao()
-                .queryBuilder()
-                .where(PaymentRecordEntityDao.Properties.Id.le(4))
-                .where(PaymentRecordEntityDao.Properties.Id.ge(3))
-                .list();
-        Log.d(TAG, "List size:" + list.size());
-        for (PaymentRecordEntity record : list) {
-            record.setUploadFlag(PaymentTotal.UNUPLOAD);
-        }
-        DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(list);
     }
 
 
@@ -866,27 +856,4 @@ public class DeskPosPayMainActivity
         mUsbReceiver = null;
     }
 
-    /***
-     * 班次统计信息
-     * @param type
-     * @param record
-     */
-    private void refreshShiftEntity(int type,PaymentRecordEntity record){
-        Log.d(TAG,"refreshShiftEntity");
-
-        PaymentShiftEntity shiftEntity = DeskPosLoginActivity.getShiftEntity();
-
-        if(null==shiftEntity) return;
-        if(null==record) return;
-
-        if(type==PaymentDialog.PAY_MODE_CARD){
-            shiftEntity.setSubCardCount(shiftEntity.getSubCardCount()+1);
-            shiftEntity.setSubCardAmount(shiftEntity.getSubCardAmount()+(int)(record.getAmount()*100));
-        }else{
-            shiftEntity.setSubQrCount(shiftEntity.getSubQrCount()+1);
-            shiftEntity.setSubQrAmount(shiftEntity.getSubQrAmount()+(int)(record.getAmount()*100));
-        }
-        savePaymentShiftEntity(shiftEntity);
-    }
-    
 }

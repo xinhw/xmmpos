@@ -27,7 +27,7 @@ public class DBHelper extends DaoMaster.DevOpenHelper {
     }
     @Override
     public void onUpgrade(Database db, int oldVersion, int newVersion) {
-        if(oldVersion<=12) {
+        if(oldVersion<=13) {
             //   需要进行数据迁移更新的实体类 ，新增的不用加
             DBMigrationHelper.getInstance().migrate(db,
                     DishEntityDao.class,
