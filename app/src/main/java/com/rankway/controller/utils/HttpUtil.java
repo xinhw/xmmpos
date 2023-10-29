@@ -136,6 +136,8 @@ public class HttpUtil {
             httpURLConnection.setRequestMethod("GET");
             //  设置链接超时时间
             httpURLConnection.setConnectTimeout(OVER_TIME_MS);
+            //  设置读取超时时间
+            httpURLConnection.setReadTimeout(OVER_TIME_MS);
 
             httpURLConnection.setUseCaches(false);
 

@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -365,25 +366,42 @@ public class MobilePosPayMainActivity
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d(TAG, String.format("requestCode=%d,resultCode=%d", requestCode, resultCode));
+        if (requestCode == 210) {
+        }
+    }
+
     //页面获取焦点
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "enableForegroundDispatch");
-
-        enableScanner();
-
-        if (null != nfcAdapter) {
-            nfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
-        }
+        Log.d(TAG, "onResume");
 
         posInfoBean = getPosInfoBean();
         if (null == posInfoBean) {
             Log.d(TAG, "第一次使用，需要配置参数");
-            startActivity(MobilePosSettingsActivity.class);
+            Intent intent = new Intent(mContext, MobilePosSettingsActivity.class);
+            startActivityForResult(intent, 210);
+            return;
+        }
+        if(StringUtils.isEmpty(posInfoBean.getCposno())||StringUtils.isEmpty(posInfoBean.getUsercode())){
+            Log.d(TAG, "第一次使用，需要配置参数");
+            Intent intent = new Intent(mContext, MobilePosSettingsActivity.class);
+            startActivityForResult(intent, 210);
+            return;
+        }
+
+        enableScanner();
+        if (null != nfcAdapter) {
+            nfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
         }
 
         getTodayRecords();
+
         refreshStatistics(totalCount, totalAmount);
 
         adapter.notifyDataSetChanged();
