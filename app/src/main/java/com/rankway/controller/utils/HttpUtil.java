@@ -38,6 +38,7 @@ public class HttpUtil {
         int ret = SpManager.getIntance().getSpInt(AppIntentString.HTTP_OVER_TIME);
         if(ret<=0) ret = DEFAULT_OVER_TIME;
         OVER_TIME_MS = ret;
+        Log.d(TAG,"OVER_TIME_MS "+OVER_TIME_MS);
     }
 
     public String httpPost(String url,String contentType,String content){
@@ -142,6 +143,8 @@ public class HttpUtil {
             httpURLConnection.setRequestMethod("GET");
             //  设置链接超时时间
             httpURLConnection.setConnectTimeout(OVER_TIME_MS);
+            //  设置读取超时时间
+            httpURLConnection.setReadTimeout(OVER_TIME_MS);
 
             httpURLConnection.setUseCaches(false);
 
