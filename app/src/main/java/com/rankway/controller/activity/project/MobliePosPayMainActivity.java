@@ -343,15 +343,20 @@ public class MobliePosPayMainActivity
             if (null == scanResult) return;
             if (scanResult.length() == 0) return;
 
-            cardPaymentObj = decodeQRCode.decode(scanResult);
-            if (null == cardPaymentObj) {
+            try {
+                cardPaymentObj = decodeQRCode.decode(scanResult);
+                if (null == cardPaymentObj) {
+                    playSound(false);
+                    showToast("无效的二维码");
+                    return;
+                }
+
+                startQuery(PAYMENT_TYPE_QRCODE);
+            }catch (Exception e){
+                DetLog.writeLog(TAG,"无法解析的二维码："+scanResult);
                 playSound(false);
                 showToast("无效的二维码");
-                return;
             }
-
-            startQuery(PAYMENT_TYPE_QRCODE);
-
             return;
         }
     }

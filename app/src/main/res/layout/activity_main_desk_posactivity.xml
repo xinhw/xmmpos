@@ -149,350 +149,565 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_marginTop="5dp">
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="6"
+            android:layout_width="0dp"
+            android:layout_weight="1.5"
+            android:layout_height="match_parent"
             android:tooltipText="支付区域"
-            android:orientation="horizontal">
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tvSelectedTitle"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:background="@drawable/seleted_status"
+                android:textSize="14sp"
+                android:text="选购内容"/>
+            <!-- 这里需要加个标题-->
+
             <LinearLayout
-                android:layout_height="match_parent"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
                 <TextView
-                    android:id="@+id/tvSelectedTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
+                    android:id="@+id/seqNo"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.5"
+                    android:textColor="@color/black"
                     android:gravity="center"
-                    android:textStyle="bold"
-                    android:background="@drawable/seleted_status"
                     android:textSize="14sp"
-                    android:text="选购内容"/>
-                <!-- 这里需要加个标题-->
+                    android:text="序号" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <View
+                    android:layout_width="0.2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/btn_gray_normal" />
+
+                <TextView
+                    android:id="@+id/dishName"
+                    android:layout_width="0dp"
+                    android:padding="1dp"
+                    android:background="@null"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:textColor="@color/black"
+                    android:gravity="center"
+                    android:textSize="14sp"
+                    android:text="菜名" />
+
+                <View
+                    android:layout_width="0.2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/btn_gray_normal" />
+
+                <TextView
+                    android:id="@+id/dishPrice"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:textColor="@color/black"
+                    android:gravity="center"
+                    android:textSize="14sp"
+                    android:text="单价" />
+
+                <View
+                    android:layout_width="0.2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/btn_gray_normal" />
+
+                <TextView
+                    android:id="@+id/dishCount"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.5"
+                    android:textColor="@color/black"
+                    android:gravity="center"
+                    android:textSize="14sp"
+                    android:text="数量" />
+
+                <View
+                    android:layout_width="0.2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/btn_gray_normal" />
+
+                <TextView
+                    android:id="@+id/dishAmount"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:id="@+id/seqNo"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.5"
-                        android:textColor="@color/black"
-                        android:gravity="center"
-                        android:textSize="14sp"
-                        android:text="序号" />
+                    android:layout_weight="1"
+                    android:textColor="@color/black"
+                    android:gravity="center"
+                    android:textSize="14sp"
+                    android:text="金额" />
 
-                    <View
-                        android:layout_width="0.2dp"
-                        android:layout_height="match_parent"
-                        android:background="@color/btn_gray_normal" />
+            </LinearLayout>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/selectedRecyclerView"
+                android:scrollbars="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
 
-                    <TextView
-                        android:id="@+id/dishName"
-                        android:layout_width="0dp"
-                        android:padding="1dp"
-                        android:background="@null"
-                        android:layout_height="match_parent"
-                        android:layout_weight="2"
-                        android:textColor="@color/black"
-                        android:gravity="center"
-                        android:textSize="14sp"
-                        android:text="菜名" />
-
-                    <View
-                        android:layout_width="0.2dp"
-                        android:layout_height="match_parent"
-                        android:background="@color/btn_gray_normal" />
-
-                    <TextView
-                        android:id="@+id/dishPrice"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:textColor="@color/black"
-                        android:gravity="center"
-                        android:textSize="14sp"
-                        android:text="单价" />
-
-                    <View
-                        android:layout_width="0.2dp"
-                        android:layout_height="match_parent"
-                        android:background="@color/btn_gray_normal" />
-
-                    <TextView
-                        android:id="@+id/dishCount"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.5"
-                        android:textColor="@color/black"
-                        android:gravity="center"
-                        android:textSize="14sp"
-                        android:text="数量" />
-
-                    <View
-                        android:layout_width="0.2dp"
-                        android:layout_height="match_parent"
-                        android:background="@color/btn_gray_normal" />
-
-                    <TextView
-                        android:id="@+id/dishAmount"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textColor="@color/black"
-                        android:gravity="center"
-                        android:textSize="14sp"
-                        android:text="金额" />
-
-                </LinearLayout>
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/selectedRecyclerView"
-                    android:scrollbars="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
-
-                <!-- 简单统计信息-->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:background="@drawable/seleted_status"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_height="match_parent"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:paddingLeft="1dp"
-                        android:textStyle="bold"
-                        android:textSize="16sp"
-                        android:text="数量："/>
-                    <TextView
-                        android:id="@+id/tvSubCount"
-                        android:layout_height="match_parent"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:textStyle="bold|italic"
-                        android:textSize="16sp"
-                        android:text="1000"/>
-                    <TextView
-                        android:layout_height="match_parent"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:paddingLeft="2dp"
-                        android:textStyle="bold"
-                        android:textSize="16sp"
-                        android:text="小计："/>
-                    <TextView
-                        android:id="@+id/tvSubAmount"
-                        android:layout_height="match_parent"
-                        android:layout_width="0dp"
-                        android:layout_weight="1.5"
-                        android:gravity="center"
-                        android:paddingLeft="2dp"
-                        android:textStyle="bold|italic"
-                        android:textSize="16sp"
-                        android:text="10076.23"/>
-                </LinearLayout>
+            <!-- 简单统计信息-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="@drawable/seleted_status"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:paddingLeft="1dp"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:text="数量："/>
+                <TextView
+                    android:id="@+id/tvSubCount"
+                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textStyle="bold|italic"
+                    android:textSize="16sp"
+                    android:text="1000"/>
+                <TextView
+                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:paddingLeft="2dp"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:text="小计："/>
+                <TextView
+                    android:id="@+id/tvSubAmount"
+                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1.5"
+                    android:gravity="center"
+                    android:paddingLeft="2dp"
+                    android:textStyle="bold|italic"
+                    android:textSize="16sp"
+                    android:text="10076.23"/>
             </LinearLayout>
 
-            <View
-                android:layout_width="5dp"
-                android:layout_height="match_parent"
-                android:background="@color/btn_gray_normal" />
+            <TextView
+                android:id="@+id/tvClearSelected"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="清除订单"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:background="@drawable/btn_bg_semic"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/tvInputText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="18sp"
+                android:paddingRight="5dp"
+                android:paddingLeft="5dp"
+                android:textColor="@color/black"
+                android:gravity="center"/>
 
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="3"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <!--第一列-->
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
-                    <!-- 商品类别-->
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/dishTypeRecyclerView"
-                        android:scrollbars="vertical"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent">
+
+                    <View
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"/>
-                </LinearLayout>
+                        android:layout_height="1dp"
+                        android:background="#999999" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="3dp"
-                    android:background="@color/btn_gray_normal" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
-                    <!-- 商品类别-->
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/dishSubTypeRecyclerView"
-                        android:scrollbars="vertical"
+                    <TextView
+                        android:id="@+id/tvNum7"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"/>
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="3dp"
-                    android:background="@color/btn_gray_normal" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="2"
-                    android:orientation="vertical">
-                    <!-- 商品明细-->
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/dishRecyclerView"
-                        android:scrollbars="vertical"
-                        android:layout_width="match_parent"
-                        android:visibility="gone"
-                        android:layout_height="match_parent"/>
-
-                    <LinearLayout
-                        android:id="@+id/noDishView"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
                         android:gravity="center"
+                        android:textSize="24sp"
+                        android:text="7" />
+
+                    <View
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-                        <TextView
-                            android:text="没有商品"
-                            android:textSize="18sp"
-                            android:textColor="@color/black"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
-                    </LinearLayout>
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+
+                    <TextView
+                        android:id="@+id/tvNum4"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="24sp"
+                        android:text="4" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+
+                    <TextView
+                        android:id="@+id/tvNum1"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="24sp"
+                        android:text="1" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+
+                    <TextView
+                        android:id="@+id/tvNum0"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="24sp"
+                        android:text="0" />
                 </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#999999" />
+
+                <!--第二列-->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+
+                    <TextView
+                        android:id="@+id/tvNum8"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="24sp"
+                        android:text="8" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+
+                    <TextView
+                        android:id="@+id/tvNum5"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="24sp"
+                        android:text="5" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+
+                    <TextView
+                        android:id="@+id/tvNum2"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="24sp"
+                        android:text="2" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+
+                    <TextView
+                        android:id="@+id/tvBackspace"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="24sp"
+                        android:text="退格" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#999999" />
+
+                <!--第三列-->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+
+                    <TextView
+                        android:id="@+id/tvNum9"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="24sp"
+                        android:text="9" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+
+                    <TextView
+                        android:id="@+id/tvNum6"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="24sp"
+                        android:text="6" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+
+                    <TextView
+                        android:id="@+id/tvNum3"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="24sp"
+                        android:text="3" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+
+                    <TextView
+                        android:id="@+id/tvClear"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="24sp"
+                        android:text="C" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#999999" />
+
+                <!--第四列-->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent">
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+
+                    <TextView
+                        android:id="@+id/tvIncrement"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="24sp"
+                        android:text="加" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+
+                    <TextView
+                        android:id="@+id/tvDecrement"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="24sp"
+                        android:text="减" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+
+
+                    <TextView
+                        android:id="@+id/tvPrintAgain"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:layout_margin="2dp"
+                        android:text="再次\n打印"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:background="@drawable/btn_bg_semic"
+                        android:gravity="center"/>
+
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#999999" />
+
+                <!--第5列-->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+
+                    <TextView
+                        android:id="@+id/tvCardPay"
+                        android:layout_width="match_parent"
+                        android:layout_weight="1"
+                        android:layout_height="0dp"
+                        android:text="卡支付"
+                        android:textSize="16sp"
+                        android:layout_margin="2dp"
+                        android:textColor="@color/white"
+                        android:background="@drawable/btn_bg_semic"
+                        android:gravity="center"/>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#999999" />
+                    <TextView
+                        android:id="@+id/tvQRPay"
+                        android:layout_width="match_parent"
+                        android:layout_weight="1"
+                        android:layout_height="0dp"
+                        android:text="二维码"
+                        android:textSize="16sp"
+                        android:layout_margin="2dp"
+                        android:textColor="@color/white"
+                        android:background="@drawable/btn_bg_semic"
+                        android:gravity="center"/>
+                </LinearLayout>
+
 
             </LinearLayout>
         </LinearLayout>
 
         <View
-            android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_width="5dp"
+            android:layout_height="match_parent"
             android:background="@color/btn_gray_normal" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.5"
-            android:orientation="horizontal">
-            <!-- 显示一些提示信息，比如时间等-->
-
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_height="match_parent"
+            android:tooltipText="商品区域"
+            android:orientation="vertical">
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="2"
-                android:layout_height="match_parent">
-                <TextView
-                    android:id="@+id/tvClearSelected"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:text="清除"
-                    android:textSize="16sp"
-                    android:textColor="@color/white"
-                    android:background="@drawable/btn_bg_semic"
-                    android:gravity="center"/>
-
-                <View
-                    android:layout_width="5dp"
-                    android:layout_height="match_parent"
-                    android:background="@color/btn_gray_normal" />
-
-                <TextView
-                    android:id="@+id/tvQuatity"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:text="数量"
-                    android:textSize="16sp"
-                    android:textColor="@color/white"
-                    android:background="@drawable/btn_bg_semic"
-                    android:gravity="center"/>
-
-                <View
-                    android:layout_width="10dp"
-                    android:layout_height="match_parent"
-                    android:background="@color/btn_gray_normal" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:text=""
-                    android:textSize="16sp"
-                    android:textColor="@color/white"
-                    android:background="@drawable/btn_bg_semic"
-                    android:gravity="center"/>
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+                <!-- 商品类别-->
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/dishTypeRecyclerView"
+                    android:scrollbars="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@color/btn_gray_normal" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+                <!-- 商品类别-->
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/dishSubTypeRecyclerView"
+                    android:scrollbars="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
             </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@color/btn_gray_normal" />
+
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
                 android:layout_weight="2"
-                android:layout_height="match_parent">
+                android:orientation="vertical">
+                <!-- 商品明细-->
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/dishRecyclerView"
+                    android:scrollbars="vertical"
+                    android:layout_width="match_parent"
+                    android:visibility="gone"
+                    android:layout_height="match_parent"/>
 
-                <TextView
-                    android:id="@+id/tvCardPay"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:text="卡支付"
-                    android:textSize="16sp"
-                    android:textColor="@color/white"
-                    android:background="@drawable/btn_bg_semic"
-                    android:gravity="center"/>
-
-                <View
-                    android:layout_width="5dp"
-                    android:layout_height="match_parent"
-                    android:background="@color/btn_gray_normal" />
-
-                <TextView
-                    android:id="@+id/tvQRPay"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:text="二维码"
-                    android:textSize="16sp"
-                    android:textColor="@color/white"
-                    android:background="@drawable/btn_bg_semic"
-                    android:gravity="center"/>
-
-                <View
-                    android:layout_width="5dp"
-                    android:layout_height="match_parent"
-                    android:background="@color/btn_gray_normal" />
-
-                <TextView
-                    android:id="@+id/tvPrintAgain"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:text="再次打印"
-                    android:textSize="16sp"
-                    android:textColor="@color/white"
-                    android:background="@drawable/btn_bg_semic"
-                    android:gravity="center"/>
+                <LinearLayout
+                    android:id="@+id/noDishView"
+                    android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        android:text="没有商品"
+                        android:textSize="18sp"
+                        android:textColor="@color/black"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>
-
     </LinearLayout>
 </LinearLayout>

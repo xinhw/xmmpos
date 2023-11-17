@@ -233,15 +233,23 @@ public class PaymentDialog
                 return;
             }
 
-            cardInfo cardPaymentObj = decodeQRCode.decode(qrcode);
-            if (null == cardPaymentObj) {
+            try {
+                cardInfo cardPaymentObj = decodeQRCode.decode(qrcode);
+                if (null == cardPaymentObj) {
+                    baseActivity.playSound(false);
+                    baseActivity.showLongToast("无效的二维码");
+                    return;
+                }
+                Log.d(TAG, "二维码：" + qrcode);
+
+                PutMessage(PAY_MODE_QRCODE, cardPaymentObj);
+            }catch (Exception e){
+                DetLog.writeLog(TAG,"无法解析的二维码："+qrcode);
                 baseActivity.playSound(false);
                 baseActivity.showLongToast("无效的二维码");
                 return;
             }
-            Log.d(TAG,"二维码："+qrcode);
 
-            PutMessage(PAY_MODE_QRCODE,cardPaymentObj);
         }
     };
 

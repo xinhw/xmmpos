@@ -1,10 +1,8 @@
 package com.rankway.controller.activity.project;
 
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -17,17 +15,11 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.InputFilter;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.google.android.flexbox.FlexDirection;
@@ -58,6 +50,8 @@ import com.rankway.controller.reader.ReaderCS230Z;
 import com.rankway.controller.utils.ClickUtil;
 import com.rankway.controller.utils.DateStringUtils;
 import com.rankway.controller.utils.HttpUtil;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,6 +105,9 @@ public class DeskPosPayMainActivity
 
     private ImageView imgNetworkConnect;
     private ImageView imgNetworkDisconnect;
+
+    private StringBuilder sbCacheInput = new StringBuilder();
+    private TextView tvInputText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,8 +167,11 @@ public class DeskPosPayMainActivity
         dishRecyclerView.setAdapter(dishAdapter);
         dishAdapter.setOnItemClickListener(this);
 
-        int[] ids = {R.id.tvExit, R.id.tvClearSelected, R.id.tvQuatity,
-                R.id.tvCardPay, R.id.tvQRPay, R.id.tvPrintAgain};
+        int[] ids = {R.id.tvExit, R.id.tvClearSelected,
+                R.id.tvCardPay, R.id.tvQRPay, R.id.tvPrintAgain,
+                R.id.tvNum0,R.id.tvNum1,R.id.tvNum2,R.id.tvNum3,R.id.tvNum4,R.id.tvNum5,R.id.tvNum6,R.id.tvNum7,R.id.tvNum8,R.id.tvNum9,
+                R.id.tvClear,R.id.tvBackspace,
+                R.id.tvIncrement,R.id.tvDecrement};
         findViewIdSetOnClickListener(ids);
 
         tvTime = findViewById(R.id.tvTime);
@@ -180,6 +180,9 @@ public class DeskPosPayMainActivity
 
         imgNetworkConnect = findViewById(R.id.imgNetworkConnect);
         imgNetworkDisconnect = findViewById(R.id.imgNetworkDisconnect);
+
+        tvInputText = findViewById(R.id.tvInputText);
+        tvInputText.setText("0");
     }
 
     private void findViewIdSetOnClickListener(int[] ids) {
@@ -363,13 +366,6 @@ public class DeskPosPayMainActivity
                 playSound(true);
                 break;
 
-            case R.id.tvQuatity:
-                if (listSelectedDishEntities.size() == 0) return;
-                if (selectedDishPosition == -1) return;
-
-                setDishQuatityDialog("请输入[%s]数量:", selectedDishPosition);
-                break;
-
             case R.id.tvCardPay:
                 if (listSelectedDishEntities.size() == 0) return;
                 showPaymentDialog(PaymentDialog.PAY_MODE_CARD);
@@ -398,6 +394,56 @@ public class DeskPosPayMainActivity
             case R.id.imgSetting:
                 startActivity(DeskPosSettingMenuActivity.class);
                 break;
+
+            case R.id.tvNum0:
+                cacheInputAppend(0);
+                break;
+            case R.id.tvNum1:
+                cacheInputAppend(1);
+                break;
+            case R.id.tvNum2:
+                cacheInputAppend(2);
+                break;
+            case R.id.tvNum3:
+                cacheInputAppend(3);
+                break;
+            case R.id.tvNum4:
+                cacheInputAppend(4);
+                break;
+            case R.id.tvNum5:
+                cacheInputAppend(5);
+                break;
+            case R.id.tvNum6:
+                cacheInputAppend(6);
+                break;
+            case R.id.tvNum7:
+                cacheInputAppend(7);
+                break;
+            case R.id.tvNum8:
+                cacheInputAppend(8);
+                break;
+            case R.id.tvNum9:
+                cacheInputAppend(9);
+                break;
+
+            case R.id.tvClear:
+                cacheInputClear();
+                break;
+            case R.id.tvBackspace:
+                cacheInputBackspace();
+                break;
+
+            case R.id.tvIncrement:
+                if (listSelectedDishEntities.size() == 0) return;
+                if (selectedDishPosition == -1) return;
+                incrementSelectedItemQuantity(1);
+
+            case R.id.tvDecrement:
+                if (listSelectedDishEntities.size() == 0) return;
+                if (selectedDishPosition == -1) return;
+                decrementSelectedItemQuantity(1);
+                break;
+
         }
     }
 
@@ -418,7 +464,16 @@ public class DeskPosPayMainActivity
         Log.d(TAG, "onDishItemClick " + position);
 
         DishEntity dishEntity = new DishEntity(listDishEntities.get(position));
-        dishEntity.setCount(1);
+
+        String str = sbCacheInput.toString();
+        if(StringUtils.isEmpty(str)) {
+            dishEntity.setCount(1);
+        }else{
+            int n = Integer.parseInt(str);
+            if(n<=1) n = 1;
+            dishEntity.setCount(n);
+            sbCacheInput.setLength(0);
+        }
         listSelectedDishEntities.add(dishEntity);
 
         dishRecyclerView.scrollToPosition(listSelectedDishEntities.size() - 1);
@@ -462,129 +517,6 @@ public class DeskPosPayMainActivity
     public void onSelectedDishItemLongClick(View view, int position) {
         Log.d(TAG, "onSelectedDishItemLongClick " + position);
         selectedDishPosition = position;
-
-        showPopupMenu(view, position);
-    }
-
-    /**
-     * 显示右键菜单
-     *
-     * @param view
-     * @param index
-     */
-    private void showPopupMenu(View view, int index) {
-        Log.d(TAG, "showPopupMenu");
-        int[] location = new int[2];
-        view.getLocationInWindow(location);
-        View popuView = getLayoutInflater().inflate(R.layout.popuwindow_view, null, false);
-        PopupWindow popupWindow = new PopupWindow(popuView, 200, 300);
-        popupWindow.setFocusable(true);
-
-        TextView vw = popuView.findViewById(R.id.delete_item);
-        vw.setText("删除");
-        vw.setTextSize(26);
-        popuView.findViewById(R.id.delete_item).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 删除条目
-                if (popupWindow != null && popupWindow.isShowing()) {
-                    popupWindow.dismiss();
-                }
-                DetLog.writeLog(TAG, "删除：" + listSelectedDishEntities.get(index).toString());
-                listSelectedDishEntities.remove(index);
-                selectedAdapter.notifyDataSetChanged();
-
-                refreshSubTotal();
-
-                playSound(true);
-                selectedDishPosition = -1;
-            }
-        });
-
-        vw = popuView.findViewById(R.id.insert_item);
-        vw.setText("数量");
-        vw.setTextSize(26);
-        vw.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 设置数量
-                if (popupWindow != null && popupWindow.isShowing()) {
-                    popupWindow.dismiss();
-                    setDishQuatityDialog("请输入[%s]数量:", index);
-                }
-            }
-        });
-
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.showAtLocation(view, Gravity.RIGHT | Gravity.TOP, 0, location[1] + 25);
-    }
-
-    /**
-     * 输入菜品数量
-     *
-     * @param title
-     * @param position
-     */
-    private void setDishQuatityDialog(String title, int position) {
-        Log.d(TAG, "setDishQuatityDialog " + position);
-
-        DishEntity dishEntity = null;
-
-        try {
-            dishEntity = listSelectedDishEntities.get(position);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-        if (dishEntity == null) return;
-
-        // 展示提示框，进行数据输入
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = LayoutInflater.from(this).inflate(R.layout.input_dialog_view, null);
-        TextView tvTitle = view.findViewById(R.id.tvTitle);
-        tvTitle.setText(String.format(title, dishEntity.getDishName()));
-
-        EditText editText = view.findViewById(R.id.inputEditText);
-        editText.setInputType(EditorInfo.TYPE_CLASS_NUMBER);
-        editText.setFilters(new InputFilter[]{
-                new InputFilter.LengthFilter(2)
-        });
-
-        builder.setView(view);
-        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String str = editText.getText().toString().trim();
-                int count = 0;
-                try {
-                    count = Integer.parseInt(str);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    showToast("输入无效！");
-                    playSound(false);
-                    return;
-                }
-                dialog.dismiss();
-
-                Log.d(TAG, "修改数量：" + position);
-                DishEntity item = listSelectedDishEntities.get(position);
-                item.setCount(count);
-                selectedAdapter.notifyDataSetChanged();
-
-                DetLog.writeLog(TAG, "修改数量：" + item.toString());
-
-                refreshSubTotal();
-                playSound(true);
-            }
-        });
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        builder.create().show();
     }
 
     private Handler mHandler = new Handler() {
@@ -856,4 +788,73 @@ public class DeskPosPayMainActivity
         mUsbReceiver = null;
     }
 
+
+    private void cacheInputAppend(int n){
+        sbCacheInput.append(n+"");
+        try{
+            int number = Integer.parseInt(sbCacheInput.toString());
+            sbCacheInput.setLength(0);
+            sbCacheInput.append(number+"");
+            tvInputText.setText(sbCacheInput.toString());
+        }catch (Exception e){
+            e.printStackTrace();
+            playSound(false);
+        }
+    }
+
+    private void cacheInputBackspace(){
+        if(sbCacheInput.length()<1) return;
+        sbCacheInput.deleteCharAt(sbCacheInput.length()-1);
+        try{
+            int number = Integer.parseInt(sbCacheInput.toString());
+            sbCacheInput.setLength(0);
+            sbCacheInput.append(number+"");
+            tvInputText.setText(sbCacheInput.toString());
+        }catch (Exception e){
+            e.printStackTrace();
+            playSound(false);
+        }
+    }
+
+    private void cacheInputClear(){
+        sbCacheInput.setLength(0);
+        tvInputText.setText("0");
+    }
+
+
+    private void incrementSelectedItemQuantity(int n){
+        Log.d(TAG, "增加数量：" + selectedDishPosition);
+        DishEntity item = listSelectedDishEntities.get(selectedDishPosition);
+        item.setCount(item.getCount()+n);
+        selectedAdapter.notifyDataSetChanged();
+
+        DetLog.writeLog(TAG, "增加数量：" + item.toString());
+
+        refreshSubTotal();
+        playSound(true);
+    }
+
+    private void decrementSelectedItemQuantity(int n){
+        Log.d(TAG, "减少数量：" + selectedDishPosition);
+        DishEntity item = listSelectedDishEntities.get(selectedDishPosition);
+
+        int count = item.getCount()-n;
+        if(count>0){
+            item.setCount(count);
+            selectedAdapter.notifyDataSetChanged();
+            DetLog.writeLog(TAG, "减少数量：" + item.toString());
+
+            refreshSubTotal();
+            playSound(true);
+            return;
+        }
+
+        listSelectedDishEntities.remove(selectedDishPosition);
+        selectedAdapter.notifyDataSetChanged();
+
+        refreshSubTotal();
+
+        playSound(true);
+        selectedDishPosition = -1;
+    }
 }
