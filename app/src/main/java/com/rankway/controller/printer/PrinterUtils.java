@@ -146,6 +146,7 @@ public class PrinterUtils {
 
         //  走纸5行
         // printBytes(PrinterFormatUtils.getFeedCommand(2));
+        shiftEntity.setShiftNo(DateStringUtils.getYYMMDDHHMMss(shiftEntity.getShiftOnTime())+shiftEntity.getShiftOnAuditNo());
 
         s = "--------------------------------";
         printer.printString(s);
@@ -168,6 +169,9 @@ public class PrinterUtils {
         s =combinePrintLine(12,"收银员：",shiftEntity.getOperatorNo());
         printer.printString(s);
 
+        //  班次号：
+        s =combinePrintLine(12,"班次号：",shiftEntity.getShiftNo());
+        printer.printString(s);
 
         //  开班流水
         s =combinePrintLine(12,"开班流水：",shiftEntity.getShiftOnAuditNo()+"");
@@ -194,7 +198,7 @@ public class PrinterUtils {
         printer.printString(s);
 
         //  报表时间
-        s =combinePrintLine(12,"报表时间：", DateUtil.getDateDStr(shiftEntity.getReportTime()));
+        s =combinePrintLine(12,"打印时间：", DateUtil.getDateDStr(shiftEntity.getReportTime()));
         printer.printString(s);
 
         //  走纸3行

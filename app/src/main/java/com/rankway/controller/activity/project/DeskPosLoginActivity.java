@@ -29,11 +29,9 @@ import com.rankway.controller.persistence.entity.DishEntity;
 import com.rankway.controller.persistence.entity.DishSubTypeEntity;
 import com.rankway.controller.persistence.entity.DishTypeEntity;
 import com.rankway.controller.persistence.entity.PaymentShiftEntity;
-import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.persistence.entity.PersonInfoEntity;
 import com.rankway.controller.persistence.entity.QrBlackListEntity;
 import com.rankway.controller.persistence.entity.UserInfoEntity;
-import com.rankway.controller.persistence.gen.PaymentTotalDao;
 import com.rankway.controller.persistence.gen.UserInfoEntityDao;
 import com.rankway.controller.printer.PrinterBase;
 import com.rankway.controller.printer.PrinterFactory;
@@ -185,26 +183,6 @@ public class DeskPosLoginActivity
             //  信息没有被配置，直接进入到设置界面
             Intent intent = new Intent(mContext, MobilePosSettingsActivity.class);
             startActivityForResult(intent, 210);
-        }
-
-        List<PaymentTotal> items = DBManager.getInstance().getPaymentTotalDao()
-                .queryBuilder()
-                .where(PaymentTotalDao.Properties.Id.ge(444))
-                .list();
-        Log.d(TAG,"Item size:"+items.size());
-
-        payWebapi obj = payWebapi.getInstance();
-        if(null!=posInfoBean){
-            obj.setServerIP(posInfoBean.getServerIP());
-            obj.setPortNo(posInfoBean.getPortNo());
-
-            obj.setMenuServerIP(posInfoBean.getMenuServerIP());
-            obj.setMenuPortNo(posInfoBean.getMenuPortNo());
-        }
-
-        for(PaymentTotal item:items){
-            obj.uploadPaymentItems(item);
-            detSleep(100);
         }
 
         //  信息如果被配置，进入到数据同步界面
@@ -463,7 +441,8 @@ public class DeskPosLoginActivity
             uploadPaymentRecords();
             sendProccessMessage("上传 离线交易 完成");
 
-//            uploadShiftRecord();
+            //  6. 上传已经未上传的结班记录
+            uploadShiftRecords();
 
             //  上次同步时间
             if (4 == n) {
@@ -716,19 +695,40 @@ public class DeskPosLoginActivity
     private void shiftOff(){
         //  判断是否已经结班
         if(shiftEntity==null) return;
-        if(shiftEntity.getStatus()==PaymentShiftEntity.SHIFT_STATUS_ON) {
-            //  签退流水
-            if (null != posInfoBean) {
-                shiftEntity.setShiftOffAuditNo(posInfoBean.getAuditNo());
-            }
-            //  结班时间
-            shiftEntity.setShiftOffTime(System.currentTimeMillis());
 
-            //  结班状态
-            shiftEntity.setStatus(PaymentShiftEntity.SHIFT_STATUS_OFF);
-
-            savePaymentShiftEntity(shiftEntity);
+        if(shiftEntity.getStatus()!=PaymentShiftEntity.SHIFT_STATUS_ON) {
+            playSound(false);
+            //  已经结班，是否要重新打印
+            showDialogMessage("结班", "已经结班，是否要重新打印？",
+                    "确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //  报表时间
+                            shiftEntity.setReportTime(System.currentTimeMillis());
+                            DetLog.writeLog(TAG,"已经结班，重新打印："+shiftEntity.toString());
+                            printShiftOffEntity(shiftEntity);
+                        }
+                    },
+                    "取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            return;
         }
+
+        //  签退流水
+        if (null != posInfoBean) {
+            shiftEntity.setShiftOffAuditNo(posInfoBean.getAuditNo());
+        }
+        //  结班时间
+        shiftEntity.setShiftOffTime(System.currentTimeMillis());
+
+        //  结班状态
+        shiftEntity.setStatus(PaymentShiftEntity.SHIFT_STATUS_OFF);
+
+        savePaymentShiftEntity(shiftEntity);
 
         //  报表时间
         shiftEntity.setReportTime(System.currentTimeMillis());
@@ -742,11 +742,23 @@ public class DeskPosLoginActivity
 //            return;
 //        }
 
-        shiftEntity.setShiftNo(DateStringUtils.getYYMMDDHHMMss(shiftEntity.getShiftOnTime())+shiftEntity.getShiftOnAuditNo());
+        //  打印结班报表
+        printShiftOffEntity(shiftEntity);
 
+        //  上传结班记录，未上传陈宫纳入上传离线记录中
         payWebapi obj = payWebapi.getInstance();
         obj.uploadShiftOff(shiftEntity);
 
+        playSound(true);
+
+        return;
+    }
+
+    /***
+     * 打印结班记录
+     * @param shiftEntity
+     */
+    private void printShiftOffEntity(PaymentShiftEntity shiftEntity){
         //  打印部分
         PrinterBase printer = PrinterFactory.getPrinter(mContext);
         int ret = printer.openPrinter();
@@ -758,9 +770,7 @@ public class DeskPosLoginActivity
             printerUtils.printShiftSettle(printer, shiftEntity);
             printer.closePrinter();
         }
-        return;
     }
-
 
     /***
      * 刷新班次状态

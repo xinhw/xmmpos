@@ -1463,7 +1463,10 @@ public class BaseActivity extends AppCompatActivity {
     }
 
 
-    protected void uploadShiftRecord(){
+    /***
+     * 上传未上传结班记录
+     */
+    protected void uploadShiftRecords(){
         Log.d(TAG,"uploadShiftRecord");
 
         PosInfoBean posInfoBean = getPosInfoBean();
@@ -1479,13 +1482,14 @@ public class BaseActivity extends AppCompatActivity {
         List<PaymentShiftEntity> list0 = DBManager.getInstance().getPaymentShiftEntityDao()
                 .queryBuilder()
                 .where(PaymentShiftEntityDao.Properties.Status.eq(PaymentShiftEntity.SHIFT_STATUS_OFF))
-                .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(0))
                 .list();
 
         if(list0.size()==0) return;
 
         for(PaymentShiftEntity entity:list0){
+            DetLog.writeLog(TAG,"上传结班记录："+entity.toString());
             obj.uploadShiftOff(entity);
+            detSleep(100);
         }
         return;
     }

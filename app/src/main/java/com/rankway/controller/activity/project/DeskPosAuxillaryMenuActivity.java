@@ -216,7 +216,8 @@ public class DeskPosAuxillaryMenuActivity
                 setLongInfo(AppIntentString.LAST_SYNC_TIME, System.currentTimeMillis());
             }
 
-//            uploadShiftRecord();
+            //  6. 上传已经未上传的结班记录
+            uploadShiftRecords();
 
             return 0;
         }

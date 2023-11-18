@@ -391,7 +391,7 @@ public class PaymentDialog
 
             //  如果支付环节出现超时等情况
             //  先保存记录，状态改为离线，报成功
-            isOnlineFailure = true;
+            isOnlineFailure = false;
             if(ret!=0){
                 isOnlineFailure = true;
                 DetLog.writeLog(TAG,"支付出现失败，保存离线记录："+ JSON.toJSONString(cardPaymentObj));

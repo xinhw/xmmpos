@@ -44,8 +44,6 @@ public class PaymentShiftEntity
 
     @Transient
     String shiftNo;         //  班次号
-    @Transient
-    int uploadFlag;         //  0表示未上传，1表示已经上传
 
     public Long getId() {
         return id;
@@ -156,9 +154,10 @@ public class PaymentShiftEntity
         this.status = status;
     }
 
-    
-    public static final int SHIFT_STATUS_OFF = 0;
-    public static final int SHIFT_STATUS_ON = 1;
+    public static final int SHIFT_STATUS_ON = 0;                //  开班未结班
+    public static final int SHIFT_STATUS_OFF = 1;                //  结班未上传
+    public static final int SHIFT_STATUS_OFF_UPLOADED = 2;       //  结班未上传
+
 
     @Generated(hash = 1861760238)
     public PaymentShiftEntity(Long id, String posNo, String operatorNo,
@@ -231,13 +230,5 @@ public class PaymentShiftEntity
 
     public void setShiftNo(String shiftNo) {
         this.shiftNo = shiftNo;
-    }
-
-    public int getUploadFlag() {
-        return uploadFlag;
-    }
-
-    public void setUploadFlag(int uploadFlag) {
-        this.uploadFlag = uploadFlag;
     }
 }

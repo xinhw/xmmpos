@@ -15,6 +15,7 @@ import com.rankway.controller.persistence.entity.QrBlackListEntity;
 import com.rankway.controller.persistence.entity.UserInfoEntity;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.Base64Util;
+import com.rankway.controller.utils.DateStringUtils;
 import com.rankway.controller.utils.HttpUtil;
 import com.rankway.controller.webapi.menu.Result;
 
@@ -1821,10 +1822,13 @@ public class payWebapi {
      * @return
      */
     public int uploadShiftOff(PaymentShiftEntity shiftEntity){
+        Log.d(TAG,"uploadShiftOff");
 
         String serverPort = String.format("http://%s:%d",menuServerIP,menuPortNo);
         String url = serverPort + "/posshift/shiftoff?posno="+getCposno();
         Log.d(TAG,"URL:"+url);
+
+        shiftEntity.setShiftNo(DateStringUtils.getYYMMDDHHMMss(shiftEntity.getShiftOnTime())+shiftEntity.getShiftOnAuditNo());
 
         String jsondata = JSON.toJSONString(shiftEntity);
         DetLog.writeLog(TAG,"结班JSON:"+jsondata);
@@ -1834,7 +1838,7 @@ public class payWebapi {
             @Override
             public void onFailure(Call call, IOException e) {
                 DetLog.writeLog(TAG,"上传结班记录失败："+e.getMessage());
-                shiftEntity.setUploadFlag(0);
+                shiftEntity.setStatus(PaymentShiftEntity.SHIFT_STATUS_OFF);
                 DBManager.getInstance().getPaymentShiftEntityDao().save(shiftEntity);
                 return;
             }
@@ -1848,10 +1852,10 @@ public class payWebapi {
                     Log.d(TAG,"Result:"+result.toString());
                     if(result.getCode()>=0){
                         DetLog.writeLog(TAG,"上传结班记录成功："+strjson);
-                        shiftEntity.setUploadFlag(1);
+                        shiftEntity.setStatus(PaymentShiftEntity.SHIFT_STATUS_OFF_UPLOADED);
                     }else{
                         DetLog.writeLog(TAG,"上传结班记录失败："+strjson);
-                        shiftEntity.setUploadFlag(0);
+                        shiftEntity.setStatus(PaymentShiftEntity.SHIFT_STATUS_OFF);
                     }
                     DBManager.getInstance().getPaymentShiftEntityDao().save(shiftEntity);
                 }catch (Exception e){
