@@ -5,6 +5,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Transient;
 
 /**
  * <pre>
@@ -41,29 +42,10 @@ public class PaymentShiftEntity
 
     int status;             //  状态
 
-    @Generated(hash = 1861760238)
-    public PaymentShiftEntity(Long id, String posNo, String operatorNo,
-            long shiftOnAuditNo, long shiftOnTime, long shiftOffAuditNo,
-            long shiftOffTime, long reportTime, int subCardCount,
-            long subCardAmount, int subQrCount, long subQrAmount, int status) {
-        this.id = id;
-        this.posNo = posNo;
-        this.operatorNo = operatorNo;
-        this.shiftOnAuditNo = shiftOnAuditNo;
-        this.shiftOnTime = shiftOnTime;
-        this.shiftOffAuditNo = shiftOffAuditNo;
-        this.shiftOffTime = shiftOffTime;
-        this.reportTime = reportTime;
-        this.subCardCount = subCardCount;
-        this.subCardAmount = subCardAmount;
-        this.subQrCount = subQrCount;
-        this.subQrAmount = subQrAmount;
-        this.status = status;
-    }
-
-    @Generated(hash = 161782890)
-    public PaymentShiftEntity() {
-    }
+    @Transient
+    String shiftNo;         //  班次号
+    @Transient
+    int uploadFlag;         //  0表示未上传，1表示已经上传
 
     public Long getId() {
         return id;
@@ -178,6 +160,30 @@ public class PaymentShiftEntity
     public static final int SHIFT_STATUS_OFF = 0;
     public static final int SHIFT_STATUS_ON = 1;
 
+    @Generated(hash = 1861760238)
+    public PaymentShiftEntity(Long id, String posNo, String operatorNo,
+            long shiftOnAuditNo, long shiftOnTime, long shiftOffAuditNo,
+            long shiftOffTime, long reportTime, int subCardCount,
+            long subCardAmount, int subQrCount, long subQrAmount, int status) {
+        this.id = id;
+        this.posNo = posNo;
+        this.operatorNo = operatorNo;
+        this.shiftOnAuditNo = shiftOnAuditNo;
+        this.shiftOnTime = shiftOnTime;
+        this.shiftOffAuditNo = shiftOffAuditNo;
+        this.shiftOffTime = shiftOffTime;
+        this.reportTime = reportTime;
+        this.subCardCount = subCardCount;
+        this.subCardAmount = subCardAmount;
+        this.subQrCount = subQrCount;
+        this.subQrAmount = subQrAmount;
+        this.status = status;
+    }
+
+    @Generated(hash = 161782890)
+    public PaymentShiftEntity() {
+    }
+
     public int getTotalCount(){
         return this.subCardCount+this.subQrCount;
     }
@@ -215,6 +221,23 @@ public class PaymentShiftEntity
                 ", subQrCount=" + subQrCount +
                 ", subQrAmount=" + subQrAmount +
                 ", status=" + status +
+                ", shiftNo='" + shiftNo + '\'' +
                 '}';
+    }
+
+    public String getShiftNo() {
+        return shiftNo;
+    }
+
+    public void setShiftNo(String shiftNo) {
+        this.shiftNo = shiftNo;
+    }
+
+    public int getUploadFlag() {
+        return uploadFlag;
+    }
+
+    public void setUploadFlag(int uploadFlag) {
+        this.uploadFlag = uploadFlag;
     }
 }

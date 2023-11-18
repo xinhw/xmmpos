@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
+import com.rankway.controller.persistence.entity.PaymentShiftEntity;
 import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.persistence.entity.PersonInfoEntity;
 import com.rankway.controller.persistence.entity.QrBlackListEntity;
@@ -1746,10 +1747,15 @@ public class payWebapi {
                 try {
                     Result result = JSON.parseObject(strjson, Result.class);
                     Log.d(TAG,"Result:"+result.toString());
-
-                    paymentTotal.setUploadFlag(PaymentTotal.UPLOADED);
+                    if(result.getCode()>0) {
+                        paymentTotal.setUploadFlag(PaymentTotal.UPLOADED);
+                        DetLog.writeLog(TAG, "上传明细成功：" + JSON.toJSONString(paymentTotal));
+                    }else{
+                        paymentTotal.setUploadFlag(PaymentTotal.UNUPLOAD);
+                        DetLog.writeLog(TAG,"上传消费明细失败：");
+                    }
                     DBManager.getInstance().getPaymentTotalDao().save(paymentTotal);
-                    DetLog.writeLog(TAG, "上传明细成功：" + JSON.toJSONString(paymentTotal));
+
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -1764,5 +1770,95 @@ public class payWebapi {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    /***
+     * 开班报文
+     * @param shiftEntity
+     * @return
+     */
+    public int uploadShiftOn(PaymentShiftEntity shiftEntity){
+
+        String serverPort = String.format("http://%s:%d",menuServerIP,menuPortNo);
+        String url = serverPort + "/posshift/shifton?posno="+getCposno();
+        Log.d(TAG,"URL:"+url);
+
+        String jsondata = JSON.toJSONString(shiftEntity);
+        DetLog.writeLog(TAG,"开班JSON:"+jsondata);
+
+        AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
+        asyncHttpCilentUtil.httpPostJson(url, jsondata, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                DetLog.writeLog(TAG,"上传开班记录失败："+e.getMessage());
+                return;
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String strjson = response.body().string();
+                Log.d(TAG, "onSuccess:" + strjson);
+                try {
+                    Result result = JSON.parseObject(strjson, Result.class);
+                    Log.d(TAG,"Result:"+result.toString());
+                    if(result.getCode()>=0){
+                        DetLog.writeLog(TAG,"上传开班记录成功："+strjson);
+                    }else{
+                        DetLog.writeLog(TAG,"上传开班记录失败："+strjson);
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+        return 0;
+    }
+
+
+    /***
+     * 上传结班记录
+     * @param shiftEntity
+     * @return
+     */
+    public int uploadShiftOff(PaymentShiftEntity shiftEntity){
+
+        String serverPort = String.format("http://%s:%d",menuServerIP,menuPortNo);
+        String url = serverPort + "/posshift/shiftoff?posno="+getCposno();
+        Log.d(TAG,"URL:"+url);
+
+        String jsondata = JSON.toJSONString(shiftEntity);
+        DetLog.writeLog(TAG,"结班JSON:"+jsondata);
+
+        AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
+        asyncHttpCilentUtil.httpPostJson(url, jsondata, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                DetLog.writeLog(TAG,"上传结班记录失败："+e.getMessage());
+                shiftEntity.setUploadFlag(0);
+                DBManager.getInstance().getPaymentShiftEntityDao().save(shiftEntity);
+                return;
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String strjson = response.body().string();
+                Log.d(TAG, "onSuccess:" + strjson);
+                try {
+                    Result result = JSON.parseObject(strjson, Result.class);
+                    Log.d(TAG,"Result:"+result.toString());
+                    if(result.getCode()>=0){
+                        DetLog.writeLog(TAG,"上传结班记录成功："+strjson);
+                        shiftEntity.setUploadFlag(1);
+                    }else{
+                        DetLog.writeLog(TAG,"上传结班记录失败："+strjson);
+                        shiftEntity.setUploadFlag(0);
+                    }
+                    DBManager.getInstance().getPaymentShiftEntityDao().save(shiftEntity);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+        return 0;
     }
 }

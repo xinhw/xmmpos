@@ -33,4 +33,11 @@ public class DateStringUtils {
     }
 
 
+    public static String getYYMMDDHHMMss(long times){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyMMddHHmmss");
+        Date date = new Date(times);
+        String format = simpleDateFormat.format(date);
+        return format;
+    }
+
 }

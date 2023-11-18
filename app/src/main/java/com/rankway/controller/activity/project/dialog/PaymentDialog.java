@@ -24,6 +24,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSON;
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.activity.project.manager.SpManager;
@@ -297,6 +298,7 @@ public class PaymentDialog
         String errString = "";
         cardInfo cardPaymentObj;
         int payMode;
+        boolean isOnlineFailure = false;
         boolean isOnlinePay = true;
 
         public AsynTaskPayment(int payMode,cardInfo obj,float amount) {
@@ -386,9 +388,14 @@ public class PaymentDialog
                 ret = obj.qrPayment(posInfoBean.getAuditNo(), cardPaymentObj.getSystemId(), cardPaymentObj.getQrType(), cardPaymentObj.getUserId(), new Date(), (int) (famount * 100));
                 DetLog.writeLog(TAG, "qrPayment:" + ret);
             }
+
+            //  如果支付环节出现超时等情况
+            //  先保存记录，状态改为离线，报成功
+            isOnlineFailure = true;
             if(ret!=0){
+                isOnlineFailure = true;
+                DetLog.writeLog(TAG,"支付出现失败，保存离线记录："+ JSON.toJSONString(cardPaymentObj));
                 errString = obj.getErrMsg();
-                return ret;
             }
             return 0;
         }
@@ -537,7 +544,7 @@ public class PaymentDialog
 
             String s1 = SpManager.getIntance().getSpString(AppIntentString.DISH_TYPE_VER);
             PaymentTotal paymentTotal = new PaymentTotal(record,s1);
-            paymentTotal.setUploadFlag(PaymentTotal.UPLOADED);  //  先设置为1，上传失败设置为0（防止后台任务自动上传）
+            paymentTotal.setUploadFlag(PaymentTotal.UNUPLOAD);
             DBManager.getInstance().getPaymentTotalDao().save(paymentTotal);
 
             int n = 1;
@@ -549,7 +556,6 @@ public class PaymentDialog
             }
             DBManager.getInstance().getPaymentItemEntityDao().saveInTx(items);
             Log.d(TAG,"items "+items.size());
-
             if(!isOnline) return;
 
             payWebapi obj = payWebapi.getInstance();
@@ -582,7 +588,10 @@ public class PaymentDialog
                 PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, famount, posInfoBean);
 
                 int flag = 0x00;
-                if(isOnlinePay) flag = 0x01;
+                if(isOnlinePay) {
+                    flag = 0x01;
+                    if(isOnlineFailure) flag = 0x00;        //  在线，但失败了
+                }
 
                 saveAndUploadPaymentItems(isOnlinePay,posInfoBean,record);
 

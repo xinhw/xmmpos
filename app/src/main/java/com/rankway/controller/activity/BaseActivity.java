@@ -1091,6 +1091,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void httpPostLogFile(final ArrayList<String> logfiles, final File logfile) {
+        Log.d(TAG,"httpPostLogFile");
 
         //  上传地址
         String url = getUploadLogUrl();
@@ -1108,13 +1109,24 @@ public class BaseActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.d(TAG, "日志上传成功！");
-
-                //  将合并的原始日志文件删除
-                for (String filename : logfiles) {
-                    File file = new File(filename);
-                    Log.d(TAG, "删除日志文件：" + filename);
-                    file.delete();
+                String strjson = response.body().string();
+                Log.d(TAG, "onSuccess:" + strjson);
+                try {
+                    Result result = JSON.parseObject(strjson, Result.class);
+                    Log.d(TAG,"Result:"+result.toString());
+                    if(result.getCode()>=0){
+                        DetLog.writeLog(TAG, "日志上传成功！");
+                        //  将原始日志文件删除
+                        for (String filename : logfiles) {
+                            File file = new File(filename);
+                            Log.d(TAG, "删除日志文件：" + filename);
+                            file.delete();
+                        }
+                    }else{
+                        DetLog.writeLog(TAG, "日志上传失败！");
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
 
                 //  将合并文件删除
@@ -1409,16 +1421,17 @@ public class BaseActivity extends AppCompatActivity {
                 int ret = obj.pushOfflineCardPaymentRecords(record);
                 if(0!=ret){
                     DetLog.writeLog(TAG,"IC卡离线记录上送失败："+record.toString());
+
                     record.setUploadFlag(PaymentTotal.UNUPLOAD);
                     record.setUploadTime(new Date());
-                    DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
                 }else{
                     DetLog.writeLog(TAG,"IC卡离线记录上送成功："+record.toString());
+
                     record.setUploadFlag(PaymentTotal.UPLOADED);
                     record.setUploadTime(new Date());
-                    DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
                 }
             }
+            DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
         }
 
 
@@ -1432,21 +1445,49 @@ public class BaseActivity extends AppCompatActivity {
             int n = 0;
             for(PaymentRecordEntity record:listQrRecord){
                 n++;
-                int ret = obj.pushOfflineCardPaymentRecords(record);
+                int ret = obj.pushOfflineQRPaymentRecords(record);
                 if(0!=ret){
+                    DetLog.writeLog(TAG,"二维码离线记录上送失败："+record.toString());
+
                     record.setUploadFlag(PaymentTotal.UNUPLOAD);
                     record.setUploadTime(new Date());
-                    DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
-                    DetLog.writeLog(TAG,"二维码离线记录上送失败："+record.toString());
                 }else{
                     DetLog.writeLog(TAG,"二维码离线记录上送成功："+record.toString());
 
                     record.setUploadFlag(PaymentTotal.UPLOADED);
                     record.setUploadTime(new Date());
-                    DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
                 }
             }
+            DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listQrRecord);
         }
+    }
+
+
+    protected void uploadShiftRecord(){
+        Log.d(TAG,"uploadShiftRecord");
+
+        PosInfoBean posInfoBean = getPosInfoBean();
+        payWebapi obj = payWebapi.getInstance();
+        if(null!=posInfoBean){
+            obj.setServerIP(posInfoBean.getServerIP());
+            obj.setPortNo(posInfoBean.getPortNo());
+
+            obj.setMenuServerIP(posInfoBean.getMenuServerIP());
+            obj.setMenuPortNo(posInfoBean.getMenuPortNo());
+        }
+
+        List<PaymentShiftEntity> list0 = DBManager.getInstance().getPaymentShiftEntityDao()
+                .queryBuilder()
+                .where(PaymentShiftEntityDao.Properties.Status.eq(PaymentShiftEntity.SHIFT_STATUS_OFF))
+                .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(0))
+                .list();
+
+        if(list0.size()==0) return;
+
+        for(PaymentShiftEntity entity:list0){
+            obj.uploadShiftOff(entity);
+        }
+        return;
     }
 
 

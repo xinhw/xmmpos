@@ -208,7 +208,7 @@ public class DeskPosPayRecordAdapter
             childrenHolder.rootView.setSelected(false);
         }
         PaymentRecordEntity item = dataEntity.get(groupPosition).getRecordList().get(childPosition);
-        childrenHolder.auditNo.setText((childPosition + 1) + "");
+        childrenHolder.auditNo.setText(item.getAuditNo()+"");
         childrenHolder.workNo.setText(item.getWorkNo().trim());
         childrenHolder.workName.setText(item.getWorkName().trim());
         childrenHolder.balance.setText(String.format("%.2f", item.getRemain()));

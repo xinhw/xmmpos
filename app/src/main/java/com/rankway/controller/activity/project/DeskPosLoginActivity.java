@@ -29,14 +29,17 @@ import com.rankway.controller.persistence.entity.DishEntity;
 import com.rankway.controller.persistence.entity.DishSubTypeEntity;
 import com.rankway.controller.persistence.entity.DishTypeEntity;
 import com.rankway.controller.persistence.entity.PaymentShiftEntity;
+import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.persistence.entity.PersonInfoEntity;
 import com.rankway.controller.persistence.entity.QrBlackListEntity;
 import com.rankway.controller.persistence.entity.UserInfoEntity;
+import com.rankway.controller.persistence.gen.PaymentTotalDao;
 import com.rankway.controller.persistence.gen.UserInfoEntityDao;
 import com.rankway.controller.printer.PrinterBase;
 import com.rankway.controller.printer.PrinterFactory;
 import com.rankway.controller.printer.PrinterUtils;
 import com.rankway.controller.utils.ClickUtil;
+import com.rankway.controller.utils.DateStringUtils;
 import com.rankway.controller.webapi.menu.Result;
 import com.rankway.controller.webapi.payWebapi;
 import com.rankway.controller.webapi.posAudit;
@@ -182,6 +185,26 @@ public class DeskPosLoginActivity
             //  信息没有被配置，直接进入到设置界面
             Intent intent = new Intent(mContext, MobilePosSettingsActivity.class);
             startActivityForResult(intent, 210);
+        }
+
+        List<PaymentTotal> items = DBManager.getInstance().getPaymentTotalDao()
+                .queryBuilder()
+                .where(PaymentTotalDao.Properties.Id.ge(444))
+                .list();
+        Log.d(TAG,"Item size:"+items.size());
+
+        payWebapi obj = payWebapi.getInstance();
+        if(null!=posInfoBean){
+            obj.setServerIP(posInfoBean.getServerIP());
+            obj.setPortNo(posInfoBean.getPortNo());
+
+            obj.setMenuServerIP(posInfoBean.getMenuServerIP());
+            obj.setMenuPortNo(posInfoBean.getMenuPortNo());
+        }
+
+        for(PaymentTotal item:items){
+            obj.uploadPaymentItems(item);
+            detSleep(100);
         }
 
         //  信息如果被配置，进入到数据同步界面
@@ -440,6 +463,8 @@ public class DeskPosLoginActivity
             uploadPaymentRecords();
             sendProccessMessage("上传 离线交易 完成");
 
+//            uploadShiftRecord();
+
             //  上次同步时间
             if (4 == n) {
                 sendProccessMessage("同步 完成");
@@ -670,11 +695,17 @@ public class DeskPosLoginActivity
 
         shiftEntity.setStatus(PaymentShiftEntity.SHIFT_STATUS_ON);
 
+        //  班次号
+        shiftEntity.setShiftNo(DateStringUtils.getYYMMDDHHMMss(shiftEntity.getShiftOnTime())+shiftEntity.getShiftOnAuditNo());
+
         savePaymentShiftEntity(shiftEntity);
 
         setLongInfo(AppIntentString.PAYMENT_SHIFT_ID,shiftEntity.getId());
 
         refreshShiftStatus();
+
+        payWebapi obj = payWebapi.getInstance();
+        obj.uploadShiftOn(shiftEntity);
 
         DetLog.writeLog(TAG,"开班："+shiftEntity.toString());
     }
@@ -710,6 +741,11 @@ public class DeskPosLoginActivity
 //            Log.d(TAG,"记录数位0，无需打印");
 //            return;
 //        }
+
+        shiftEntity.setShiftNo(DateStringUtils.getYYMMDDHHMMss(shiftEntity.getShiftOnTime())+shiftEntity.getShiftOnAuditNo());
+
+        payWebapi obj = payWebapi.getInstance();
+        obj.uploadShiftOff(shiftEntity);
 
         //  打印部分
         PrinterBase printer = PrinterFactory.getPrinter(mContext);

@@ -216,6 +216,8 @@ public class DeskPosAuxillaryMenuActivity
                 setLongInfo(AppIntentString.LAST_SYNC_TIME, System.currentTimeMillis());
             }
 
+//            uploadShiftRecord();
+
             return 0;
         }
 
@@ -270,17 +272,21 @@ public class DeskPosAuxillaryMenuActivity
                     if (0 != ret) {
                         sendProccessMessage(String.format("上传 IC卡离线交易%d/%d 失败", n, listCardRecord.size()));
                         DetLog.writeLog(TAG, "IC卡离线记录上送失败：" + record.toString());
+
+                        record.setUploadFlag(PaymentTotal.UNUPLOAD);
+                        record.setUploadTime(new Date());
                     } else {
                         sendProccessMessage(String.format("上传 IC卡离线交易%d/%d 成功", n, listCardRecord.size()));
                         DetLog.writeLog(TAG, "IC卡离线记录上送成功：" + record.toString());
 
                         record.setUploadFlag(PaymentTotal.UPLOADED);
                         record.setUploadTime(new Date());
-                        DBManager.getInstance().getPaymentRecordEntityDao().save(record);
 
                         cardOfflineSuccess++;
                     }
                 }
+
+                DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listCardRecord);
             }
 
             //  5.2 未上传的QR记录
@@ -301,17 +307,20 @@ public class DeskPosAuxillaryMenuActivity
                     if (0 != ret) {
                         sendProccessMessage(String.format("上传 二维码离线交易%d/%d 失败", n, listCardRecord.size()));
                         DetLog.writeLog(TAG, "二维码离线记录上送失败：" + record.toString());
+
+                        record.setUploadFlag(PaymentTotal.UNUPLOAD);
+                        record.setUploadTime(new Date());
                     } else {
                         sendProccessMessage(String.format("上传 二维码离线交易%d/%d 成功", n, listCardRecord.size()));
                         DetLog.writeLog(TAG, "二维码离线记录上送成功：" + record.toString());
 
                         record.setUploadFlag(PaymentTotal.UPLOADED);
                         record.setUploadTime(new Date());
-                        DBManager.getInstance().getPaymentRecordEntityDao().save(record);
 
                         qrOfflineSuccess++;
                     }
                 }
+                DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(listQrRecord);
             }
 
             return 0;

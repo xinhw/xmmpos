@@ -608,6 +608,7 @@ public class MobilePosSettingsActivity
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                        break;
 
                     case R.id.tvOfflineMaxAmount:
                         try {
