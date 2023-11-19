@@ -154,9 +154,9 @@ public class PaymentShiftEntity
         this.status = status;
     }
 
-    public static final int SHIFT_STATUS_ON = 0;                //  开班未结班
-    public static final int SHIFT_STATUS_OFF = 1;                //  结班未上传
-    public static final int SHIFT_STATUS_OFF_UPLOADED = 2;       //  结班未上传
+    public static final int SHIFT_STATUS_ON = 1;                //  开班未结班
+    public static final int SHIFT_STATUS_OFF = 2;                //  结班未上传
+    public static final int SHIFT_STATUS_OFF_UPLOADED = 0;       //  结班已上传
 
 
     @Generated(hash = 1861760238)

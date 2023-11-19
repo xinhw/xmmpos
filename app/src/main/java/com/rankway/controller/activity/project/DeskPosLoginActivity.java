@@ -236,7 +236,7 @@ public class DeskPosLoginActivity
 
                 //  判断是否已经结班
                 if(shiftEntity==null) break;
-                if(shiftEntity.getStatus()==PaymentShiftEntity.SHIFT_STATUS_OFF){
+                if(shiftEntity.getStatus()!=PaymentShiftEntity.SHIFT_STATUS_ON){
                     playSound(false);
                     showToast("请先开班");
                     break;
@@ -714,7 +714,7 @@ public class DeskPosLoginActivity
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
                         }
-                    });
+                    },null);
             return;
         }
 
