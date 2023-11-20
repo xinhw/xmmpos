@@ -560,19 +560,11 @@ public class BaseActivity extends AppCompatActivity {
         }, time);
     }
 
-    public void showDialogMessage(String strtext, String message, String 确定, DialogInterface.OnClickListener onClickListener, String 取消, DialogInterface.OnClickListener clickListener) {
-        android.app.AlertDialog.Builder builder = null;
-        builder = new android.app.AlertDialog.Builder(this);
-        builder.setCancelable(false);
-        builder.setTitle(strtext);
-        builder.setMessage(message);
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        builder.create().show();
+    public void showDialogMessage(String strtext,
+                                  String message,
+                                  String confirmText, DialogInterface.OnClickListener onClickListener,
+                                  String cancelText, DialogInterface.OnClickListener clickListener) {
+        showDialogMessage(strtext,message,confirmText,onClickListener,cancelText,clickListener,null);
     }
 
     /***
@@ -586,7 +578,8 @@ public class BaseActivity extends AppCompatActivity {
      * @param view
      * @return
      */
-    public MyAlertDialog showDialogMessage(String title, CharSequence message,
+    public MyAlertDialog showDialogMessage(String title,
+                                           CharSequence message,
                                            String confirmText, DialogInterface.OnClickListener confirmListener,
                                            String cancelText, DialogInterface.OnClickListener cancelListener,
                                            View view) {
@@ -2006,7 +1999,7 @@ public class BaseActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
-                }, null);
+                });
     }
 
     /***

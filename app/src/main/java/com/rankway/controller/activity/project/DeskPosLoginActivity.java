@@ -640,7 +640,7 @@ public class DeskPosLoginActivity
                         Log.v(TAG, "取消退出！");
                         dialog.dismiss();
                     }
-                },null);
+                });
         return;
     }
 
@@ -714,7 +714,7 @@ public class DeskPosLoginActivity
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
                         }
-                    },null);
+                    });
             return;
         }
 
