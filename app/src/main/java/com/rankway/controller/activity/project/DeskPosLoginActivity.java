@@ -444,6 +444,9 @@ public class DeskPosLoginActivity
             //  6. 上传已经未上传的结班记录
             uploadShiftRecords();
 
+            //  7. 上传支付明细
+            uploadPaymentItems();
+
             //  上次同步时间
             if (4 == n) {
                 sendProccessMessage("同步 完成");

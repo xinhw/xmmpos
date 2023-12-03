@@ -40,6 +40,9 @@ import com.rankway.controller.persistence.entity.PersonInfoEntity;
 import com.rankway.controller.persistence.entity.QrBlackListEntity;
 import com.rankway.controller.persistence.gen.PersonInfoEntityDao;
 import com.rankway.controller.persistence.gen.QrBlackListEntityDao;
+import com.rankway.controller.printer.PrinterBase;
+import com.rankway.controller.printer.PrinterFactory;
+import com.rankway.controller.printer.PrinterUtils;
 import com.rankway.controller.reader.ReaderFactory;
 import com.rankway.controller.utils.HttpUtil;
 import com.rankway.controller.webapi.cardInfo;
@@ -576,13 +579,8 @@ public class PaymentDialog
 
             missProDialog();
 
-            isPaying = false;
-
             //  支付成功
             if (0 == integer) {
-                //  支付成功，关闭对话框
-                dismiss();
-
                 baseActivity.playSound(true);
 
                 PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, famount, posInfoBean);
@@ -598,9 +596,16 @@ public class PaymentDialog
                 record.setUploadFlag(flag);
                 DBManager.getInstance().getPaymentRecordEntityDao().save(record);
 
+                //  打印部分
+                printDishes(record);
+
                 DetLog.writeLog(TAG, "支付成功：" + record.toString());
                 if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentSuccess(payMode,flag,record);
 
+                //  支付成功，关闭对话框
+                dismiss();
+
+                isPaying = false;
                 return;
             }
 
@@ -610,7 +615,24 @@ public class PaymentDialog
 
             dismiss();
 
+            isPaying = false;
             return;
+        }
+    }
+
+    private void printDishes(PaymentRecordEntity record){
+        //  打印
+        PrinterBase printer = PrinterFactory.getPrinter(mContext);
+        int ret = printer.openPrinter();
+        if (0 != ret) {
+            baseActivity.playSound(false);
+            baseActivity.showLongToast("打印机初始化失败，请检查连接");
+        } else {
+            //  打印
+            PrinterUtils printerUtils = new PrinterUtils();
+            printerUtils.printPayItem(printer, posInfoBean, record, listDishes);
+            baseActivity.detSleep(100);
+            printer.closePrinter();
         }
     }
 
@@ -635,7 +657,12 @@ public class PaymentDialog
         return listDishes;
     }
 
-    public void setListDishes(List<DishEntity> listDishes) {
-        this.listDishes = listDishes;
+    public void setListDishes(List<DishEntity> dishes) {
+        //  复制一份，避免主界面其他修改
+        this.listDishes.clear();
+        for(DishEntity dish:dishes){
+            DishEntity entity = new DishEntity(dish);
+            this.listDishes.add(entity);
+        }
     }
 }

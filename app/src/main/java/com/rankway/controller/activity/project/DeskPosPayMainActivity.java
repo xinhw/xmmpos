@@ -94,8 +94,6 @@ public class DeskPosPayMainActivity
     private TextView tvTotalCount;
     private TextView tvTotalAmount;
 
-    private List<PaymentRecordEntity> payRecords = new ArrayList<>();
-
     private PaymentDialog paymentDialog = null;
 
     //  打印缓存信息
@@ -107,6 +105,8 @@ public class DeskPosPayMainActivity
 
     private StringBuilder sbCacheInput = new StringBuilder();
     private TextView tvInputText;
+
+    private boolean isPaying = false;       //  支付状态
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -298,19 +298,30 @@ public class DeskPosPayMainActivity
         dishAdapter.notifyDataSetChanged();
     }
 
+    //  防止这个界面出现扫二维码的情况
+    private StringBuilder mStringBufferResult = new StringBuilder();
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.d(TAG, "onKeyDown " + keyCode);
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        final int MAX_BUFFER_LEN = 256;
+        int keyCode = event.getKeyCode();
+        Log.d(TAG, "dispatchKeyEvent " + keyCode);
 
-        //  右下角返回键
-        if (KeyEvent.KEYCODE_BACK == keyCode) {
-            return true;
-        }
-        if (KeyEvent.KEYCODE_HOME == keyCode) {
-            return true;
+        char aChar = (char) event.getUnicodeChar();
+        if (aChar != 0) {
+            mStringBufferResult.append(aChar);
         }
 
-        return super.onKeyUp(keyCode, event);
+        //  若为回车键，直接返回
+        if (keyCode == KeyEvent.KEYCODE_ENTER) {
+            DetLog.writeLog(TAG,"扫描输入："+mStringBufferResult.toString());
+            mStringBufferResult.setLength(0);
+        }
+
+        if(mStringBufferResult.length()>MAX_BUFFER_LEN){
+            DetLog.writeLog(TAG,"键盘输入："+mStringBufferResult.toString());
+            mStringBufferResult.setLength(0);
+        }
+        return true;
     }
 
     @Override
@@ -350,6 +361,8 @@ public class DeskPosPayMainActivity
 //            showToast("请勿连续点击!");
 //            return;
 //        }
+
+        if(isPaying) return;
 
         switch (v.getId()) {
             case R.id.tvExit:
@@ -450,18 +463,23 @@ public class DeskPosPayMainActivity
     @Override
     public void onDishTypeItemClick(View view, int position) {
         Log.d(TAG, "onDishTypeItemClick " + position);
+        if(isPaying) return;
+
         refreshDishTypeItems(position);
     }
 
     @Override
     public void onDishSubTypeItemClick(View view, int position) {
         Log.d(TAG, "onDishSubTypeItemClick");
+        if(isPaying) return;
+
         refreshDishSubTypeItems(position);
     }
 
     @Override
     public void onDishItemClick(View view, int position) {
         Log.d(TAG, "onDishItemClick " + position);
+        if(isPaying) return;
 
         DishEntity dishEntity = new DishEntity(listDishEntities.get(position));
 
@@ -512,6 +530,7 @@ public class DeskPosPayMainActivity
     @Override
     public void onSelectedDishItemClick(View view, int position) {
         Log.d(TAG, "onSelectedDishItemClick " + position);
+        if(isPaying) return;
 
         dishRecyclerView.scrollToPosition(position);
         selectedAdapter.setSelectedItem(position);
@@ -545,28 +564,17 @@ public class DeskPosPayMainActivity
         Log.d(TAG, "onPaymentSuccess " + record.toString());
 
         //  缓存打印信息
-        printPayRecord = record;
+        printPayRecord = new PaymentRecordEntity(record);
+
         listPrintDishEntities.clear();
-        listPrintDishEntities.addAll(listSelectedDishEntities);
+        for(DishEntity dish:listSelectedDishEntities){
+            DishEntity item = new DishEntity(dish);
+            listPrintDishEntities.add(item);
+        }
 
         //  清除缓存信息
         listSelectedDishEntities.clear();
         selectedAdapter.notifyDataSetChanged();
-        refreshSubTotal();
-
-        //  打印
-        PrinterBase printer = PrinterFactory.getPrinter(mContext);
-        int ret = printer.openPrinter();
-        if (0 != ret) {
-            playSound(false);
-            showLongToast("打印机初始化失败，请检查连接");
-        } else {
-            //  打印
-            PrinterUtils printerUtils = new PrinterUtils();
-            printerUtils.printPayItem(printer, posInfoBean, printPayRecord, listPrintDishEntities);
-            detSleep(100);
-            printer.closePrinter();
-        }
 
         if (flag == 0x01) {
             imgNetworkConnect.setVisibility(View.VISIBLE);
@@ -575,9 +583,6 @@ public class DeskPosPayMainActivity
             imgNetworkConnect.setVisibility(View.GONE);
             imgNetworkDisconnect.setVisibility(View.VISIBLE);
         }
-
-        //  缓存
-        payRecords.add(record);
 
         //  刷新班次累计
         PaymentShiftEntity shiftEntity = DeskPosLoginActivity.getShiftEntity();
@@ -591,6 +596,8 @@ public class DeskPosPayMainActivity
         savePaymentShiftEntity(shiftEntity);
 
         refreshTotalCount();
+
+        isPaying = false;
     }
 
     private void refreshTotalCount() {
@@ -615,6 +622,7 @@ public class DeskPosPayMainActivity
             imgNetworkConnect.setVisibility(View.GONE);
             imgNetworkDisconnect.setVisibility(View.VISIBLE);
         }
+        isPaying = false;
     }
 
     private AppService appService = null;
@@ -675,6 +683,8 @@ public class DeskPosPayMainActivity
      */
     private void showPaymentDialog(int type) {
         Log.d(TAG, "showPaymentDialog");
+
+        isPaying = true;
 
         int nAmount = 0;
         for (DishEntity dishEntity : listSelectedDishEntities) {

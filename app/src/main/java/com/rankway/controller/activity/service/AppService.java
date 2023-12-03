@@ -9,7 +9,6 @@ import android.util.Log;
 
 import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.activity.project.manager.SpManager;
-import com.rankway.sommerlibrary.utils.NetUtil;
 
 /**
  * <pre>
@@ -116,11 +115,13 @@ public class AppService extends Service {
 
 //                Log.d(TAG,"服务运行在："+System.currentTimeMillis());
 
-                //  如果Wifi和Mobile data都没有打开
-                if (NetUtil.getNetType(mContext) < 0) continue;
+//                //  如果Wifi和Mobile data都没有打开
+//                if (NetUtil.getNetType(mContext) < 0) continue;
 
-                //  上送离线消费交易
-                baseActivity.uploadOfflineRecords();
+//                if(HttpUtil.isOnline) {
+//                    //  上送离线消费交易
+//                    baseActivity.uploadOfflineRecords();
+//                }
             }
         }
     }

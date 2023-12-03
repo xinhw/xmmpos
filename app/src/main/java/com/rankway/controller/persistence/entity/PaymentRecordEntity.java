@@ -403,4 +403,28 @@ public class PaymentRecordEntity implements Comparable<PaymentRecordEntity>{
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getPaymentRecordEntityDao() : null;
     }
+
+    public PaymentRecordEntity(PaymentRecordEntity record){
+        this.id = record.getId();
+        this.auditNo = record.getAuditNo();
+        this.posNo = record.getPosNo();
+        this.postype = record.getPostype();
+        this.payway = record.getPayway();
+        this.userCode = record.getUserCode();
+        this.cardno = record.getCardno();
+        this.remain = record.getRemain();
+        this.amount = record.getAmount();
+        this.balance = record.getBalance();
+        this.typeid = record.getTypeid();
+        this.transTime = record.getTransTime();
+        this.cardSNO = record.getCardSNO();
+        this.workNo = record.getWorkNo();
+        this.workName = record.getWorkName();
+        this.userId = record.getUserId();
+        this.qrType = record.getQrType();
+        this.systemId = record.getSystemId();
+        this.uploadFlag = record.getUploadFlag();
+        this.uploadTime = record.getUploadTime();
+        this.paymentTotalId = record.getPaymentTotalId();
+    }
 }

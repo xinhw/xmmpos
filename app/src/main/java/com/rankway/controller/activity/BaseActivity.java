@@ -1340,8 +1340,9 @@ public class BaseActivity extends AppCompatActivity {
 //                    uploadEventList(str);
 
                     //  自动上传离线的IC卡交易和二维码交易
-                    //  uploadPaymentRecords();
+                    uploadPaymentRecords();
 
+                    //  自动上传支付明细
                     uploadPaymentItems();
                 } catch (Exception e) {
                     e.printStackTrace();

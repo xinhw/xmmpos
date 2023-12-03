@@ -133,7 +133,7 @@ public class DishEntity {
         this.dishName = obj.getDishName().trim();
         this.price = obj.getPrice();
         this.status = obj.getStatus();
-        this.count = 1;
+        this.count = obj.getCount();
         this.timestamp = System.currentTimeMillis();
 
         this.typeId = obj.getTypeId();
