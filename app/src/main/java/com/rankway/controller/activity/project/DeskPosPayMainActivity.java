@@ -560,14 +560,14 @@ public class DeskPosPayMainActivity
     };
 
     @Override
-    public void onPaymentSuccess(int type, int flag, PaymentRecordEntity record) {
+    public void onPaymentSuccess(int type, int flag, int amount,List<DishEntity> dishes,PaymentRecordEntity record) {
         Log.d(TAG, "onPaymentSuccess " + record.toString());
 
         //  缓存打印信息
         printPayRecord = new PaymentRecordEntity(record);
 
         listPrintDishEntities.clear();
-        for(DishEntity dish:listSelectedDishEntities){
+        for(DishEntity dish:dishes){
             DishEntity item = new DishEntity(dish);
             listPrintDishEntities.add(item);
         }
@@ -588,12 +588,19 @@ public class DeskPosPayMainActivity
         PaymentShiftEntity shiftEntity = DeskPosLoginActivity.getShiftEntity();
         if (type == PaymentDialog.PAY_MODE_CARD) {
             shiftEntity.subCardCountInc(1);
-            shiftEntity.subCardAmountInc((int) (record.getAmount() * 100));
+            shiftEntity.subCardAmountInc(amount);
         } else {
             shiftEntity.subQrCountInc(1);
-            shiftEntity.subQrAmountInc((int) (record.getAmount() * 100));
+            shiftEntity.subQrAmountInc(amount);
         }
         savePaymentShiftEntity(shiftEntity);
+
+        //  记录每次累加信息
+        String s = String.format("本次金额：%d,合计笔数：%d,合计金额：%d",
+                amount,
+                shiftEntity.getTotalCount(),
+                shiftEntity.getTotalAmount());
+        DetLog.writeLog(TAG,s);
 
         refreshTotalCount();
 

@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Looper;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -354,6 +353,7 @@ public class MobilePosSettingsActivity
                 }
                 if (0 == selectedLogs.size()) {
                     Log.d(TAG, "未选中上传日志！");
+                    playSound(false);
                     return;
                 }
 
@@ -368,6 +368,7 @@ public class MobilePosSettingsActivity
                 File logfile = new File(destFile);
                 if (!logfile.exists()) {
                     Toast.makeText(MobilePosSettingsActivity.this, "无 日志 需要上传！", Toast.LENGTH_SHORT).show();
+                    playSound(false);
                     return;
                 }
                 //  上传日志
@@ -396,18 +397,16 @@ public class MobilePosSettingsActivity
         asyncHttpCilentUtil.httpsPostFile(url, null, "file", logfile, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Looper.prepare();
                 Toast.makeText(mContext, "日志 上传失败", Toast.LENGTH_LONG).show();
+                playSound(false);
                 if (null != pDialog) pDialog.dismiss();
-                Looper.loop();
                 logfile.delete();
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Looper.prepare();
                 Toast.makeText(mContext, "日志 上传成功", Toast.LENGTH_LONG).show();
-
+                playSound(true);
                 //  将合并的原始日志文件删除
                 for (String filename : logfiles) {
                     File file = new File(filename);
@@ -416,7 +415,6 @@ public class MobilePosSettingsActivity
                 }
 
                 if (null != pDialog) pDialog.dismiss();
-                Looper.loop();
                 logfile.delete();
             }
         });

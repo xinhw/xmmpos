@@ -186,7 +186,7 @@ public class PaymentDialog
 
 
     public interface OnPaymentResult{
-        void onPaymentSuccess(int type,int flag,PaymentRecordEntity record);
+        void onPaymentSuccess(int type,int flag,int amount,List<DishEntity> dishes,PaymentRecordEntity record);
         void onPaymentCancel();
     }
 
@@ -600,7 +600,7 @@ public class PaymentDialog
                 printDishes(record);
 
                 DetLog.writeLog(TAG, "支付成功：" + record.toString());
-                if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentSuccess(payMode,flag,record);
+                if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentSuccess(payMode,flag,nAmount,listDishes,record);
 
                 //  支付成功，关闭对话框
                 dismiss();
