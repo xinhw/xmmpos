@@ -285,4 +285,31 @@ public class PrinterFormatUtils {
         if(doubleSize) bytes[2] = 0x11;
         return bytes;
     }
+
+
+    /***
+     * 切纸并且走纸命令
+     * @param length
+     * @return
+     */
+    public static byte[] getCutAndFeedCommand(byte length){
+        byte[] bytes = new byte[4];
+        bytes[0] = 0x1D;
+        bytes[1] = 0x56;
+        bytes[2] = 0x42;
+        bytes[3] = length;
+        return bytes;
+    }
+
+    /***
+     * 切纸命令
+     * @return
+     */
+    public static byte[] getCutCommand(){
+        byte[] bytes = new byte[3];
+        bytes[0] = 0x1D;
+        bytes[1] = 0x56;
+        bytes[2] = 1;
+        return bytes;
+    }
 }

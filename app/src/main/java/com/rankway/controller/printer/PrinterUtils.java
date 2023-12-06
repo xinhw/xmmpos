@@ -135,6 +135,10 @@ public class PrinterUtils {
 
         //  走纸3行
         printer.printBytes(PrinterFormatUtils.getFeedCommand(3));
+
+        //  切纸并且走纸
+        printer.printBytes(PrinterFormatUtils.getCutAndFeedCommand((byte)1));
+
         return;
     }
 
@@ -203,6 +207,10 @@ public class PrinterUtils {
 
         //  走纸3行
         printer.printBytes(PrinterFormatUtils.getFeedCommand(3));
+
+        //  切纸并且走纸
+        printer.printBytes(PrinterFormatUtils.getCutAndFeedCommand((byte)1));
+        
         return;
     }
 
