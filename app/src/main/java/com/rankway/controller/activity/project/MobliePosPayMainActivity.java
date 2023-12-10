@@ -88,7 +88,7 @@ public class MobliePosPayMainActivity
     RecyclerView recyclerView;
 
     private int totalCount = 0;
-    private float totalAmount = 0;
+    private double totalAmount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -450,7 +450,7 @@ public class MobliePosPayMainActivity
      * @param nCount
      * @param famount
      */
-    private void refreshStatistics(int nCount, float famount) {
+    private void refreshStatistics(int nCount, double famount) {
         String format = getString(R.string.formatTotalCount);
         String str = String.format(format, nCount);
         tvTotalCount.setText(str);
@@ -581,7 +581,8 @@ public class MobliePosPayMainActivity
      */
     private void startPayment() {
         Log.d(TAG, "startPayment");
-        float amount = 0;
+        double amount = 0;
+
         /***
          * 有效性判断
          */
@@ -591,7 +592,7 @@ public class MobliePosPayMainActivity
             return;
         }
         try {
-            amount = Float.parseFloat(etAmount.getText().toString());
+            amount = Double.parseDouble(etAmount.getText().toString());
         } catch (Exception e) {
             e.printStackTrace();
             playSound(false);
@@ -617,10 +618,10 @@ public class MobliePosPayMainActivity
      * 异步支付任务
      */
     private class AsynTaskPayment extends AsyncTask<String, Integer, Integer> {
-        float famount = 0;
+        double famount = 0;
         String errString = "";
 
-        public AsynTaskPayment(float amount) {
+        public AsynTaskPayment(double amount) {
             this.famount = amount;
         }
 
@@ -744,8 +745,8 @@ public class MobliePosPayMainActivity
     };
 
 
-    private void savePaymentRecord(float amount, int uploadFlag) {
-        PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, amount, posInfoBean);
+    private void savePaymentRecord(double amount, int uploadFlag) {
+        PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, (float) amount, posInfoBean);
 
         record.setUploadFlag(uploadFlag);
         DBManager.getInstance().getPaymentRecordEntityDao().save(record);

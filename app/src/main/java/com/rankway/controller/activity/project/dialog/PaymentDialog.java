@@ -288,7 +288,7 @@ public class PaymentDialog
         mHandler.post(() -> {
             if(isPaying) return;
 
-            AsynTaskPayment task = new AsynTaskPayment(type,cardPaymentObj,(float)(nAmount*0.01));
+            AsynTaskPayment task = new AsynTaskPayment(type,cardPaymentObj);
             task.execute();
         });
     }
@@ -297,17 +297,15 @@ public class PaymentDialog
      * 异步支付任务
      */
     private class AsynTaskPayment extends AsyncTask<String, Integer, Integer> {
-        float famount = 0;
         String errString = "";
         cardInfo cardPaymentObj;
         int payMode;
         boolean isOnlineFailure = false;
         boolean isOnlinePay = true;
 
-        public AsynTaskPayment(int payMode,cardInfo obj,float amount) {
+        public AsynTaskPayment(int payMode,cardInfo obj) {
             this.payMode = payMode;
             this.cardPaymentObj = obj;
-            this.famount = amount;
         }
 
         @Override
@@ -374,9 +372,9 @@ public class PaymentDialog
             }
 
             //  3. 比较余额
-            if(cardInfoObj.getGremain()<famount){
+            if(cardInfoObj.getGremain()<(nAmount*0.01)){
                 errString = "余额不足，无法支付";
-                DetLog.writeLog(TAG,String.format("余额不足，无法支付：%.2f,%.2f",cardInfoObj.getGremain(),famount));
+                DetLog.writeLog(TAG,String.format("余额不足，无法支付：%.2f,%.2f",cardInfoObj.getGremain(),(nAmount*0.01)));
                 return -1;
             }
 
@@ -384,11 +382,11 @@ public class PaymentDialog
             cardPaymentObj = new cardInfo(cardInfoObj);
             if (payMode==PAY_MODE_CARD) {
                 // public int cardPayment(int auditNo,int cardno,Date cdate,int cmoney){
-                ret = obj.cardPayment(posInfoBean.getAuditNo(), cardPaymentObj.getCardno(), new Date(), (int) (famount * 100));
+                ret = obj.cardPayment(posInfoBean.getAuditNo(), cardPaymentObj.getCardno(), new Date(), nAmount);
                 DetLog.writeLog(TAG, "cardPayment:" + ret);
             } else {
                 // public int qrPayment(int auditNo,int systemId,int qrType,String userId,Date cdate,int cmoney){
-                ret = obj.qrPayment(posInfoBean.getAuditNo(), cardPaymentObj.getSystemId(), cardPaymentObj.getQrType(), cardPaymentObj.getUserId(), new Date(), (int) (famount * 100));
+                ret = obj.qrPayment(posInfoBean.getAuditNo(), cardPaymentObj.getSystemId(), cardPaymentObj.getQrType(), cardPaymentObj.getUserId(), new Date(), nAmount);
                 DetLog.writeLog(TAG, "qrPayment:" + ret);
             }
 
@@ -444,9 +442,9 @@ public class PaymentDialog
             }
 
             //  3. 比较余额
-            if(MAX_OFFLINE_AMOUNT<famount){
+            if(MAX_OFFLINE_AMOUNT<(nAmount*0.01)){
                 errString = "超过离线支付限制，无法支付";
-                DetLog.writeLog(TAG,String.format("余额不足，无法支付：%.2f,%.2f",cardInfoObj.getGremain(),famount));
+                DetLog.writeLog(TAG,String.format("余额不足，无法支付：%.2f,%.2f",cardInfoObj.getGremain(),(nAmount*0.01)));
                 return -1;
             }
 
@@ -583,7 +581,7 @@ public class PaymentDialog
             if (0 == integer) {
                 baseActivity.playSound(true);
 
-                PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, famount, posInfoBean);
+                PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, (float)(nAmount*0.01), posInfoBean);
 
                 int flag = 0x00;
                 if(isOnlinePay) {

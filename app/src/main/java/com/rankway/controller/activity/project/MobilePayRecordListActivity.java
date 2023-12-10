@@ -13,11 +13,9 @@ import android.widget.TextView;
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.adapter.MobliePosPayRecordAdapter;
-import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
-import com.rankway.controller.webapi.cardInfo;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -143,64 +141,6 @@ public class MobilePayRecordListActivity
         return super.onKeyUp(keyCode, event);
     }
 
-
-    private void genRecords() {
-        Log.d(TAG, "genRecords 生成测试记录");
-        float amount = 1.00f;
-        float remain = 1232.30f;
-        int i;
-
-        List<PaymentRecordEntity> list = new ArrayList<>();
-        list.clear();
-
-        PosInfoBean posInfoBean = getPosInfoBean();
-
-        cardInfo card = new cardInfo();
-        card.setCardno(5049);
-        card.setGno("00401061");
-        card.setGsno("1E6776E6");
-        card.setName("童惠涌");
-        card.setQrType(0);
-        card.setSystemId(0);
-        card.setUserId("");
-        card.setGremain(remain);
-
-        for (i = 1; i < 21; i++) {
-            posInfoBean.setAuditNo(posInfoBean.getAuditNo() + 1);
-            amount = (float) (i * 0.11);
-
-            PaymentRecordEntity record = new PaymentRecordEntity(card, amount, posInfoBean);
-            list.add(record);
-
-            card.setGremain(card.getGremain() - amount);
-        }
-
-        remain = 897.40f;
-
-        card = new cardInfo();
-        card.setCardno(383);
-        card.setGno("00220013");
-        card.setGsno("9E967AE6");
-        card.setName("秦秦");
-        card.setQrType(1);
-        card.setSystemId(1);
-        card.setUserId("736497");
-        card.setGremain(remain);
-
-        for (i = 1; i < 21; i++) {
-            posInfoBean.setAuditNo(posInfoBean.getAuditNo() + 1);
-            amount = (float) (i * 0.22);
-
-            PaymentRecordEntity record = new PaymentRecordEntity(card, amount, posInfoBean);
-            list.add(record);
-
-            card.setGremain(card.getGremain() - amount);
-        }
-        DBManager.getInstance().getPaymentRecordEntityDao().deleteAll();
-        DBManager.getInstance().getPaymentRecordEntityDao().saveInTx(list);
-        Log.d(TAG, "DONE");
-    }
-
     /***
      * 获取当日的交易记录
      */
@@ -295,7 +235,6 @@ public class MobilePayRecordListActivity
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
                 }
-                genRecords();
             }
         });
 

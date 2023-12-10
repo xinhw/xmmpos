@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.common.AppIntentString;
+import com.rankway.controller.hardware.util.DetLog;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -91,38 +92,39 @@ public class HttpUtil {
             Log.d(TAG,"length:"+length);
 
 //            if(responseCode==200){
-                //  获取响应的输入流对象
-                InputStream inputStream = null;
+            //  获取响应的输入流对象
+            InputStream inputStream = null;
 
-                if(responseCode>=400)
-                    inputStream = httpURLConnection.getErrorStream();
-                else
-                    inputStream = httpURLConnection.getInputStream();
-                //  创建字节输出流对象
-                ByteArrayOutputStream message = new ByteArrayOutputStream();
-                //  定义读取的长度
-                int len = 0;
-                //  定义缓冲区
-                byte buffer[] = new byte[1024];
+            if(responseCode>=400)
+                inputStream = httpURLConnection.getErrorStream();
+            else
+                inputStream = httpURLConnection.getInputStream();
+            //  创建字节输出流对象
+            ByteArrayOutputStream message = new ByteArrayOutputStream();
+            //  定义读取的长度
+            int len = 0;
+            //  定义缓冲区
+            byte buffer[] = new byte[1024];
 
-                //  按缓冲区大小，循环读取
-                while ((len=inputStream.read(buffer))!=-1){
-                    //  根据读取的内容长度写入到os对象中
-                    message.write(buffer,0,len);
-                }
-                //  释放资源
-                inputStream.close();
-                message.close();
+            //  按缓冲区大小，循环读取
+            while ((len=inputStream.read(buffer))!=-1){
+                //  根据读取的内容长度写入到os对象中
+                message.write(buffer,0,len);
+            }
+            //  释放资源
+            inputStream.close();
+            message.close();
 
-                isOnline = true;
+            isOnline = true;
 
-                //  返回字符串
-                String msg = new String(message.toByteArray());
-                Log.d(TAG,"msg:"+msg);
-                return msg;
+            //  返回字符串
+            String msg = new String(message.toByteArray());
+            DetLog.writeLog(TAG,"httpPost msg:"+msg);
+            return msg;
 //            }
 
         }catch (Exception e){
+            DetLog.writeLog(TAG,e.getMessage());
             e.printStackTrace();
             isOnline = false;
             return null;
@@ -168,6 +170,9 @@ public class HttpUtil {
             //  获取返回内容长度，单位字节
             int length = httpURLConnection.getContentLength();
             Log.d(TAG,"length:"+length);
+
+            isOnline = true;
+
             if(responseCode==200){
                 //  获取响应的输入流对象
                 InputStream inputStream = httpURLConnection.getInputStream();
@@ -189,12 +194,14 @@ public class HttpUtil {
 
                 //  返回字符串
                 String msg = new String(message.toByteArray());
-                Log.d(TAG,"msg:"+msg);
+                DetLog.writeLog(TAG,"httpGet msg:"+msg);
 
-                isOnline = true;
                 return msg;
             }
+
+            DetLog.writeLog(TAG,"httpGet responseCode:"+responseCode);
         }catch (IOException e){
+            DetLog.writeLog(TAG,e.getMessage());
             e.printStackTrace();
             isOnline = false;
             return null;
@@ -278,7 +285,7 @@ public class HttpUtil {
             while ((str = br.readLine())!=null){
                 msg = msg + str;
             }
-            Log.d(TAG,"msg:"+msg);
+            DetLog.writeLog(TAG,String.format("httpPost201 %d %s",responseCode,msg));
 
             setHeaderLocation(null);
             if(responseCode==201){
@@ -289,8 +296,9 @@ public class HttpUtil {
             isOnline = true;
             return msg;
         }catch (Exception e){
-            isOnline = false;
+            DetLog.writeLog(TAG,e.getMessage());
             e.printStackTrace();
+            isOnline = false;
             return null;
         }
     }

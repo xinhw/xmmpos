@@ -54,7 +54,7 @@ public class DishAdapter
         holder.itemView.setSelected(i == selectedItem);
         DishEntity item = data.get(i);
 
-        float price = (float) (item.getPrice() * 0.01);
+        double price = (double) (item.getPrice() * 0.01);
         String str = "";
         if(TextUtils.isEmpty(item.getDishName())){
             str = String.format("菜品%s\n(%.2f)", item.getDishCode().trim(), price);

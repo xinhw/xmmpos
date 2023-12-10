@@ -613,7 +613,7 @@ public class DeskPosPayMainActivity
 
         tvTotalCount.setText("总数：" + shiftEntity.getTotalCount());
 
-        float fTotalAmount = (float) (shiftEntity.getTotalAmount() * 0.01);
+        double fTotalAmount = (double) (shiftEntity.getTotalAmount() * 0.01);
         tvTotalAmount.setText(String.format("总金额：%.2f", fTotalAmount));
     }
 

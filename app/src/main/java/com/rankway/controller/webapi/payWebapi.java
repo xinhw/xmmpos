@@ -801,7 +801,7 @@ public class payWebapi {
         requestMap.put("cposno", cposno);
         requestMap.put("cusercode", cusercode);
         requestMap.put("cardno", cardno);
-        float famount = (float)(0.01 * cmoney);
+        double famount = (double) (0.01 * cmoney);
         requestMap.put("cmoney", famount);
         requestMap.put("cdate",reqTime);
 
@@ -867,7 +867,7 @@ public class payWebapi {
         requestMap.put("qrtype", qrType);
         requestMap.put("userid", userId);
         requestMap.put("cdate", reqTime);
-        float famount = (float)(cmoney*0.01);
+        double famount = (double)(cmoney*0.01);
         requestMap.put("cmoney", famount);
         Log.d(TAG,"requestMap "+requestMap.toString());
 
