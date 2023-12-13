@@ -1,11 +1,8 @@
 package com.rankway.controller.persistence.entity;
 
 import com.rankway.controller.dto.PosInfoBean;
-import com.rankway.controller.persistence.gen.DaoSession;
-import com.rankway.controller.persistence.gen.PaymentRecordDao;
 import com.rankway.controller.webapi.cardInfo;
 
-import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
@@ -86,7 +83,7 @@ public class PaymentRecord implements Comparable<PaymentRecord>{
         this.transTime = new Date();
     }
 
-    public PaymentRecord(cardInfo card, float amount,PosInfoBean pos){
+    public PaymentRecord(cardInfo card, double amount,PosInfoBean pos){
         this.auditNo = pos.getAuditNo();
         this.posNo = pos.getCposno();
         this.postype = 0;
@@ -95,8 +92,8 @@ public class PaymentRecord implements Comparable<PaymentRecord>{
 
         this.cardno = card.getCardno();
         this.remain = card.getGremain();
-        this.amount = amount;
-        this.balance = card.getGremain()-amount;
+        this.amount = (float)amount;
+        this.balance =(float)(card.getGremain()-amount);
         this.typeid = 100;
         this.transTime = new Date();
         this.workNo = card.getGno();

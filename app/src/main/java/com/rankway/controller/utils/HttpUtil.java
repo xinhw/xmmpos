@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.common.AppIntentString;
+import com.rankway.controller.hardware.util.DetLog;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -28,14 +29,18 @@ public class HttpUtil {
     private final String TAG = "HttpUtil";
     private int responseCode;
 
-    public static final int DEFAULT_OVER_TIME = 5000;      //  ms
-    private int OVER_TIME_MS = DEFAULT_OVER_TIME;
+    public static  final int DEFAULT_OVER_TIME = 5000;
+    private int OVER_TIME_MS = DEFAULT_OVER_TIME;      //  ms
+
+    public static boolean isOnline = true;
 
     public HttpUtil(){
-        OVER_TIME_MS = SpManager.getIntance().getSpInt(AppIntentString.HTTP_OVER_TIME);
-        if(OVER_TIME_MS<=0) OVER_TIME_MS = HttpUtil.DEFAULT_OVER_TIME;
+        //  通信超时
+        int ret = SpManager.getIntance().getSpInt(AppIntentString.HTTP_OVER_TIME);
+        if(ret<=0) ret = DEFAULT_OVER_TIME;
+        OVER_TIME_MS = ret;
+        Log.d(TAG,"OVER_TIME_MS "+OVER_TIME_MS);
     }
-
 
     public String httpPost(String url,String contentType,String content){
         Log.d(TAG,String.format("httpPost(%s,%s)",url,content));
@@ -110,14 +115,18 @@ public class HttpUtil {
                 inputStream.close();
                 message.close();
 
+                isOnline = true;
+
                 //  返回字符串
                 String msg = new String(message.toByteArray());
-                Log.d(TAG,"msg:"+msg);
+                DetLog.writeLog(TAG,"httpPost msg:"+msg);
                 return msg;
 //            }
 
         }catch (Exception e){
+            DetLog.writeLog(TAG,String.format("httpPost(%s)--%s",url,e.getMessage()));
             e.printStackTrace();
+            isOnline = false;
             return null;
         }
     }
@@ -161,6 +170,9 @@ public class HttpUtil {
             //  获取返回内容长度，单位字节
             int length = httpURLConnection.getContentLength();
             Log.d(TAG,"length:"+length);
+
+            isOnline = true;
+
             if(responseCode==200){
                 //  获取响应的输入流对象
                 InputStream inputStream = httpURLConnection.getInputStream();
@@ -182,13 +194,17 @@ public class HttpUtil {
 
                 //  返回字符串
                 String msg = new String(message.toByteArray());
-                Log.d(TAG,"msg:"+msg);
+                DetLog.writeLog(TAG,"httpGet msg:"+msg);
+
                 return msg;
             }
 
+            DetLog.writeLog(TAG,"httpGet responseCode:"+responseCode);
         }catch (IOException e){
+            DetLog.writeLog(TAG,String.format("httpGet(%s)--%s",url,e.getMessage()));
+
             e.printStackTrace();
-//            Log.d(TAG,e.getMessage());
+            isOnline = false;
             return null;
         }
         return null;
@@ -270,16 +286,20 @@ public class HttpUtil {
             while ((str = br.readLine())!=null){
                 msg = msg + str;
             }
-            Log.d(TAG,"msg:"+msg);
+            DetLog.writeLog(TAG,String.format("httpPost201 %d %s",responseCode,msg));
 
             setHeaderLocation(null);
             if(responseCode==201){
                 String header = httpURLConnection.getHeaderField("Location");
                 setHeaderLocation(header);
             }
+
+            isOnline = true;
             return msg;
         }catch (Exception e){
+            DetLog.writeLog(TAG,String.format("httpPost201(%s)--%s",url,e.getMessage()));
             e.printStackTrace();
+            isOnline = false;
             return null;
         }
     }

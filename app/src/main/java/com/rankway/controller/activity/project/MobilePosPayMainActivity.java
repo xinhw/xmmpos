@@ -89,7 +89,7 @@ public class MobilePosPayMainActivity
     RecyclerView recyclerView;
 
     private int totalCount = 0;
-    private float totalAmount = 0;
+    private double totalAmount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -471,7 +471,7 @@ public class MobilePosPayMainActivity
      * @param nCount
      * @param famount
      */
-    private void refreshStatistics(int nCount, float famount) {
+    private void refreshStatistics(int nCount, double famount) {
         String format = getString(R.string.formatTotalCount);
         String str = String.format(format, nCount);
         tvTotalCount.setText(str);
@@ -556,14 +556,18 @@ public class MobilePosPayMainActivity
             if (payType == PAYMENT_TYPE_CARD) {
                 DetLog.writeLog(TAG, "IC卡支付查询：");
                 cardInfoObj = obj.getPersonInfoBySNO(cardPaymentObj.getGsno());
-                cardInfoObj.setGsno(cardPaymentObj.getGsno());
+                if(null!=cardInfoObj) cardInfoObj.setGsno(cardPaymentObj.getGsno());
                 DetLog.writeLog(TAG, "getPersonBySNO:" + cardInfoObj);
             } else {
                 DetLog.writeLog(TAG, "二维码支付查询：");
                 cardInfoObj = obj.getPersonInfoByQrCode(cardPaymentObj.getSystemId(), cardPaymentObj.getQrType(), cardPaymentObj.getUserId());
                 DetLog.writeLog(TAG, "getQrPersonInfo:" + cardInfoObj);
             }
-            if (null == cardInfoObj) errString = obj.getErrMsg();
+            if (null == cardInfoObj){
+                errString = obj.getErrMsg();
+                DetLog.writeLog(TAG,"查询失败："+errString);
+                return -1;
+            }
             return 0;
         }
 
@@ -624,7 +628,7 @@ public class MobilePosPayMainActivity
             return;
         }
 
-        float amount = 0;
+        double amount = 0;
         /***
          * 有效性判断
          */
@@ -634,7 +638,7 @@ public class MobilePosPayMainActivity
             return;
         }
         try {
-            amount = Float.parseFloat(etAmount.getText().toString());
+            amount = Double.parseDouble(etAmount.getText().toString());
         } catch (Exception e) {
             e.printStackTrace();
             playSound(false);
@@ -660,10 +664,10 @@ public class MobilePosPayMainActivity
      * 异步支付任务
      */
     private class AsynTaskPayment extends AsyncTask<String, Integer, Integer> {
-        float famount = 0;
+        double famount = 0;
         String errString = "";
 
-        public AsynTaskPayment(float amount) {
+        public AsynTaskPayment(double amount) {
             this.famount = amount;
         }
 
@@ -763,6 +767,7 @@ public class MobilePosPayMainActivity
             }
         });
         builder.create().show();
+
         return;
     }
 
@@ -797,7 +802,7 @@ public class MobilePosPayMainActivity
      * @param amount
      * @param uploadFlag
      */
-    private void savePaymentRecord(float amount, int uploadFlag) {
+    private void savePaymentRecord(double amount, int uploadFlag) {
         PaymentRecord record = new PaymentRecord(cardPaymentObj, amount, posInfoBean);
         DetLog.writeLog(TAG,"支付成功："+record.toString());
 

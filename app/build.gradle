@@ -51,6 +51,11 @@ android {
         abortOnError false
     }
 
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
 
     sourceSets {
         main {
@@ -116,8 +121,9 @@ dependencies {
     implementation 'android.arch.navigation:navigation-fragment:1.0.0'
     implementation 'android.arch.navigation:navigation-ui:1.0.0'
     implementation files('libs\\commons-codec-1.10.jar')
-    implementation 'com.android.support:support-v4:28.0.0'
     implementation files('libs\\hcreader_v2.2.5.jar')
+    implementation files('libs\\iminPrinterSDK-11_V1.1.0_2307141412.jar')
+    implementation files('libs\\IminLibs1.0.15.jar')
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     implementation 'com.polidea.rxandroidble2:rxandroidble:1.11.1'
     implementation 'org.jsoup:jsoup:1.9.2'
@@ -145,7 +151,7 @@ dependencies {
     // 添加依赖
     implementation 'org.greenrobot:eventbus:3.2.0'
     implementation 'com.tencent:mmkv-static:1.2.7'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation files('libs/PosApi_V1.23_20200305.jar')
+    //aar引用方式
+    implementation(name: 'scanlibrary-release', ext: 'aar')
 }

@@ -32,8 +32,8 @@ public class payWebapi {
     private String secret = "6D119911B0B34BE894AB1A0C82518281";
     private String clientId = "1234567887654321";
 
-    private String serverIP = "119.3.3.227";
-    private int portNo = 8801;
+    private String serverIP = "10.100.31.4";
+    private int portNo = 8806;
 
     private String cposno;
     private String cusercode;
@@ -91,10 +91,11 @@ public class payWebapi {
         HttpUtil httpUtil = new HttpUtil();
         String ret = null;
 
+        //  循环3次
         for(int i=0;i<MAX_TRY_TIMES;i++) {
             ret = httpUtil.httpGet(url);
-            if(null!=ret) break;
-            sleep(100);
+            if(ret!=null) break;
+            sleep(10);
         }
         Log.d(TAG,"ret:"+ret);
 
@@ -107,7 +108,7 @@ public class payWebapi {
             return accessToken;
         }else{
             errCode = httpUtil.getResponseCode();
-            errMsg = "获取accessToken失败，网络有问题";
+            errMsg = "网络不通，请检查网络连接";
             return null;
         }
     }
@@ -123,7 +124,7 @@ public class payWebapi {
         String accessToken = accessToken();
         Log.d(TAG,"accessToken:"+accessToken);
         if(null==accessToken){
-            errMsg = "网络不通，请检查网络连接";
+            errMsg = "网络不通，请检查网络连接！";
             return null;
         }
 
@@ -196,7 +197,7 @@ public class payWebapi {
 
         String accessToken = accessToken();
         if(null==accessToken){
-            errMsg = "网络不通，请检查网络连接";
+            errMsg = "网络不通，请检查网络连接！";
             return null;
         }
 
@@ -279,14 +280,26 @@ public class payWebapi {
     public cardInfo getPersonInfoBySNO(String sno){
         Log.d(TAG,"getPersonBySNO");
 
+        String accessToken = accessToken();
+        if(null==accessToken){
+            errMsg = "网络不通，请检查网络连接！";
+            return null;
+        }
+
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
         String url = serverPort + String.format("/api/PersoninfoFromSnoV2/%s?accessToken=",sno) + sessionAccessToken;
         Log.d(TAG,"URL:"+url);
 
         try {
+            String ret = null;
+
             HttpUtil httpUtil = new HttpUtil();
-            String ret = httpUtil.httpPost(url,CONTENT_TYPE_JSON,"");
-            Log.d(TAG,"ret:"+ret);
+            for(int i=0;i<MAX_TRY_TIMES;i++) {
+                ret = httpUtil.httpPost(url, CONTENT_TYPE_JSON, "");
+                Log.d(TAG,"ret:"+ret);
+                if(null!=ret) break;
+                sleep(10);
+            }
 
             WebapiResponse resp = JSON.parseObject(ret,WebapiResponse.class);
             Log.d(TAG,"resp:" +resp.toString());
@@ -298,6 +311,7 @@ public class payWebapi {
 
             //  gremain
             obj.setGremain((float)resp.getResult().getGremain());
+
             //  gno
             obj.setGno(resp.getResult().getGno());
 
@@ -328,7 +342,7 @@ public class payWebapi {
 
         String accessToken = accessToken();
         if(null==accessToken){
-            errMsg = "网络不通，请检查网络连接";
+            errMsg = "网络不通，请检查网络连接！";
             return null;
         }
 
@@ -422,6 +436,12 @@ public class payWebapi {
     public cardInfo getPersonInfoByQrCode(int systemId,int qrType,String userId) {
         Log.d(TAG,"getQrPersonInfo");
 
+        String accessToken = accessToken();
+        if(null==accessToken){
+            errMsg = "网络不通，请检查网络连接！";
+            return null;
+        }
+
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
         String url = serverPort + "/api/qr/personinfo?accessToken=" + sessionAccessToken;
         Log.d(TAG,"url:"+url);
@@ -455,9 +475,14 @@ public class payWebapi {
         Log.d(TAG,"jsonData:"+jsonData);
 
         try {
+            String ret = null;
             HttpUtil httpUtil = new HttpUtil();
-            String ret = httpUtil.httpPost(url,CONTENT_TYPE_JSON,jsonData);
+            for(int i=0;i<MAX_TRY_TIMES;i++) {
+                ret = httpUtil.httpPost(url, CONTENT_TYPE_JSON, jsonData);
             Log.d(TAG,"ret:"+ret);
+                if(null!=ret) break;
+                sleep(10);
+            }
 
             errCode = httpUtil.getResponseCode();
             if(null==ret){
@@ -555,7 +580,7 @@ public class payWebapi {
 
         String accessToken = accessToken();
         if(null==accessToken){
-            errMsg = "网络不通，请检查网络连接";
+            errMsg = "网络不通，请检查网络连接！";
             return null;
         }
 
@@ -617,7 +642,7 @@ public class payWebapi {
 
         String accessToken = accessToken();
         if(null==accessToken){
-            errMsg = "网络不通，请检查网络连接";
+            errMsg = "网络不通，请检查网络连接！";
             return null;
         }
 
@@ -728,7 +753,7 @@ public class payWebapi {
         requestMap.put("cposno", cposno);
         requestMap.put("cusercode", cusercode);
         requestMap.put("cardno", cardno);
-        float famount = (float)(0.01 * cmoney);
+        double famount = (double) (0.01 * cmoney);
         requestMap.put("cmoney", famount);
         requestMap.put("cdate",reqTime);
 
@@ -794,7 +819,7 @@ public class payWebapi {
         requestMap.put("qrtype", qrType);
         requestMap.put("userid", userId);
         requestMap.put("cdate", reqTime);
-        float famount = (float)(cmoney*0.01);
+        double famount = (double)(cmoney*0.01);
         requestMap.put("cmoney", famount);
         Log.d(TAG,"requestMap "+requestMap.toString());
 
@@ -1052,6 +1077,7 @@ public class payWebapi {
                     '}';
         }
     }
+
     public static class WebapiResponse{
         int error;
         String errmsg;

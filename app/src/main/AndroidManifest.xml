@@ -30,7 +30,10 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-feature
         android:name="android.hardware.nfc"
         android:required="true" />
@@ -47,6 +50,12 @@
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:allowBackup">
+        <activity
+            android:name=".activity.project.CameraScanActivity"
+            android:exported="true" />
+        <activity
+            android:name=".activity.project.CustomCaptureActivity"
+            android:exported="true" />
         <activity
             android:name=".activity.project.MobilePosPayStatisticsActivity"
             android:exported="true"
@@ -72,9 +81,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.project.AboutActivity" /> <!-- <activity -->
-
         <activity android:name=".activity.project.MobilePosSettingsActivity" />
-
         <activity
             android:name=".activity.project.MessageListActivity"
             android:exported="true"

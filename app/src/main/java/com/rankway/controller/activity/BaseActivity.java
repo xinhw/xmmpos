@@ -47,11 +47,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.maning.mndialoglibrary.MProgressDialog;
+import com.rankway.controller.R;
 import com.rankway.controller.activity.project.NotificationDetail;
 import com.rankway.controller.activity.project.comment.AppSpSaveConstant;
 import com.rankway.controller.activity.project.eventbus.MessageEvent;
 import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.activity.service.DownloadUtil;
+import com.rankway.controller.common.ActivityCollector;
 import com.rankway.controller.common.AppConstants;
 import com.rankway.controller.common.AppIntentString;
 import com.rankway.controller.common.HandesetInfo;
@@ -71,13 +73,10 @@ import com.rankway.controller.pushmessage.ETEKMessageProcess;
 import com.rankway.controller.utils.AppUtils;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.DateStringUtils;
+import com.rankway.controller.utils.ToastUtils;
 import com.rankway.controller.utils.UpdateAppUtils;
 import com.rankway.controller.utils.VibrateUtil;
 import com.rankway.controller.widget.MyAlertDialog;
-import com.rankway.controller.R;
-import com.rankway.controller.common.ActivityCollector;
-import com.rankway.controller.utils.StringTool;
-import com.rankway.controller.utils.ToastUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.greenrobot.eventbus.Subscribe;
@@ -129,6 +128,12 @@ public class BaseActivity extends AppCompatActivity {
         progressDialog = null;
     }
 
+    protected void setProDialogText(String strText) {
+        if (null != progressDialog) {
+            progressDialog.setMessage(strText);
+        }
+    }
+
     protected void showStatusDialog(final String content) {
         runOnUiThread(() -> {
             android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(mContext);
@@ -165,7 +170,6 @@ public class BaseActivity extends AppCompatActivity {
 
         return outMetrics.widthPixels;
     }
-
 
     protected String getVersionCode(){
         int versionCode = 0;
@@ -315,24 +319,6 @@ public class BaseActivity extends AppCompatActivity {
     protected int getIntInfo(String index) {
         preferences = getSharedPreferences("detInfo", MODE_PRIVATE);
         return preferences.getInt(index, 0);
-    }
-
-    protected Uri getUriInfo(String index) {
-        preferences = getSharedPreferences("detInfo", MODE_PRIVATE);
-        String str = preferences.getString(index, "");
-        if (StringTool.isNullOrBlankStr(str)) {
-            return null;
-        }
-        Uri uri = Uri.parse(str);
-        return uri;
-    }
-
-    protected void setUriInfo(String index, Uri value) {
-
-        preferences = getSharedPreferences("detInfo", MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(index, value.toString());
-        editor.apply();
     }
 
     // 保存延时设置
@@ -517,7 +503,7 @@ public class BaseActivity extends AppCompatActivity {
     /*----以下是log记录---------------------------------------------------------------------------*/
 
     /*----TOAST---------------------------------------------------------------------------*/
-    protected void showToast(final String message) {
+    public void showToast(final String message) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -527,7 +513,7 @@ public class BaseActivity extends AppCompatActivity {
 
     }
 
-    protected void showLongToast(final String message) {
+    public void showLongToast(final String message) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -551,18 +537,11 @@ public class BaseActivity extends AppCompatActivity {
         }, time);
     }
 
-    public void showDialogMessage(String strtext, String format, String 确定, DialogInterface.OnClickListener onClickListener, String 取消, DialogInterface.OnClickListener clickListener) {
-        android.app.AlertDialog.Builder builder = null;
-        builder = new android.app.AlertDialog.Builder(this);
-        builder.setCancelable(false);
-        builder.setMessage(strtext);
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        builder.create().show();
+    public void showDialogMessage(String strtext,
+                                  String message,
+                                  String confirmText, DialogInterface.OnClickListener onClickListener,
+                                  String cancelText, DialogInterface.OnClickListener clickListener) {
+        showDialogMessage(strtext,message,confirmText,onClickListener,cancelText,clickListener,null);
     }
 
     /***
@@ -576,7 +555,8 @@ public class BaseActivity extends AppCompatActivity {
      * @param view
      * @return
      */
-    public MyAlertDialog showDialogMessage(String title, CharSequence message,
+    public MyAlertDialog showDialogMessage(String title,
+                                           CharSequence message,
                                            String confirmText, DialogInterface.OnClickListener confirmListener,
                                            String cancelText, DialogInterface.OnClickListener cancelListener,
                                            View view) {
@@ -924,7 +904,7 @@ public class BaseActivity extends AppCompatActivity {
      * 播放声音
      * @param b
      */
-    protected void playSound(boolean b) {
+    public void playSound(boolean b) {
         if (soundPoolHelp != null) {
             soundPoolHelp.playSound(b);
             VibrateUtil.vibrate(this, 150);
@@ -968,6 +948,7 @@ public class BaseActivity extends AppCompatActivity {
                 break;
         }
     }
+
 
     protected void showUpdateMessage(String msg) {
         Log.d(TAG, "showUpdateMessage:" + msg);
@@ -1075,6 +1056,7 @@ public class BaseActivity extends AppCompatActivity {
         return;
     }
 
+
     /**
      * 获取日志上传地址
      * @return
@@ -1097,10 +1079,7 @@ public class BaseActivity extends AppCompatActivity {
 
         //  上传地址
         String url = getUploadLogUrl();
-        if(StringUtils.isEmpty(url)){
-            Log.d(TAG,"日志上传地址为空");
-            return;
-        }
+        if(StringUtils.isEmpty(url)) return;
 
         AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
         asyncHttpCilentUtil.httpsPostFile(url, null, "file", logfile, new Callback() {
@@ -1115,6 +1094,11 @@ public class BaseActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 Log.d(TAG, "日志上传成功！");
+
+                AppUpdateBean resultBean = JSON.parseObject(response.message(),AppUpdateBean.class);
+                if(null==resultBean) return;
+
+                if(resultBean.getCode()!=40000) return;
 
                 //  将合并的原始日志文件删除
                 for (String filename : logfiles) {
@@ -1456,7 +1440,7 @@ public class BaseActivity extends AppCompatActivity {
      * @return
      */
     protected int zapDatabase() {
-        Log.d(TAG, "开始清理上报数据和雷管信息：");
+        final int cleanMonths = -3;
 
         Log.d(TAG, "开始清除事件：");
         int level = SpManager.getIntance().getSpInt(AppSpSaveConstant.UPLOAD_EVENT_LEVEL);
@@ -1514,7 +1498,11 @@ public class BaseActivity extends AppCompatActivity {
     }
 
 
-    protected PosInfoBean getPosInfoBean(){
+    /***
+     *
+     * @return
+     */
+    public PosInfoBean getPosInfoBean(){
         String str = getPreInfo(AppIntentString.POS_INFO_BEAN);
         Log.d(TAG,"getPosInfoBean "+str);
 
@@ -1529,7 +1517,11 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    protected void savePosInfoBean(PosInfoBean bean){
+    /***
+     *
+     * @param bean
+     */
+    public void savePosInfoBean(PosInfoBean bean){
         String str = JSON.toJSONString(bean);
         Log.d(TAG,"savePosInfoBean "+str);
         setStringInfo(AppIntentString.POS_INFO_BEAN,str);
@@ -1606,5 +1598,47 @@ public class BaseActivity extends AppCompatActivity {
                 },
                 view
         );
+    }
+
+    /***
+     * 清除日志
+     */
+    public void zapLogFile() {
+        final int cleanMonths = -3;
+
+        //  获取指定月份之前的文件
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DAY_OF_MONTH,cleanMonths);
+        long cleanTime = calendar.getTime().getTime();
+
+        //  日志文件路径
+        String path = Environment.getExternalStorageDirectory() + "/Log/"; //文件路径
+
+        //  删除合并的日志文件
+        File[] subFiles = new File(path).listFiles();
+        if (subFiles == null) return;
+        if (subFiles.length==0) return;
+
+        for (File subFile : subFiles) {
+            if (subFile.isDirectory()) continue;
+
+            //  如果是合并文件，直接删除
+            String filename = subFile.getName();
+            if ("MERGELOG".equalsIgnoreCase(filename.substring(0, 8))) {
+                Log.d(TAG, "删除合并日志文件：" + filename);
+                subFile.delete();
+                continue;
+            }
+
+            //  最后修改时间
+            long createTime = subFile.lastModified();
+            if(createTime<cleanTime){
+                DetLog.writeLog(TAG,String.format("清除日志文件：%s",subFile.getName()));
+                subFile.delete();
+            }
+        }
+
+        return;
     }
 }
