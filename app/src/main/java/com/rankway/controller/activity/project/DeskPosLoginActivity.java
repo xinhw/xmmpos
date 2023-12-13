@@ -449,6 +449,13 @@ public class DeskPosLoginActivity
                 sendProccessMessage("同步 完成");
                 setLongInfo(AppIntentString.LAST_SYNC_TIME, System.currentTimeMillis());
             }
+
+            //  清除日志文件
+            zapLogFile();
+
+            //  清除数据库
+            zapDatabase();
+
             return 0;
         }
 
@@ -633,6 +640,10 @@ public class DeskPosLoginActivity
 
         playSound(true);
 
+        //  上传离线数据
+        AsynPushOfflineData task = new AsynPushOfflineData();
+        task.execute();
+
         return;
     }
 
@@ -663,6 +674,42 @@ public class DeskPosLoginActivity
             tvShiftStatus.setText("当前状态：已开班");
         }else{
             tvShiftStatus.setText("当前状态：未开班");
+        }
+    }
+
+
+    /***
+     * 上传离线记录
+     * 	    1.上传离线交易
+     * 	    2.上传已结班未上传记录
+     * 	    3.上传支付明细
+     */
+    private class AsynPushOfflineData extends AsyncTask<String, Integer, Integer> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProDialog("请稍等...");
+        }
+
+        @Override
+        protected Integer doInBackground(String... strings) {
+
+            //  1. 上传离线交易
+            uploadPaymentRecords();
+
+            //  2. 上传已经未上传的结班记录
+            uploadShiftRecords();
+
+            //  3. 上传支付明细
+            uploadPaymentItems();
+
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            missProDialog();
         }
     }
 }

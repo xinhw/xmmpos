@@ -133,7 +133,7 @@ public class payWebapi {
         for(int i=0;i<MAX_TRY_TIMES;i++) {
             ret = httpUtil.httpGet(url);
             if(ret!=null) break;
-            sleep(100);
+            sleep(10);
         }
         Log.d(TAG, "ret:" + ret);
 
@@ -329,9 +329,15 @@ public class payWebapi {
         Log.d(TAG,"URL:"+url);
 
         try {
+            String ret = null;
+
             HttpUtil httpUtil = new HttpUtil();
-            String ret = httpUtil.httpPost(url,CONTENT_TYPE_JSON,"");
-            Log.d(TAG,"ret:"+ret);
+            for(int i=0;i<MAX_TRY_TIMES;i++) {
+                ret = httpUtil.httpPost(url, CONTENT_TYPE_JSON, "");
+                Log.d(TAG, "ret:" + ret);
+                if(null!=ret) break;
+                sleep(10);
+            }
 
             WebapiResponse resp = JSON.parseObject(ret,WebapiResponse.class);
             Log.d(TAG,"resp:" +resp.toString());
@@ -507,9 +513,14 @@ public class payWebapi {
         Log.d(TAG,"jsonData:"+jsonData);
 
         try {
+            String ret = null;
             HttpUtil httpUtil = new HttpUtil();
-            String ret = httpUtil.httpPost(url,CONTENT_TYPE_JSON,jsonData);
-            Log.d(TAG,"ret:"+ret);
+            for(int i=0;i<MAX_TRY_TIMES;i++) {
+                ret = httpUtil.httpPost(url, CONTENT_TYPE_JSON, jsonData);
+                Log.d(TAG,"ret:"+ret);
+                if(null!=ret) break;
+                sleep(10);
+            }
 
             errCode = httpUtil.getResponseCode();
             if(null==ret){

@@ -124,7 +124,7 @@ public class HttpUtil {
 //            }
 
         }catch (Exception e){
-            DetLog.writeLog(TAG,e.getMessage());
+            DetLog.writeLog(TAG,String.format("httpPost(%s)--%s",url,e.getMessage()));
             e.printStackTrace();
             isOnline = false;
             return null;
@@ -201,7 +201,8 @@ public class HttpUtil {
 
             DetLog.writeLog(TAG,"httpGet responseCode:"+responseCode);
         }catch (IOException e){
-            DetLog.writeLog(TAG,e.getMessage());
+            DetLog.writeLog(TAG,String.format("httpGet(%s)--%s",url,e.getMessage()));
+
             e.printStackTrace();
             isOnline = false;
             return null;
@@ -296,7 +297,7 @@ public class HttpUtil {
             isOnline = true;
             return msg;
         }catch (Exception e){
-            DetLog.writeLog(TAG,e.getMessage());
+            DetLog.writeLog(TAG,String.format("httpPost201(%s)--%s",url,e.getMessage()));
             e.printStackTrace();
             isOnline = false;
             return null;

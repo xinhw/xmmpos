@@ -746,7 +746,7 @@ public class MobliePosPayMainActivity
 
 
     private void savePaymentRecord(double amount, int uploadFlag) {
-        PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, (float) amount, posInfoBean);
+        PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj,(int)(amount*100),(float) amount, posInfoBean);
 
         record.setUploadFlag(uploadFlag);
         DBManager.getInstance().getPaymentRecordEntityDao().save(record);

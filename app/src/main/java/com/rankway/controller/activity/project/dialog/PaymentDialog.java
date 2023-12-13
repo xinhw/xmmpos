@@ -581,7 +581,7 @@ public class PaymentDialog
             if (0 == integer) {
                 baseActivity.playSound(true);
 
-                PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj, (float)(nAmount*0.01), posInfoBean);
+                PaymentRecordEntity record = new PaymentRecordEntity(cardPaymentObj,nAmount, (float)(nAmount*0.01), posInfoBean);
 
                 int flag = 0x00;
                 if(isOnlinePay) {

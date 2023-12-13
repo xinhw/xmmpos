@@ -79,6 +79,7 @@ import com.rankway.controller.persistence.entity.PaymentTotal;
 import com.rankway.controller.persistence.entity.SemiEventEntity;
 import com.rankway.controller.persistence.gen.DishEntityDao;
 import com.rankway.controller.persistence.gen.DishSubTypeEntityDao;
+import com.rankway.controller.persistence.gen.PaymentItemEntityDao;
 import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.persistence.gen.PaymentShiftEntityDao;
 import com.rankway.controller.persistence.gen.PaymentTotalDao;
@@ -1590,34 +1591,60 @@ public class BaseActivity extends AppCompatActivity {
      * @return
      */
     protected int zapDatabase() {
-        Log.d(TAG, "开始清理上报数据和雷管信息：");
+        final int cleanMonths = -3;
 
-        Log.d(TAG, "开始清除事件：");
-        int level = SpManager.getIntance().getSpInt(AppSpSaveConstant.UPLOAD_EVENT_LEVEL);
-        Log.d(TAG, "事件级别：" + level);
-        List<SemiEventEntity> events = DBManager.getInstance().getSemiEventEntityDao().queryBuilder()
-                .where(SemiEventEntityDao.Properties.Status.notEq(0))
+        //  获取指定月份之前的文件
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DAY_OF_MONTH,cleanMonths);
+        Date cleanDate = calendar.getTime();
+
+        //  清除 PaymentRecordEntity
+        List<PaymentRecordEntity> records = DBManager.getInstance().getPaymentRecordEntityDao()
+                .queryBuilder()
+                .where(PaymentRecordEntityDao.Properties.TransTime.lt(cleanDate))
+                .where(PaymentRecordEntityDao.Properties.UploadTime.eq(PaymentTotal.UPLOADED))
+                .orderDesc(PaymentRecordEntityDao.Properties.Id)
                 .list();
-        if (null != events) {
-            if (events.size() > 0) {
-                DetLog.writeLog(TAG, "清除已经上传事件：" + events.size());
-                DBManager.getInstance().getSemiEventEntityDao().deleteInTx(events);
-            } else {
-                Log.d(TAG, "无已经上传事件要清除");
-            }
+
+        Log.d(TAG,"PaymentRecordEntity "+records.size());
+        if(records.size()>0){
+            long id = records.get(0).getId();
+            DetLog.writeLog(TAG,String.format("PaymentRecordEntity 清除%d之前的数据",id));
+            DBManager.getInstance().getPaymentRecordEntityDao()
+                    .queryBuilder()
+                    .where(PaymentRecordEntityDao.Properties.Id.lt(id))
+                    .buildDelete()
+                    .executeDeleteWithoutDetachingEntities();
         }
 
-        events = DBManager.getInstance().getSemiEventEntityDao().queryBuilder()
-                .where(SemiEventEntityDao.Properties.EventLevel.lt(level))
+        //  清除PaymentTotal和PaymentItemEntity
+        List<PaymentTotal> totals = DBManager.getInstance().getPaymentTotalDao()
+                .queryBuilder()
+                .where(PaymentTotalDao.Properties.Timestamp.lt(cleanDate.getTime()))
+                .where(PaymentTotalDao.Properties.UploadFlag.eq(PaymentTotal.UPLOADED))
+                .orderDesc(PaymentTotalDao.Properties.Id)
                 .list();
-        if (null != events) {
-            if (events.size() > 0) {
-                DetLog.writeLog(TAG, "清除低级别事件：" + events.size());
-                DBManager.getInstance().getSemiEventEntityDao().deleteInTx(events);
-            } else {
-                Log.d(TAG, "无低级别事件要清除");
-            }
+
+        Log.d(TAG,"PaymentTotal "+totals.size());
+        if(totals.size()>0){
+            long id = totals.get(0).getId();
+
+            DetLog.writeLog(TAG,String.format("PaymentItemEntity 清除%d之前的数据",id));
+            DBManager.getInstance().getPaymentItemEntityDao()
+                    .queryBuilder()
+                    .where(PaymentItemEntityDao.Properties.PaymentTotalId.lt(id))
+                    .buildDelete()
+                    .executeDeleteWithoutDetachingEntities();
+
+            DetLog.writeLog(TAG,String.format("PaymentTotal 清除%d之前的数据",id));
+            DBManager.getInstance().getPaymentTotalDao()
+                    .queryBuilder()
+                    .where(PaymentTotalDao.Properties.Id.lt(id))
+                    .buildDelete()
+                    .executeDeleteWithoutDetachingEntities();
         }
+
         return 0;
     }
 
@@ -1832,8 +1859,8 @@ public class BaseActivity extends AppCompatActivity {
         records.sort(new Comparator<PaymentRecordEntity>() {
             @Override
             public int compare(PaymentRecordEntity o1, PaymentRecordEntity o2) {
-                if (o1.getTransTime().before(o2.getTransTime())) return -1;
-                return 1;
+                if (o1.getTransTime().before(o2.getTransTime())) return 1;
+                return -1;
             }
         });
 
@@ -2078,4 +2105,46 @@ public class BaseActivity extends AppCompatActivity {
         DBManager.getInstance().getPaymentShiftEntityDao().save(shiftEntity);
     }
 
+
+    /***
+     * 清除日志
+     */
+    public void zapLogFile() {
+        final int cleanMonths = -3;
+
+        //  获取指定月份之前的文件
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DAY_OF_MONTH,cleanMonths);
+        long cleanTime = calendar.getTime().getTime();
+
+        //  日志文件路径
+        String path = Environment.getExternalStorageDirectory() + "/Log/"; //文件路径
+
+        //  删除合并的日志文件
+        File[] subFiles = new File(path).listFiles();
+        if (subFiles == null) return;
+        if (subFiles.length==0) return;
+
+        for (File subFile : subFiles) {
+            if (subFile.isDirectory()) continue;
+
+            //  如果是合并文件，直接删除
+            String filename = subFile.getName();
+            if ("MERGELOG".equalsIgnoreCase(filename.substring(0, 8))) {
+                Log.d(TAG, "删除合并日志文件：" + filename);
+                subFile.delete();
+                continue;
+            }
+
+            //  最后修改时间
+            long createTime = subFile.lastModified();
+            if(createTime<cleanTime){
+                DetLog.writeLog(TAG,String.format("清除日志文件：%s",subFile.getName()));
+                subFile.delete();
+            }
+        }
+
+        return;
+    }
 }
