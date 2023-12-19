@@ -5,9 +5,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -18,16 +15,13 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.Point;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -51,14 +45,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.maning.mndialoglibrary.MProgressDialog;
-import com.rankway.controller.activity.project.NotificationDetail;
 import com.rankway.controller.activity.project.comment.AppSpSaveConstant;
-import com.rankway.controller.activity.project.eventbus.MessageEvent;
 import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.activity.service.DownloadUtil;
 import com.rankway.controller.common.AppConstants;
 import com.rankway.controller.common.AppIntentString;
-import com.rankway.controller.common.HandesetInfo;
 import com.rankway.controller.common.SemiEventList;
 import com.rankway.controller.common.SemiRespHeader;
 import com.rankway.controller.common.SemiServerAddress;
@@ -71,7 +62,6 @@ import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.DishEntity;
 import com.rankway.controller.persistence.entity.DishSubTypeEntity;
 import com.rankway.controller.persistence.entity.DishTypeEntity;
-import com.rankway.controller.persistence.entity.MessageDetail;
 import com.rankway.controller.persistence.entity.PaymentItemEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.persistence.entity.PaymentShiftEntity;
@@ -84,7 +74,6 @@ import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.persistence.gen.PaymentShiftEntityDao;
 import com.rankway.controller.persistence.gen.PaymentTotalDao;
 import com.rankway.controller.persistence.gen.SemiEventEntityDao;
-import com.rankway.controller.pushmessage.ETEKMessageProcess;
 import com.rankway.controller.utils.AppUtils;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.DateStringUtils;
@@ -614,63 +603,6 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    //  上报状态
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    private static int nUploadNum = 0;
-
-    public void resetUploadNum() {
-        nUploadNum = 0;
-    }
-
-    /**
-     * 上报设备信息
-     */
-    public void UploadHandsetInfo(String hardver) {
-        if (nUploadNum > 0) {
-            //Log.d(TAG,"已经上报了设备状态");
-            return;
-        }
-
-        String userStr = SpManager.getIntance().getSpString(AppSpSaveConstant.USER_INFO);
-        if (TextUtils.isEmpty(userStr)) {
-            return;
-        }
-        String loginUser = SpManager.getIntance().getSpString(AppSpSaveConstant.LOGIN_USER);
-
-        HandesetInfo hi = new HandesetInfo();
-        hi.initData(getStringInfo(getString(com.rankway.controller.R.string.controller_sno)));
-        hi.setAppVersion(getVersionCode());
-        hi.setMbVersion(hardver);
-        hi.setAppName(AppUtils.getAppName(this));
-        hi.setUserName(loginUser);
-        String rptJson = JSON.toJSONString(hi, SerializerFeature.WriteMapNullValue);
-
-        Log.d(TAG, "设备状态：" + rptJson);
-
-        String url = AppConstants.ETEK_UPLOAD_HANDSET_INFO;
-        AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
-        asyncHttpCilentUtil.httpsPostJson(url, rptJson, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.d(TAG, "上报状态失败1: " + e.toString());
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String respStr = null;
-                try {
-                    nUploadNum++;
-                    respStr = response.body().string();
-                    Log.d(TAG, "上报状态成功: " + respStr);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.d(TAG, "上报状态失败2：" + e.getMessage());
-                }
-            }
-        });
-    }
-
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //  APP和主控板程序升级
@@ -1173,54 +1105,6 @@ public class BaseActivity extends AppCompatActivity {
         return path.substring(start + 1);
     }
 
-    /***
-     * 在通知栏显示信息
-     * @param title
-     * @param content
-     */
-    public void showNotification(String title, String content, String from) {
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if (null == notificationManager) {
-            Log.d(TAG, "无效的消息通知Mananger");
-            return;
-        }
-
-        int notificationId = (int) ((System.currentTimeMillis() / 1000) & 0xffffffffL);
-        Log.d(TAG, "消息ID:" + notificationId);
-
-        //获取PendingIntent
-        Intent mainIntent = new Intent(this, NotificationDetail.class);
-        mainIntent.putExtra("TITLE", title);
-        mainIntent.putExtra("CONTENT", content);
-        mainIntent.putExtra("TIME", System.currentTimeMillis());
-        mainIntent.putExtra("ID", notificationId);
-        mainIntent.putExtra("FROM", from);
-
-        PendingIntent mainPendingIntent = PendingIntent.getActivity(this,
-                notificationId,
-                mainIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-
-        Notification notification = new NotificationCompat.Builder(mContext, AppConstants.NOTIFICATION_CHANNEL_ID)
-                .setContentText(content)
-                .setContentTitle(title)
-                .setWhen(System.currentTimeMillis())
-                .setSmallIcon(com.rankway.controller.R.mipmap.ic_launcher)
-                .setAutoCancel(true)
-                .setSound(Uri.fromFile(new File("/system/media/audio/ringtones/Luna.ogg")))
-                .setVibrate(new long[]{0, 1000, 1000, 1000})
-                .setLights(Color.GREEN, 1000, 1000)
-                .setDefaults(NotificationCompat.DEFAULT_ALL)
-                .setContentIntent(mainPendingIntent)
-                .build();
-        if (null == notification) {
-            Log.d(TAG, "无效的新建消息");
-            return;
-        }
-        Log.d(TAG, "显示消息：" + content);
-        notificationManager.notify(notificationId, notification);
-//        notificationId++;
-    }
 
     /***
      * 上传一个指定的文件
@@ -1257,31 +1141,6 @@ public class BaseActivity extends AppCompatActivity {
         });
     }
 
-    protected void processPushMessage(MessageEvent event) {
-        DetLog.writeLog(TAG, "收到信息：Title:" + event.getTitle() + " Content:" + event.getMessage());
-        Log.d(TAG, "消息类型：" + event.getType());
-        switch (event.getType()) {
-            case MessageEvent.TYPE_NOTIFICATION:
-                //  存储通知
-                MessageDetail md = new MessageDetail();
-                md.setBreaded(false);
-                md.setTime(System.currentTimeMillis());
-                md.setId(System.currentTimeMillis());
-                md.setContent(event.getMessage());
-                md.setTitle(event.getTitle());
-                md.setFrom("平台");
-
-                DBManager.getInstance().getMessageDetailDao().save(md);
-
-                break;
-
-            case MessageEvent.TYPE_MESSAGE:
-                ETEKMessageProcess proc = new ETEKMessageProcess(this);
-                proc.Process(event.getTitle(), event.getMessage());
-
-                break;
-        }
-    }
 
 
     /**

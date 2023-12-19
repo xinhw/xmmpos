@@ -107,56 +107,6 @@
         <activity android:name=".activity.project.AboutActivity" />
 
         <activity android:name=".activity.project.MobilePosSettingsActivity" />
-        <activity
-            android:name=".activity.project.MessageListActivity"
-            android:exported="true"
-            android:label="@string/title_activity_message_list"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activity.project.NotificationDetail"
-            android:theme="@style/activity_theme" />
-        <meta-data
-            android:name="com.alibaba.app.appkey"
-            android:value="333524478" />
-        <meta-data
-            android:name="com.alibaba.app.appsecret"
-            android:value="8ce0d37d60034edb820e430b20a69f60" />
-        <meta-data
-            android:name="com.baidu.lbsapi.API_KEY"
-            android:value="Gtq6BIbB27g6drxAABY7lOSjgQVH49R1" />
-        <meta-data
-            android:name="android.nfc.action.TECH_DISCOVERED"
-            android:resource="@xml/nfc_tech_filter" />
-
-        <provider
-            android:name=".provider.InstallProvider"
-            android:authorities="com.rankway.controller.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/install_provider_paths" />
-        </provider>
-
-        <receiver
-            android:name=".listenner.EtekAliMessageReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.alibaba.push2.action.NOTIFICATION_OPENED" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.alibaba.push2.action.NOTIFICATION_REMOVED" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.taobao.accs.intent.action.COMMAND" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.taobao.taobao.intent.action.COMMAND" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.alibaba.sdk.android.push.RECEIVE" />
-            </intent-filter>
-        </receiver>
 
         <service
             android:name="com.baidu.location.f"

@@ -1,7 +1,5 @@
 package com.rankway.controller.persistence.entity;
 
-import com.rankway.controller.pushmessage.PushMessageRequest;
-
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
@@ -61,13 +59,6 @@ public class MessageDetail implements Comparable<MessageDetail>{
         this.breaded = breaded;
     }
 
-    public MessageDetail(PushMessageRequest req){
-        this.from = req.getFrom();
-        this.content = req.getContent();
-        this.title =  "通知";
-        this.time = System.currentTimeMillis();     //req.getTimeStamp();
-        this.breaded = false;
-    }
 
     public MessageDetail(){
         this.time = System.currentTimeMillis();

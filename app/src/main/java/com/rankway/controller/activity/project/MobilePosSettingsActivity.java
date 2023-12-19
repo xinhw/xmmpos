@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
-import com.rankway.controller.activity.project.eventbus.MessageEvent;
 import com.rankway.controller.activity.project.manager.DataCleanManager;
 import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.common.AppConstants;
@@ -34,8 +33,6 @@ import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.HttpUtil;
 
 import org.apache.commons.lang3.StringUtils;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.io.IOException;
@@ -173,11 +170,6 @@ public class MobilePosSettingsActivity
     @Override
     protected void onStop() {
         super.onStop();
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(MessageEvent event) {
-        finish();
     }
 
     @Override

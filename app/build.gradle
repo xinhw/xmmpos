@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'org.greenrobot.greendao' // 应用插件
-apply plugin: 'com.aliyun.ams.emas-services'
 
 static def releaseTime() {
     return new Date().format("yyyyMMddHHmm", TimeZone.getTimeZone("GMT+8"))
