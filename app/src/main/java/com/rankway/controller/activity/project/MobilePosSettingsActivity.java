@@ -29,6 +29,7 @@ import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.common.AppConstants;
 import com.rankway.controller.common.AppIntentString;
 import com.rankway.controller.dto.PosInfoBean;
+import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.HttpUtil;
 
@@ -233,15 +234,34 @@ public class MobilePosSettingsActivity
         super.onDestroy();
     }
 
+    //  防止这个界面出现扫二维码的情况
+    private StringBuilder mStringBufferResult = new StringBuilder();
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        //  右下角返回键
-        if (KeyEvent.KEYCODE_BACK == keyCode) {
-            finish();
-            return true;
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        final int MAX_BUFFER_LEN = 256;
+        int keyCode = event.getKeyCode();
+        Log.d(TAG, "dispatchKeyEvent " + keyCode);
+
+        char aChar = (char) event.getUnicodeChar();
+        if (aChar != 0) {
+            mStringBufferResult.append(aChar);
         }
 
-        return super.onKeyUp(keyCode, event);
+        //  若为回车键，直接返回
+        if (keyCode == KeyEvent.KEYCODE_ENTER) {
+            DetLog.writeLog(TAG,"扫描输入："+mStringBufferResult.toString());
+            mStringBufferResult.setLength(0);
+        }
+
+        if(mStringBufferResult.length()>MAX_BUFFER_LEN){
+            DetLog.writeLog(TAG,"键盘输入："+mStringBufferResult.toString());
+            mStringBufferResult.setLength(0);
+        }
+        if(keyCode==KeyEvent.KEYCODE_ENTER) return true;
+        if(keyCode==KeyEvent.KEYCODE_BACK) return true;
+        if(keyCode==KeyEvent.KEYCODE_HOME) return true;
+
+        return super.dispatchKeyEvent(event);
     }
 
     private AlertDialog alertDialog;

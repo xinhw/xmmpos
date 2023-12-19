@@ -815,6 +815,7 @@ public class payWebapi {
         double famount = (double) (0.01 * cmoney);
         requestMap.put("cmoney", famount);
         requestMap.put("cdate",reqTime);
+        requestMap.put("payamount",cmoney);
 
         String reqParamsSet = hashMapEncode(requestMap);
         Log.d(TAG,"数据："+reqParamsSet);
@@ -880,6 +881,7 @@ public class payWebapi {
         requestMap.put("cdate", reqTime);
         double famount = (double)(cmoney*0.01);
         requestMap.put("cmoney", famount);
+        requestMap.put("payamount",cmoney);
         Log.d(TAG,"requestMap "+requestMap.toString());
 
         String reqParamsSet = Base64Util.EncodeString(toJsonString(requestMap));

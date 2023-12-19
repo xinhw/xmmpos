@@ -1596,14 +1596,14 @@ public class BaseActivity extends AppCompatActivity {
         //  获取指定月份之前的文件
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.add(Calendar.DAY_OF_MONTH,cleanMonths);
+        calendar.add(Calendar.MONTH,cleanMonths);
         Date cleanDate = calendar.getTime();
 
         //  清除 PaymentRecordEntity
         List<PaymentRecordEntity> records = DBManager.getInstance().getPaymentRecordEntityDao()
                 .queryBuilder()
                 .where(PaymentRecordEntityDao.Properties.TransTime.lt(cleanDate))
-                .where(PaymentRecordEntityDao.Properties.UploadTime.eq(PaymentTotal.UPLOADED))
+                .where(PaymentRecordEntityDao.Properties.UploadFlag.eq(PaymentTotal.UPLOADED))
                 .orderDesc(PaymentRecordEntityDao.Properties.Id)
                 .list();
 
@@ -2115,7 +2115,7 @@ public class BaseActivity extends AppCompatActivity {
         //  获取指定月份之前的文件
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.add(Calendar.DAY_OF_MONTH,cleanMonths);
+        calendar.add(Calendar.MONTH,cleanMonths);
         long cleanTime = calendar.getTime().getTime();
 
         //  日志文件路径

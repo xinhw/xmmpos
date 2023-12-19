@@ -26,6 +26,8 @@ public class PaymentApplyEntity {
     int qrtype;
     String userid;
 
+    int payamount;
+
     public int getCno() {
         return cno;
     }
@@ -106,6 +108,14 @@ public class PaymentApplyEntity {
         this.typeid = typeid;
     }
 
+    public int getPayamount() {
+        return payamount;
+    }
+
+    public void setPayamount(int payamount) {
+        this.payamount = payamount;
+    }
+
     @Override
     public String toString() {
         return "PaymentApplyEntity{" +
@@ -119,6 +129,7 @@ public class PaymentApplyEntity {
                 ", systemid=" + systemid +
                 ", qrtype=" + qrtype +
                 ", userid='" + userid + '\'' +
+                ", payamount=" + payamount +
                 '}';
     }
 
@@ -137,5 +148,7 @@ public class PaymentApplyEntity {
         this.systemid = recordEntity.getSystemId();
         this.qrtype = recordEntity.getQrType();
         this.userid = recordEntity.getUserId();
+
+        this.payamount = recordEntity.getPostype();
     }
 }

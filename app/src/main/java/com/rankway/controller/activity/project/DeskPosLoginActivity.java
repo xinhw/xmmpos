@@ -201,22 +201,40 @@ public class DeskPosLoginActivity
     @Override
     protected void onResume(){
         super.onResume();
+        tvTitle.requestFocus();
     }
 
+    //  防止这个界面出现扫二维码的情况
+    private StringBuilder mStringBufferResult = new StringBuilder();
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.d(TAG, "onKeyDown " + keyCode);
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        final int MAX_BUFFER_LEN = 256;
+        int keyCode = event.getKeyCode();
+        Log.d(TAG, "dispatchKeyEvent " + keyCode);
 
-        //  右下角返回键
-        if (KeyEvent.KEYCODE_BACK == keyCode) {
-            return true;
-        }
-        if (KeyEvent.KEYCODE_HOME == keyCode) {
-            return true;
+        char aChar = (char) event.getUnicodeChar();
+        if (aChar != 0) {
+            mStringBufferResult.append(aChar);
         }
 
-        return super.onKeyUp(keyCode, event);
+        //  若为回车键，直接返回
+        if (keyCode == KeyEvent.KEYCODE_ENTER) {
+            DetLog.writeLog(TAG,"扫描输入："+mStringBufferResult.toString());
+            mStringBufferResult.setLength(0);
+        }
+
+        if(mStringBufferResult.length()>MAX_BUFFER_LEN){
+            DetLog.writeLog(TAG,"键盘输入："+mStringBufferResult.toString());
+            mStringBufferResult.setLength(0);
+        }
+        if(keyCode==KeyEvent.KEYCODE_ENTER) return true;
+        if(keyCode==KeyEvent.KEYCODE_BACK) return true;
+        if(keyCode==KeyEvent.KEYCODE_HOME) return true;
+
+        return super.dispatchKeyEvent(event);
     }
+
+
     @Override
     public void onClick(View v) {
         if (ClickUtil.isFastDoubleClick(v.getId())) {
@@ -273,6 +291,8 @@ public class DeskPosLoginActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        DetLog.writeLog(TAG,"onDestory 退出程序");
 
         detSleep(100);
 
@@ -413,6 +433,9 @@ public class DeskPosLoginActivity
             if (null == listCardBlist) {
                 sendProccessMessage("同步 IC卡白名单信息 失败");
             } else {
+                //  将卡序列号全部大写
+                for(PersonInfoEntity pie : listCardBlist) pie.setGsno(pie.getGsno().toUpperCase());
+
                 sendProccessMessage("同步 IC卡白名单信息 成功");
                 Log.d(TAG, "IC卡白名单个数：" + listCardBlist.size());
                 DBManager.getInstance().getPersonInfoEntityDao().deleteAll();
@@ -519,7 +542,7 @@ public class DeskPosLoginActivity
                 "确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Log.d(TAG,"finish");
+                        DetLog.writeLog(TAG,"退出程序");
                         finish();
                     }
                 },

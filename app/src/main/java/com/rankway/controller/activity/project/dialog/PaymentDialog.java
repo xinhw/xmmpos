@@ -1,27 +1,16 @@
 package com.rankway.controller.activity.project.dialog;
 
-import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
@@ -62,10 +51,7 @@ import java.util.List;
  *   version: 1.0
  * </pre>
  */
-@SuppressLint("ValidFragment")
-public class PaymentDialog
-        extends DialogFragment
-        implements View.OnClickListener{
+public class PaymentDialog {
 
     private final String TAG = "PaymentDialog";
 
@@ -82,13 +68,10 @@ public class PaymentDialog
     private Context mContext;
     private BaseActivity baseActivity;
 
-    private boolean isPaying = false;
-
     private PosInfoBean posInfoBean = null;
 
     private List<DishEntity> listDishes = new ArrayList<>();
 
-    @SuppressLint("ValidFragment")
     public PaymentDialog(Context context,
                          BaseActivity baseActivity,
                          PosInfoBean posInfoBean,
@@ -102,41 +85,10 @@ public class PaymentDialog
     }
 
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        Window win = getDialog().getWindow();
-        // 一定要设置Background，如果不设置，window属性设置无效
-        getDialog().setCanceledOnTouchOutside(false);
-        getDialog().setCancelable(false);
-        getDialog().setOnKeyListener(new DialogInterface.OnKeyListener() {
-            @Override
-            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                return processKeyEvent(keyCode,event);
-            }
-        });
-
-        // 一定要设置Background，如果不设置，window属性设置无效
-        win.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        DisplayMetrics dm = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
-        getDialog().setCanceledOnTouchOutside(false);
-        setCancelable(false);
-        WindowManager.LayoutParams params = win.getAttributes();
-        params.gravity = Gravity.CENTER;
-        // 使用ViewGroup.LayoutParams，以便Dialog 宽度充满整个屏幕
-        params.width = (int) (dm.widthPixels * 0.6);                //  设置对话框宽度
-        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;        //  设置对话框高度
-        win.setAttributes(params);
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.dialog_payment,null);
-        TextView textView = rootView.findViewById(R.id.tvCancel);
-        textView.setOnClickListener(this);
+    private AlertDialog alertDialog = null;
+    public void showPaymentDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        View rootView = LayoutInflater.from(mContext).inflate(R.layout.dialog_payment, null);
 
         mHandler = new Handler();
 
@@ -159,30 +111,136 @@ public class PaymentDialog
         tvPayAmount = rootView.findViewById(R.id.tvPayAmount);
         tvPayAmount.setText(String.format("支付金额：%.2f",nAmount*0.01));
 
-        return rootView;
-    }
+        tvPayMode.setFocusable(true);
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.tvCancel:
+        //  取消按钮
+        TextView textView = rootView.findViewById(R.id.tvCancel);
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DetLog.writeLog(TAG,"退出支付");
+                if(paymentTask!=null) return;    //  不能推出，正在支付中
+
                 if(null!=readCardThread){
                     Log.d(TAG,"终止线程");
+                    readCardThread.stopRunning();
                     try {
-                        readCardThread.interrupt();
+                        readCardThread.join();
                     }catch (Exception e){
                         e.printStackTrace();
                     }
                 }
                 Log.d(TAG,"终止线程退出");
 
-                baseActivity.detSleep(200);
+                baseActivity.detSleep(50);
 
                 if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentCancel();
-                dismiss();
-                break;
-        }
+                if(null!=alertDialog) alertDialog.dismiss();
+            }
+        });
+
+        builder.setView(rootView);
+        alertDialog = builder.create();
+        alertDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                return processKeyEvent(keyCode,event);
+            }
+        });
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.setCancelable(false);
+        alertDialog.show();
     }
+
+
+
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//        Window win = getDialog().getWindow();
+//        // 一定要设置Background，如果不设置，window属性设置无效
+//        getDialog().setCanceledOnTouchOutside(false);
+//        getDialog().setCancelable(false);
+//        getDialog().setOnKeyListener(new DialogInterface.OnKeyListener() {
+//            @Override
+//            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+//                return processKeyEvent(keyCode,event);
+//            }
+//        });
+//
+//        // 一定要设置Background，如果不设置，window属性设置无效
+//        win.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//
+//        DisplayMetrics dm = new DisplayMetrics();
+//        getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
+////        getDialog().setCanceledOnTouchOutside(false);
+////        setCancelable(false);
+//        WindowManager.LayoutParams params = win.getAttributes();
+//        params.gravity = Gravity.CENTER;
+//        // 使用ViewGroup.LayoutParams，以便Dialog 宽度充满整个屏幕
+//        params.width = (int) (dm.widthPixels * 0.6);                //  设置对话框宽度
+//        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;        //  设置对话框高度
+//        win.setAttributes(params);
+//    }
+//
+//    @Nullable
+//    @Override
+//    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+//        View rootView = inflater.inflate(R.layout.dialog_payment,null);
+//        TextView textView = rootView.findViewById(R.id.tvCancel);
+//        textView.setOnClickListener(this);
+//
+//        mHandler = new Handler();
+//
+//        tvPayMode = rootView.findViewById(R.id.tvPayMode);
+//        if(payMode==PAY_MODE_CARD){
+//            tvPayMode.setText("支付方式：IC卡");
+//
+//            int ret = ReaderFactory.getReader(mContext).openReader();
+//            if(0!=ret){
+//                baseActivity.showLongToast("读卡器打开失败，请检查连接!");
+//                baseActivity.playSound(false);
+//            }else {
+//                readCardThread = new ReadCardThread();
+//                readCardThread.start();
+//            }
+//        }else{
+//            tvPayMode.setText("支付方式：二维码");
+//        }
+//
+//        tvPayAmount = rootView.findViewById(R.id.tvPayAmount);
+//        tvPayAmount.setText(String.format("支付金额：%.2f",nAmount*0.01));
+//
+//        tvPayMode.setFocusable(true);
+//
+//        return rootView;
+//    }
+//
+//    @Override
+//    public void onClick(View v) {
+//        switch (v.getId()){
+//            case R.id.tvCancel:
+//                DetLog.writeLog(TAG,"退出支付");
+//                if(paymentTask!=null) break;    //  不能推出，正在支付中
+//
+//                if(null!=readCardThread){
+//                    Log.d(TAG,"终止线程");
+//                    readCardThread.stopRunning();
+//                    try {
+//                        readCardThread.join();
+//                    }catch (Exception e){
+//                        e.printStackTrace();
+//                    }
+//                }
+//                Log.d(TAG,"终止线程退出");
+//
+//                baseActivity.detSleep(50);
+//
+//                if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentCancel();
+//                dismiss();
+//                break;
+//        }
+//    }
 
 
     public interface OnPaymentResult{
@@ -203,6 +261,7 @@ public class PaymentDialog
      * @return
      */
     private boolean processKeyEvent(int keyCode,KeyEvent event){
+        Log.d(TAG,"processKeyEvent "+keyCode);
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             char aChar = (char) event.getUnicodeChar();
             if (aChar != 0) {
@@ -213,14 +272,19 @@ public class PaymentDialog
 
             //若为回车键，直接返回
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                mHandler.post(mScanningFishedRunnable);
+               if(payMode==PAY_MODE_QRCODE) mHandler.post(mScanningFishedRunnable);
             } else {
                 //延迟post，若500ms内，有其他事件
-                mHandler.postDelayed(mScanningFishedRunnable, 500L);
+                if(payMode==PAY_MODE_QRCODE) mHandler.postDelayed(mScanningFishedRunnable, 500L);
             }
-            return true;
+            return baseActivity.onKeyDown(keyCode,event);
         }
-        return false;
+
+
+        if(keyCode==KeyEvent.KEYCODE_HOME) return true;
+        if(keyCode==KeyEvent.KEYCODE_BACK) return true;
+        if(keyCode==KeyEvent.KEYCODE_ENTER) return true;
+        return baseActivity.onKeyUp(keyCode,event);
     }
     /**
      * 二维码信息原始数据容器
@@ -259,37 +323,46 @@ public class PaymentDialog
 
     private  ReadCardThread readCardThread = null;
     class ReadCardThread extends Thread{
+        private boolean running = true;
+
         @Override
         public void run(){
+            Log.d(TAG,"ReadCardThread run");
             cardInfo cardPaymentObj = null;
-            while (!isInterrupted()){
+            while (running){
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(10);
                 }catch (Exception e){
                     e.printStackTrace();
-                    break;
+                    continue;
                 }
                 String sn = ReaderFactory.getReader(mContext).getCardNo();
-
                 if(sn==null) continue;
+
+                Log.d(TAG,"sn:"+sn);
 
                 cardPaymentObj = new cardInfo();
                 cardPaymentObj.setGsno(sn);
                 break;
             }
 
-            ReaderFactory.getReader(mContext).closeReader();
+            if(!running) return;     //  如果是退出，直接退出
 
-            if(null!=cardPaymentObj) PutMessage(PAY_MODE_CARD,cardPaymentObj);
+            if(null!=cardPaymentObj){
+                PutMessage(PAY_MODE_CARD,cardPaymentObj);
+            }
+        }
+
+        public void stopRunning(){
+            running = false;
         }
     }
 
+    private AsynTaskPayment paymentTask = null;
     private void PutMessage(int type,cardInfo cardPaymentObj) {
         mHandler.post(() -> {
-            if(isPaying) return;
-
-            AsynTaskPayment task = new AsynTaskPayment(type,cardPaymentObj);
-            task.execute();
+            paymentTask = new AsynTaskPayment(type,cardPaymentObj);
+            paymentTask.execute();
         });
     }
 
@@ -311,9 +384,6 @@ public class PaymentDialog
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
-            isPaying = true;
-
             showProDialog("请稍等...");
         }
 
@@ -589,21 +659,23 @@ public class PaymentDialog
                     if(isOnlineFailure) flag = 0x00;        //  在线，但失败了
                 }
 
-                saveAndUploadPaymentItems(isOnlinePay,posInfoBean,record);
-
+                //  保存支付记录
                 record.setUploadFlag(flag);
                 DBManager.getInstance().getPaymentRecordEntityDao().save(record);
+                DetLog.writeLog(TAG, "支付成功：" + record.toString());
+
+                //  保存并上传支付明细
+                saveAndUploadPaymentItems(isOnlinePay,posInfoBean,record);
 
                 //  打印部分
                 printDishes(record);
 
-                DetLog.writeLog(TAG, "支付成功：" + record.toString());
+                //  刷新班次信息
                 if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentSuccess(payMode,flag,nAmount,listDishes,record);
 
                 //  支付成功，关闭对话框
-                dismiss();
-
-                isPaying = false;
+                alertDialog.dismiss();
+                paymentTask = null;
                 return;
             }
 
@@ -611,27 +683,31 @@ public class PaymentDialog
             baseActivity.showToast(errString);
             if(null!=onPaymentResultListner) onPaymentResultListner.onPaymentCancel();
 
-            dismiss();
-
-            isPaying = false;
+            alertDialog.dismiss();
+            paymentTask = null;
             return;
         }
     }
 
     private void printDishes(PaymentRecordEntity record){
-        //  打印
-        PrinterBase printer = PrinterFactory.getPrinter(mContext);
-        int ret = printer.openPrinter();
-        if (0 != ret) {
-            baseActivity.playSound(false);
-            baseActivity.showLongToast("打印机初始化失败，请检查连接");
-        } else {
-            //  打印
-            PrinterUtils printerUtils = new PrinterUtils();
-            printerUtils.printPayItem(printer, posInfoBean, record, listDishes);
-            baseActivity.detSleep(100);
-            printer.closePrinter();
-        }
+        baseActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //  打印
+                PrinterBase printer = PrinterFactory.getPrinter(mContext);
+                int ret = printer.openPrinter();
+                if (0 != ret) {
+                    baseActivity.playSound(false);
+                    baseActivity.showLongToast("打印机初始化失败，请检查连接");
+                } else {
+                    //  打印
+                    PrinterUtils printerUtils = new PrinterUtils();
+                    printerUtils.printPayItem(printer, posInfoBean, record, listDishes);
+                    baseActivity.detSleep(100);
+                    printer.closePrinter();
+                }
+            }
+        });
     }
 
     private ProgressDialog progressDialog;

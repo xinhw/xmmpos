@@ -6,8 +6,8 @@
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
-    <uses-feature android:name="android.hardware.usb.host"/>
-    <uses-feature android:name="android.hardware.usb.accessory"/>
+    <uses-feature android:name="android.hardware.usb.host" />
+    <uses-feature android:name="android.hardware.usb.accessory" />
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -64,7 +64,7 @@
         <activity
             android:name=".activity.project.DeskPosLoginActivity"
             android:exported="true"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.nfc.action.TECH_DISCOVERED" />

@@ -119,7 +119,7 @@ public class HttpUtil {
 
             //  返回字符串
             String msg = new String(message.toByteArray());
-            DetLog.writeLog(TAG,"httpPost msg:"+msg);
+            if(responseCode!=200) DetLog.writeLog(TAG,"httpPost msg:"+msg);
             return msg;
 //            }
 
@@ -194,7 +194,7 @@ public class HttpUtil {
 
                 //  返回字符串
                 String msg = new String(message.toByteArray());
-                DetLog.writeLog(TAG,"httpGet msg:"+msg);
+                if(responseCode!=200) DetLog.writeLog(TAG,"httpGet msg:"+msg);
 
                 return msg;
             }
@@ -286,7 +286,7 @@ public class HttpUtil {
             while ((str = br.readLine())!=null){
                 msg = msg + str;
             }
-            DetLog.writeLog(TAG,String.format("httpPost201 %d %s",responseCode,msg));
+            if(responseCode!=201) DetLog.writeLog(TAG,String.format("httpPost201 %d %s",responseCode,msg));
 
             setHeaderLocation(null);
             if(responseCode==201){

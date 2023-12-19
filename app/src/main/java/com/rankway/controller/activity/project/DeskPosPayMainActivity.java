@@ -120,6 +120,8 @@ public class DeskPosPayMainActivity
         checkAppUpdate();
 
         registerReceiver();
+
+        DetLog.writeLog(TAG,"进入主界面");
     }
 
     private void initView() {
@@ -203,25 +205,6 @@ public class DeskPosPayMainActivity
 
         startAppService();
 
-        DetLog.writeLog(TAG, "进入点菜");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        posInfoBean = getPosInfoBean();
-        if (null == posInfoBean) {
-            Log.d(TAG, "第一次使用，需要配置参数");
-            startActivity(MobilePosSettingsActivity.class);
-            return;
-        }
-        TextView tvPosNo = findViewById(R.id.tvPosNo);
-        tvPosNo.setText(String.format("POS机：%s", posInfoBean.getPosName()));
-        if (!TextUtils.isEmpty(posInfoBean.getPosName())) {
-            TextView textView = findViewById(R.id.tvTitle);
-            textView.setText(String.format("上海报业餐厅POS机--%s", posInfoBean.getPosName()));
-        }
         //  菜品主类
         listDishTypeEntities.clear();
         List<DishTypeEntity> dishTypeList = getLocalDishType();
@@ -237,6 +220,28 @@ public class DeskPosPayMainActivity
 
             listDishEntities.clear();
             dishAdapter.notifyDataSetChanged();
+        }
+
+        DetLog.writeLog(TAG, "进入点菜");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        tvTime.requestFocus();
+
+        posInfoBean = getPosInfoBean();
+        if (null == posInfoBean) {
+            Log.d(TAG, "第一次使用，需要配置参数");
+            startActivity(MobilePosSettingsActivity.class);
+            return;
+        }
+        TextView tvPosNo = findViewById(R.id.tvPosNo);
+        tvPosNo.setText(String.format("POS机：%s", posInfoBean.getPosName()));
+        if (!TextUtils.isEmpty(posInfoBean.getPosName())) {
+            TextView textView = findViewById(R.id.tvTitle);
+            textView.setText(String.format("上海报业餐厅POS机--%s", posInfoBean.getPosName()));
         }
 
         //  刷新合计
@@ -321,7 +326,11 @@ public class DeskPosPayMainActivity
             DetLog.writeLog(TAG,"键盘输入："+mStringBufferResult.toString());
             mStringBufferResult.setLength(0);
         }
-        return true;
+        if(keyCode==KeyEvent.KEYCODE_ENTER) return true;
+        if(keyCode==KeyEvent.KEYCODE_BACK) return true;
+        if(keyCode==KeyEvent.KEYCODE_HOME) return true;
+
+        return super.dispatchKeyEvent(event);
     }
 
     @Override
@@ -353,6 +362,8 @@ public class DeskPosPayMainActivity
         stopAppService();
 
         unregisterReceiver();
+
+        DetLog.writeLog(TAG,"onDestroy 退出");
     }
 
     @Override
@@ -366,6 +377,7 @@ public class DeskPosPayMainActivity
 
         switch (v.getId()) {
             case R.id.tvExit:
+                DetLog.writeLog(TAG,"点击退出");
                 finish();
                 break;
 
@@ -701,11 +713,14 @@ public class DeskPosPayMainActivity
         paymentDialog = new PaymentDialog(mContext, this, posInfoBean, type, nAmount);
         paymentDialog.setOnPaymentResultListner(this);
         paymentDialog.setListDishes(listSelectedDishEntities);
-        if (type == PaymentDialog.PAY_MODE_QRCODE) {
-            paymentDialog.show(getSupportFragmentManager(), "qrcode pay");
-        } else {
-            paymentDialog.show(getSupportFragmentManager(), "iccard pay");
-        }
+        paymentDialog.showPaymentDialog();
+
+//        if (type == PaymentDialog.PAY_MODE_QRCODE) {
+//            paymentDialog.show(getSupportFragmentManager(), "qrcode pay");
+//        } else {
+//            paymentDialog.show(getSupportFragmentManager(), "iccard pay");
+//        }
+
     }
 
 
