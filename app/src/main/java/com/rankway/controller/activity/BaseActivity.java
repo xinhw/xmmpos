@@ -38,21 +38,15 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.elvishew.xlog.XLog;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.maning.mndialoglibrary.MProgressDialog;
-import com.rankway.controller.activity.project.comment.AppSpSaveConstant;
 import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.activity.service.DownloadUtil;
-import com.rankway.controller.common.AppConstants;
 import com.rankway.controller.common.AppIntentString;
-import com.rankway.controller.common.SemiEventList;
-import com.rankway.controller.common.SemiRespHeader;
-import com.rankway.controller.common.SemiServerAddress;
 import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.entity.AppUpdateBean;
 import com.rankway.controller.entity.PaymentStatisticsRecordEntity;
@@ -66,14 +60,12 @@ import com.rankway.controller.persistence.entity.PaymentItemEntity;
 import com.rankway.controller.persistence.entity.PaymentRecordEntity;
 import com.rankway.controller.persistence.entity.PaymentShiftEntity;
 import com.rankway.controller.persistence.entity.PaymentTotal;
-import com.rankway.controller.persistence.entity.SemiEventEntity;
 import com.rankway.controller.persistence.gen.DishEntityDao;
 import com.rankway.controller.persistence.gen.DishSubTypeEntityDao;
 import com.rankway.controller.persistence.gen.PaymentItemEntityDao;
 import com.rankway.controller.persistence.gen.PaymentRecordEntityDao;
 import com.rankway.controller.persistence.gen.PaymentShiftEntityDao;
 import com.rankway.controller.persistence.gen.PaymentTotalDao;
-import com.rankway.controller.persistence.gen.SemiEventEntityDao;
 import com.rankway.controller.utils.AppUtils;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.DateStringUtils;
@@ -1097,90 +1089,10 @@ public class BaseActivity extends AppCompatActivity {
         return;
     }
 
-    public String getFileNameWithSuffix(String path) {
-        if (TextUtils.isEmpty(path)) return "";
-
-        int start = path.lastIndexOf("/");
-        if (start == -1) return "";
-        return path.substring(start + 1);
-    }
-
-
-    /***
-     * 上传一个指定的文件
-     * @param filename
-     */
-    public void updateFile(String filename) {
-        String path = Environment.getExternalStorageDirectory() + filename;
-        Log.d(TAG, "上传文件：" + path);
-        File logfile = new File(path);
-        if (!logfile.exists()) {
-            DetLog.writeLog(TAG, "文件不存在：" + path);
-            return;
-        }
-
-        //  起爆器编号
-        String strsno = getPreInfo(getString(com.rankway.controller.R.string.controller_sno));
-        if (TextUtils.isEmpty(strsno))
-            strsno = "F00A8000000";
-
-        //  上传地址
-        String url = String.format(SemiServerAddress.getUploadLogURL() + "/%s", strsno);
-
-        AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
-        asyncHttpCilentUtil.httpsPostFile(url, null, "file", logfile, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                logfile.delete();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                logfile.delete();
-            }
-        });
-    }
 
 
 
-    /**
-     * 获取黑白名单通信过程
-     *
-     * @param resp
-     */
-    public void httpPostPushMessageResponse(String resp) {
-        //  起爆器
-        String sno = getPreInfo(getString(com.rankway.controller.R.string.controller_sno));
-        //  用户名
-        String user = SpManager.getIntance().getSpString(AppSpSaveConstant.USER_NAME);
 
-        String url = "";
-        url = String.format(SemiServerAddress.getPushMessageReponseURL(), sno, user);
-
-        Log.d(TAG, "URL:" + url);
-
-        AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
-        asyncHttpCilentUtil.httpPostJson(url, resp, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.d(TAG, "onFailure: " + call.request());
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String strjson = response.body().string();
-                Log.d(TAG, "onSuccess:" + strjson);
-                try {
-                    SemiRespHeader result = JSON.parseObject(strjson, SemiRespHeader.class);
-                    if (result == null) {
-                        return;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
 
     /***
      * 上送离线消费交易数据
@@ -1350,102 +1262,6 @@ public class BaseActivity extends AppCompatActivity {
 
 
     /***
-     * 推送本地事件
-     * @param hardver
-     */
-    protected void uploadEventList(String hardver) {
-        final int EACH_EVENT_COUNT = 100;
-
-        int level = SpManager.getIntance().getSpInt(AppSpSaveConstant.UPLOAD_EVENT_LEVEL);
-//        Log.d(TAG,"上传事件级别："+level);
-
-        //  查询是否有事件
-        List<SemiEventEntity> allevents = DBManager.getInstance().getSemiEventEntityDao().queryBuilder()
-                .where(SemiEventEntityDao.Properties.Status.eq(0))
-                .where(SemiEventEntityDao.Properties.EventLevel.ge(level))
-                .orderAsc(SemiEventEntityDao.Properties.Id)
-                .list();
-        if (null == allevents) {
-            return;
-        }
-
-        if (0 == allevents.size()) {
-//            Log.d(TAG,"没有事件需要上报");
-            return;
-        }
-        Log.d(TAG, "事件个数：" + allevents.size());
-
-        List<SemiEventEntity> events = new ArrayList<>();
-        if (allevents.size() > EACH_EVENT_COUNT) {
-            for (int i = 0; i < EACH_EVENT_COUNT; i++) {
-                events.add(allevents.get(i));
-            }
-        } else {
-            events.addAll(allevents);
-        }
-
-        String userName = SpManager.getIntance().getSpString(AppSpSaveConstant.LOGIN_USER);
-        String sno = getPreInfo(getString(com.rankway.controller.R.string.controller_sno));
-        SemiEventList eventList = new SemiEventList(sno,
-                userName,
-                AppUtils.getAppName(this),
-                getVersionCode(),
-                hardver);
-        eventList.setEventList(events);
-
-        String rptJson = JSON.toJSONString(eventList, SerializerFeature.WriteMapNullValue);
-        Log.d(TAG, "上报事件：" + rptJson);
-
-        String url = AppConstants.ETEK_UPLOAD_EVENT;
-        AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
-        asyncHttpCilentUtil.httpsPostJson(url, rptJson, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.d(TAG, "上报事件失败1: " + e.toString());
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String respStr = null;
-                try {
-                    DetLog.writeLog(TAG, "上报事件：" + rptJson);
-
-                    respStr = response.body().string();
-                    DetLog.writeLog(TAG, "上报事件返回: " + respStr);
-
-                    SemiRespHeader result = JSON.parseObject(respStr, SemiRespHeader.class);
-                    if (result == null) {
-                        return;
-                    }
-
-                    //  上报成功就删除事件，并上传日志
-                    if (result.getCode().equalsIgnoreCase("40000")) {
-                        DBManager.getInstance().getSemiEventEntityDao().deleteInTx(events);
-                        if (allevents.size() <= EACH_EVENT_COUNT) uploadLog();
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.d(TAG, "上报事件失败2：" + e.getMessage());
-                }
-            }
-        });
-    }
-
-    /***
-     * 存储事件
-     * @param projectId
-     * @param process
-     * @param nLevel
-     * @param description
-     */
-    public void saveEvent(long projectId, String process, int nLevel, String description) {
-        SemiEventEntity event = new SemiEventEntity(projectId, process, nLevel, description);
-        DetLog.writeLog("上报事件", JSON.toJSONString(event));
-        DBManager.getInstance().getSemiEventEntityDao().save(event);
-    }
-
-    /***
      * 清理数据库数据
      * @return
      */
@@ -1457,6 +1273,7 @@ public class BaseActivity extends AppCompatActivity {
         calendar.setTime(new Date());
         calendar.add(Calendar.MONTH,cleanMonths);
         Date cleanDate = calendar.getTime();
+        Log.d(TAG,"清除之前的数据："+DateStringUtils.getYYMMDDHHMMss(cleanDate.getTime()));
 
         //  清除 PaymentRecordEntity
         List<PaymentRecordEntity> records = DBManager.getInstance().getPaymentRecordEntityDao()
@@ -1976,6 +1793,8 @@ public class BaseActivity extends AppCompatActivity {
         calendar.setTime(new Date());
         calendar.add(Calendar.MONTH,cleanMonths);
         long cleanTime = calendar.getTime().getTime();
+        Log.d(TAG,"清除之前的日志："+DateStringUtils.getYYMMDDHHMMss(cleanTime));
+
 
         //  日志文件路径
         String path = Environment.getExternalStorageDirectory() + "/Log/"; //文件路径

@@ -169,7 +169,7 @@ public class DeskPosLoginActivity
 
         if(null==posInfoBean){
             //  信息没有被配置，直接进入到设置界面
-            Intent intent = new Intent(mContext, MobilePosSettingsActivity.class);
+            Intent intent = new Intent(mContext, DeskPosSettingsActivity.class);
             startActivityForResult(intent, 210);
             return;
         }
@@ -178,7 +178,7 @@ public class DeskPosLoginActivity
         if(StringUtils.isEmpty(posInfoBean.getCposno())
                 ||StringUtils.isEmpty(posInfoBean.getUsercode())){
             //  信息没有被配置，直接进入到设置界面
-            Intent intent = new Intent(mContext, MobilePosSettingsActivity.class);
+            Intent intent = new Intent(mContext, DeskPosSettingsActivity.class);
             startActivityForResult(intent, 210);
         }
 
@@ -685,6 +685,8 @@ public class DeskPosLoginActivity
             PrinterUtils printerUtils = new PrinterUtils();
             printerUtils.printShiftSettle(printer, shiftEntity);
             printer.closePrinter();
+
+            PrinterFactory.setPrinter(null);
         }
     }
 

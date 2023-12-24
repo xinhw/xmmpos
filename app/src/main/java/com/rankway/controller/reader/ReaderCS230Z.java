@@ -40,9 +40,16 @@ public class ReaderCS230Z extends ReaderBase{
         super(context);
     }
 
+    private static boolean isOpen = false;
+
     @Override
     public int openReader() {
         Log.d(TAG,"openReader");
+
+        if(isOpen){
+            Log.d(TAG,"已经打开");
+            return 0;
+        }
 
         manager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
         if (manager == null) {
@@ -81,12 +88,16 @@ public class ReaderCS230Z extends ReaderBase{
             }
         }
 
+        isOpen = true;
+
         return 0;
     }
 
     @Override
     public void closeReader() {
         Log.d(TAG,"closeReader");
+        isOpen = false;
+
         if(reader==null){
             setErrMessage("未打开读卡器");
             return;

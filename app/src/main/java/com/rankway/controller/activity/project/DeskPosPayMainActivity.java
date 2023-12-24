@@ -47,6 +47,7 @@ import com.rankway.controller.printer.PrinterFactory;
 import com.rankway.controller.printer.PrinterGP58;
 import com.rankway.controller.printer.PrinterUtils;
 import com.rankway.controller.reader.ReaderCS230Z;
+import com.rankway.controller.reader.ReaderFactory;
 import com.rankway.controller.utils.DateStringUtils;
 import com.rankway.controller.utils.HttpUtil;
 
@@ -234,7 +235,7 @@ public class DeskPosPayMainActivity
         posInfoBean = getPosInfoBean();
         if (null == posInfoBean) {
             Log.d(TAG, "第一次使用，需要配置参数");
-            startActivity(MobilePosSettingsActivity.class);
+            startActivity(DeskPosSettingsActivity.class);
             return;
         }
         TextView tvPosNo = findViewById(R.id.tvPosNo);
@@ -743,14 +744,18 @@ public class DeskPosPayMainActivity
                             && (usbDevice.getProductId() == PrinterGP58.PRODUCTID)) {
                         Log.d(TAG, "打印机插入");
 
+                        PrinterFactory.getPrinter(mContext).closePrinter();
                         showToast("打印机插入");
+                        PrinterFactory.getPrinter(mContext).openPrinter();
                         playSound(true);
                     }
                     if ((usbDevice.getVendorId() == ReaderCS230Z.VENDORID)
                             && (usbDevice.getProductId() == ReaderCS230Z.PRODUCTID)) {
                         Log.d(TAG, "IC卡读卡器插入");
 
+                        ReaderFactory.getReader(mContext).closeReader();
                         showToast("读卡器插入");
+                        ReaderFactory.getReader(mContext).openReader();
                         playSound(true);
                     }
                     if ((usbDevice.getVendorId() == AppConstants.USB_QR_SCAN_VENDOR_ID)
@@ -775,6 +780,7 @@ public class DeskPosPayMainActivity
                         Log.d(TAG, "打印机拔出");
 
                         showLongToast("打印机被拔出，消费无法打印");
+                        PrinterFactory.getPrinter(mContext).closePrinter();
                         playSound(false);
                     }
                     if ((usbDevice.getVendorId() == ReaderCS230Z.VENDORID)
@@ -782,6 +788,7 @@ public class DeskPosPayMainActivity
                         Log.d(TAG, "IC卡读卡器拔出");
 
                         showLongToast("读卡器被拔出，不支持IC卡消费");
+                        ReaderFactory.getReader(mContext).closeReader();
                         playSound(false);
                     }
                     if ((usbDevice.getVendorId() == AppConstants.USB_QR_SCAN_VENDOR_ID)

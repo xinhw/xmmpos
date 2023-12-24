@@ -84,29 +84,9 @@
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
-        <activity
-            android:name=".activity.project.MobilePosStatisticsActivity"
-            android:exported="true"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activity.project.MobilePosSettingMenuActivity"
-            android:exported="true"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activity.project.MobilePayRecordListActivity"
-            android:exported="true"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activity.project.MobliePosPayMainActivity"
-            android:exported="true"
-            android:launchMode="singleTask"
-            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
-        <activity android:name=".activity.project.MapActivity" />
         <activity android:name=".activity.project.AboutActivity" />
 
-        <activity android:name=".activity.project.MobilePosSettingsActivity" />
+        <activity android:name=".activity.project.DeskPosSettingsActivity" />
 
         <service
             android:name="com.baidu.location.f"

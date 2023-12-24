@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
-import com.rankway.controller.common.WhiteBlackListMode;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.utils.SommerUtils;
 import com.rankway.sommerlibrary.utils.NetUtil;
@@ -53,9 +52,6 @@ public class AboutActivity extends BaseActivity implements View.OnClickListener 
 
 
         String s = "";
-        if (WhiteBlackListMode.getInstance().isInWhiteList()) {
-            s = s + " W";
-        }
         appVersion.setText(SommerUtils.getVersionName(this) + s);
 
         m_btnUpdate = findViewById(R.id.check_update);

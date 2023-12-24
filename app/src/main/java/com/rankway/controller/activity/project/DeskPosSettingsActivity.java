@@ -49,7 +49,7 @@ import okhttp3.Response;
 /**
  * 本机设置界面
  */
-public class MobilePosSettingsActivity
+public class DeskPosSettingsActivity
         extends BaseActivity
         implements View.OnClickListener {
 
@@ -379,7 +379,7 @@ public class MobilePosSettingsActivity
 
                 File logfile = new File(destFile);
                 if (!logfile.exists()) {
-                    Toast.makeText(MobilePosSettingsActivity.this, "无 日志 需要上传！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DeskPosSettingsActivity.this, "无 日志 需要上传！", Toast.LENGTH_SHORT).show();
                     playSound(false);
                     return;
                 }

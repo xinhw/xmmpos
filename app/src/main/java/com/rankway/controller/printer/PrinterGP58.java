@@ -44,12 +44,20 @@ public class PrinterGP58 extends PrinterBase{
 
     private final int TIMEOUT = 500;
 
+    private static boolean isOpen = false;
+
     public PrinterGP58(Context context) {
         super(context);
     }
 
     @Override
     public int openPrinter() {
+        Log.d(TAG,"openPrinter");
+        if(isOpen){
+            Log.d(TAG,"打印机已经打开");
+            return 0;
+        }
+
         manager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
         if (manager == null) {
             Log.e(TAG, "UsbManager is null.");
@@ -132,11 +140,14 @@ public class PrinterGP58 extends PrinterBase{
 
         //  复位
         printBytes(PrinterFormatUtils.RESET);
+
+        isOpen = true;
         return 0;
     }
 
     @Override
     public void closePrinter() {
+        isOpen = false;
         if(usbConnection!=null) usbConnection.close();
         usbConnection = null;
         usbDevicePrinter = null;

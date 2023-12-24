@@ -67,7 +67,7 @@ public class DeskPosSettingMenuActivity
                 break;
 
             case R.id.deskPosSetting:
-                startActivity(MobilePosSettingsActivity.class);
+                startActivity(DeskPosSettingsActivity.class);
                 break;
 
             case R.id.deskPosAuxillary:
