@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -202,6 +203,15 @@ public class DeskPosLoginActivity
     protected void onResume(){
         super.onResume();
         tvTitle.requestFocus();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.d(TAG, "onConfigurationChanged");
+
+        DetLog.writeLog(TAG,"onConfigurationChanged "+newConfig.toString());
+        //USB 拔插动作, 这个方法都会被调用.
+        super.onConfigurationChanged(newConfig);
     }
 
     //  防止这个界面出现扫二维码的情况

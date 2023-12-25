@@ -338,6 +338,7 @@ public class DeskPosPayMainActivity
     public void onConfigurationChanged(Configuration newConfig) {
         Log.d(TAG, "onConfigurationChanged");
 
+        DetLog.writeLog(TAG,"onConfigurationChanged "+newConfig.toString());
         //USB 拔插动作, 这个方法都会被调用.
         super.onConfigurationChanged(newConfig);
     }

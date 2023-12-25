@@ -1,6 +1,7 @@
 package com.rankway.controller.activity.project;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbEndpoint;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
+import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.printer.PrinterBase;
 import com.rankway.controller.printer.PrinterFactory;
 import com.rankway.controller.printer.PrinterFormatUtils;
@@ -333,4 +335,12 @@ public class DeskPosModulesTestActivity extends BaseActivity {
         return super.onKeyUp(keyCode, event);
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.d(TAG, "onConfigurationChanged");
+
+        DetLog.writeLog(TAG,"onConfigurationChanged "+newConfig.toString());
+        //USB 拔插动作, 这个方法都会被调用.
+        super.onConfigurationChanged(newConfig);
+    }
 }

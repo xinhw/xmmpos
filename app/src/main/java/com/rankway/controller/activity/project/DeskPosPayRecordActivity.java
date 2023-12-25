@@ -1,5 +1,6 @@
 package com.rankway.controller.activity.project;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -137,5 +138,14 @@ public class DeskPosPayRecordActivity extends BaseActivity {
         if(keyCode==KeyEvent.KEYCODE_HOME) return true;
 
         return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.d(TAG, "onConfigurationChanged");
+
+        DetLog.writeLog(TAG,"onConfigurationChanged "+newConfig.toString());
+        //USB 拔插动作, 这个方法都会被调用.
+        super.onConfigurationChanged(newConfig);
     }
 }

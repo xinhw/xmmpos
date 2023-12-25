@@ -52,23 +52,26 @@
         <activity
             android:name=".activity.project.DeskPosAuxillaryMenuActivity"
             android:exported="true"
+            android:configChanges="orientation|uiMode|keyboard|keyboardHidden|fontScale|touchscreen|navigation|screenLayout|colorMode"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.project.DeskPosSettingMenuActivity"
             android:exported="true"
+            android:configChanges="orientation|uiMode|keyboard|keyboardHidden|fontScale|touchscreen|navigation|screenLayout|colorMode"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.project.DeskPosPayRecordActivity"
             android:exported="true"
+            android:configChanges="orientation|uiMode|keyboard|keyboardHidden|fontScale|touchscreen|navigation|screenLayout|colorMode"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.project.DeskPosLoginActivity"
             android:exported="true"
+            android:configChanges="orientation|uiMode|keyboard|keyboardHidden|fontScale|touchscreen|navigation|screenLayout|colorMode"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.nfc.action.TECH_DISCOVERED" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -82,11 +85,15 @@
         <activity
             android:name=".activity.project.DeskPosModulesTestActivity"
             android:exported="true"
+            android:configChanges="orientation|uiMode|keyboard|keyboardHidden|fontScale|touchscreen|navigation|screenLayout|colorMode"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
-        <activity android:name=".activity.project.AboutActivity" />
 
-        <activity android:name=".activity.project.DeskPosSettingsActivity" />
+        <activity android:name=".activity.project.AboutActivity"
+            android:configChanges="orientation|uiMode|keyboard|keyboardHidden|fontScale|touchscreen|navigation|screenLayout|colorMode" />
+
+        <activity android:name=".activity.project.DeskPosSettingsActivity"
+            android:configChanges="orientation|uiMode|keyboard|keyboardHidden|fontScale|touchscreen|navigation|screenLayout|colorMode" />
 
         <service
             android:name="com.baidu.location.f"
