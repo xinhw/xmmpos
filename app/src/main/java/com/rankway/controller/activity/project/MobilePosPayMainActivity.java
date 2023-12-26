@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.MifareClassic;
@@ -847,5 +848,14 @@ public class MobilePosPayMainActivity
         }
 
         return;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.d(TAG, "onConfigurationChanged");
+
+        DetLog.writeLog(TAG,"onConfigurationChanged "+newConfig.toString());
+        //USB 拔插动作, 这个方法都会被调用.
+        super.onConfigurationChanged(newConfig);
     }
 }

@@ -1,5 +1,6 @@
 package com.rankway.controller.activity.project;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,7 @@ import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.adapter.MobliePosPayStatisticsAdapter;
 import com.rankway.controller.entity.PaymentStatisticsRecordEntity;
+import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecord;
 
@@ -156,5 +158,14 @@ public class MobilePosPayStatisticsActivity
     @Override
     public void onItemDoubleClick(View view, int position) {
 
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.d(TAG, "onConfigurationChanged");
+
+        DetLog.writeLog(TAG,"onConfigurationChanged "+newConfig.toString());
+        //USB 拔插动作, 这个方法都会被调用.
+        super.onConfigurationChanged(newConfig);
     }
 }

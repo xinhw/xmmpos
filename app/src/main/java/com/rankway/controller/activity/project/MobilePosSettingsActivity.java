@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Looper;
@@ -29,6 +30,7 @@ import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.common.AppConstants;
 import com.rankway.controller.common.AppIntentString;
 import com.rankway.controller.dto.PosInfoBean;
+import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.HttpUtil;
 
@@ -615,5 +617,14 @@ public class MobilePosSettingsActivity
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.setCancelable(false);
         alertDialog.show();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.d(TAG, "onConfigurationChanged");
+
+        DetLog.writeLog(TAG,"onConfigurationChanged "+newConfig.toString());
+        //USB 拔插动作, 这个方法都会被调用.
+        super.onConfigurationChanged(newConfig);
     }
 }

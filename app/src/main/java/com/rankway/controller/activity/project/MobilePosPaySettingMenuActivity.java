@@ -1,5 +1,6 @@
 package com.rankway.controller.activity.project;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -8,6 +9,7 @@ import android.widget.TextView;
 
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
+import com.rankway.controller.hardware.util.DetLog;
 
 public class MobilePosPaySettingMenuActivity
         extends BaseActivity
@@ -71,5 +73,14 @@ public class MobilePosPaySettingMenuActivity
         }
 
         return super.onKeyUp(keyCode, event);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.d(TAG, "onConfigurationChanged");
+
+        DetLog.writeLog(TAG,"onConfigurationChanged "+newConfig.toString());
+        //USB 拔插动作, 这个方法都会被调用.
+        super.onConfigurationChanged(newConfig);
     }
 }

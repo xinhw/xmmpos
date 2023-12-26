@@ -11,7 +11,6 @@ import android.util.Log;
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
 import com.elvishew.xlog.XLog;
-import com.rankway.controller.common.AliPushServiceRegister;
 import com.rankway.controller.common.AppConstants;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.utils.location.DLocationUtils;
@@ -74,18 +73,6 @@ public class DetApplication extends BaseApplication {
     public void onConfigurationChanged(Configuration newConfig) {
         XLog.d("onConfigurationChanged");
         super.onConfigurationChanged(newConfig);
-    }
-
-    /***
-     * 初始化阿里移动推送通道
-     */
-    public void initCloudChannel() {
-        Log.d(TAG,"initCloudChannel");
-
-        // 创建notificaiton channel
-        this.createNotificationChannel();
-
-        AliPushServiceRegister.getInstance().init(this);
     }
 
     /***

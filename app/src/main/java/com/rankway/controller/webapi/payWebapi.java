@@ -716,7 +716,28 @@ public class payWebapi {
             errMsg = String.valueOf(respParam.get("errmsg"));
             if (errCode != 0) return null;
 
-            // {"Result":[{"PosNo":"68001","Cno":"5324    ","CanteenName":"文新医务室","Amount":29.8,"Remain":567.39,"TransType":0,"TransTime":"2022-12-16T14:55:54"},{"PosNo":"22001","Cno":"879655  ","CanteenName":"文新1楼超市","Amount":21.0,"Remain":597.19,"TransType":0,"TransTime":"2022-12-16T11:52:36"},{"PosNo":"21003","Cno":"122196  ","CanteenName":"文新1F咖啡吧","Amount":49.0,"Remain":618.19,"TransType":0,"TransTime":"2022-12-14T12:44:13"},{"PosNo":"28004","Cno":"34451   ","CanteenName":"上报大食堂(梅龙镇)","Amount":17.0,"Remain":667.19,"TransType":0,"TransTime":"2022-12-13T11:14:48"},{"PosNo":"28004","Cno":"33797   ","CanteenName":"上报大食堂(梅龙镇)","Amount":28.0,"Remain":684.19,"TransType":0,"TransTime":"2022-12-12T11:42:25"},{"PosNo":"28002","Cno":"11756   ","CanteenName":"上报大食堂(梅龙镇)","Amount":17.0,"Remain":712.19,"TransType":0,"TransTime":"2022-12-09T11:35:04"},{"PosNo":"28004","Cno":"30732   ","CanteenName":"上报大食堂(梅龙镇)","Amount":22.0,"Remain":729.19,"TransType":0,"TransTime":"2022-12-06T11:23:27"},{"PosNo":"28001","Cno":"6186    ","CanteenName":"上报大食堂(梅龙镇)","Amount":60.0,"Remain":751.19,"TransType":0,"TransTime":"2022-12-05T17:43:01"},{"PosNo":"88888","Cno":"581188  ","CanteenName":"文新后台管理","Amount":800.0,"Remain":811.19,"TransType":1,"TransTime":"2022-11-30T15:02:47"},{"PosNo":"21003","Cno":"120151  ","CanteenName":"文新1F咖啡吧","Amount":102.0,"Remain":11.19,"TransType":0,"TransTime":"2022-11-25T15:41:59"},{"PosNo":"28006","Cno":"8129    ","CanteenName":"上报大食堂(梅龙镇)","Amount":17.0,"Remain":113.19,"TransType":0,"TransTime":"2022-11-24T11:17:46"},{"PosNo":"28005","Cno":"8379    ","CanteenName":"上报大食堂(梅龙镇)","Amount":120.0,"Remain":130.19,"TransType":0,"TransTime":"2022-11-23T15:55:14"},{"PosNo":"28005","Cno":"8378    ","CanteenName":"上报大食堂(梅龙镇)","Amount":35.0,"Remain":250.19,"TransType":0,"TransTime":"2022-11-23T15:13:48"},{"PosNo":"68001","Cno":"4767    ","CanteenName":"文新医务室","Amount":29.8,"Remain":285.19,"TransType":0,"TransTime":"2022-11-22T15:00:48"},{"PosNo":"28005","Cno":"7766    ","CanteenName":"上报大食堂(梅龙镇)","Amount":30.0,"Remain":314.99,"TransType":0,"TransTime":"2022-11-22T10:59:40"},{"PosNo":"28005","Cno":"7763    ","CanteenName":"上报大食堂(梅龙镇)","Amount":6.0,"Remain":344.99,"TransType":0,"TransTime":"2022-11-22T10:45:30"},{"PosNo":"50007","Cno":"10268   ","CanteenName":"盒马分组","Amount":1100.0,"Remain":350.99,"TransType":0,"TransTime":"2022-11-21T14:02:35"},{"PosNo":"22001","Cno":"867517  ","CanteenName":"文新1楼超市","Amount":10.5,"Remain":1450.99,"TransType":0,"TransTime":"2022-11-15T13:52:22"},{"PosNo":"28004","Cno":"19661   ","CanteenName":"上报大食堂(梅龙镇)","Amount":2.0,"Remain":1461.49,"TransType":0,"TransTime":"2022-11-15T08:57:45"},{"PosNo":"28004","Cno":"19081   ","CanteenName":"上报大食堂(梅龙镇)","Amount":30.0,"Remain":1463.49,"TransType":0,"TransTime":"2022-11-14T11:33:45"}],"errcode":0,"errmsg":"ok"}
+            // {"Result":[
+            // {"PosNo":"68001","Cno":"5324    ","CanteenName":"文新医务室","Amount":29.8,"Remain":567.39,"TransType":0,"TransTime":"2022-12-16T14:55:54"},
+            // {"PosNo":"22001","Cno":"879655  ","CanteenName":"文新1楼超市","Amount":21.0,"Remain":597.19,"TransType":0,"TransTime":"2022-12-16T11:52:36"},
+            // {"PosNo":"21003","Cno":"122196  ","CanteenName":"文新1F咖啡吧","Amount":49.0,"Remain":618.19,"TransType":0,"TransTime":"2022-12-14T12:44:13"},
+            // {"PosNo":"28004","Cno":"34451   ","CanteenName":"上报大食堂(梅龙镇)","Amount":17.0,"Remain":667.19,"TransType":0,"TransTime":"2022-12-13T11:14:48"},
+            // {"PosNo":"28004","Cno":"33797   ","CanteenName":"上报大食堂(梅龙镇)","Amount":28.0,"Remain":684.19,"TransType":0,"TransTime":"2022-12-12T11:42:25"},
+            // {"PosNo":"28002","Cno":"11756   ","CanteenName":"上报大食堂(梅龙镇)","Amount":17.0,"Remain":712.19,"TransType":0,"TransTime":"2022-12-09T11:35:04"},
+            // {"PosNo":"28004","Cno":"30732   ","CanteenName":"上报大食堂(梅龙镇)","Amount":22.0,"Remain":729.19,"TransType":0,"TransTime":"2022-12-06T11:23:27"},
+            // {"PosNo":"28001","Cno":"6186    ","CanteenName":"上报大食堂(梅龙镇)","Amount":60.0,"Remain":751.19,"TransType":0,"TransTime":"2022-12-05T17:43:01"},
+            // {"PosNo":"88888","Cno":"581188  ","CanteenName":"文新后台管理","Amount":800.0,"Remain":811.19,"TransType":1,"TransTime":"2022-11-30T15:02:47"},
+            // {"PosNo":"21003","Cno":"120151  ","CanteenName":"文新1F咖啡吧","Amount":102.0,"Remain":11.19,"TransType":0,"TransTime":"2022-11-25T15:41:59"},
+            // {"PosNo":"28006","Cno":"8129    ","CanteenName":"上报大食堂(梅龙镇)","Amount":17.0,"Remain":113.19,"TransType":0,"TransTime":"2022-11-24T11:17:46"},
+            // {"PosNo":"28005","Cno":"8379    ","CanteenName":"上报大食堂(梅龙镇)","Amount":120.0,"Remain":130.19,"TransType":0,"TransTime":"2022-11-23T15:55:14"},
+            // {"PosNo":"28005","Cno":"8378    ","CanteenName":"上报大食堂(梅龙镇)","Amount":35.0,"Remain":250.19,"TransType":0,"TransTime":"2022-11-23T15:13:48"},
+            // {"PosNo":"68001","Cno":"4767    ","CanteenName":"文新医务室","Amount":29.8,"Remain":285.19,"TransType":0,"TransTime":"2022-11-22T15:00:48"},
+            // {"PosNo":"28005","Cno":"7766    ","CanteenName":"上报大食堂(梅龙镇)","Amount":30.0,"Remain":314.99,"TransType":0,"TransTime":"2022-11-22T10:59:40"},
+            // {"PosNo":"28005","Cno":"7763    ","CanteenName":"上报大食堂(梅龙镇)","Amount":6.0,"Remain":344.99,"TransType":0,"TransTime":"2022-11-22T10:45:30"},
+            // {"PosNo":"50007","Cno":"10268   ","CanteenName":"盒马分组","Amount":1100.0,"Remain":350.99,"TransType":0,"TransTime":"2022-11-21T14:02:35"},
+            // {"PosNo":"22001","Cno":"867517  ","CanteenName":"文新1楼超市","Amount":10.5,"Remain":1450.99,"TransType":0,"TransTime":"2022-11-15T13:52:22"},
+            // {"PosNo":"28004","Cno":"19661   ","CanteenName":"上报大食堂(梅龙镇)","Amount":2.0,"Remain":1461.49,"TransType":0,"TransTime":"2022-11-15T08:57:45"},
+            // {"PosNo":"28004","Cno":"19081   ","CanteenName":"上报大食堂(梅龙镇)","Amount":30.0,"Remain":1463.49,"TransType":0,"TransTime":"2022-11-14T11:33:45"}],
+            // "errcode":0,"errmsg":"ok"}
             String str = JSONObject.toJSONString(respParam.get("Result"));
             Log.d(TAG,"RESULT:"+ str);
             return str;
@@ -756,6 +777,7 @@ public class payWebapi {
         double famount = (double) (0.01 * cmoney);
         requestMap.put("cmoney", famount);
         requestMap.put("cdate",reqTime);
+        requestMap.put("payamount",cmoney);
 
         String reqParamsSet = hashMapEncode(requestMap);
         Log.d(TAG,"数据："+reqParamsSet);
@@ -821,6 +843,7 @@ public class payWebapi {
         requestMap.put("cdate", reqTime);
         double famount = (double)(cmoney*0.01);
         requestMap.put("cmoney", famount);
+        requestMap.put("payamount",cmoney);
         Log.d(TAG,"requestMap "+requestMap.toString());
 
         String reqParamsSet = Base64Util.EncodeString(toJsonString(requestMap));
