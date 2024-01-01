@@ -29,7 +29,7 @@ import com.rankway.controller.activity.project.manager.DataCleanManager;
 import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.common.AppConstants;
 import com.rankway.controller.common.AppIntentString;
-import com.rankway.controller.dto.PosInfoBean;
+import com.rankway.controller.entity.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.HttpUtil;

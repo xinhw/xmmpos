@@ -1,6 +1,8 @@
 package com.rankway.controller.printer;
 
 import android.content.Context;
+import android.os.Build;
+import android.util.Log;
 
 /**
  * <pre>
@@ -12,12 +14,21 @@ import android.content.Context;
  * </pre>
  */
 public class PrinterFactory {
+    private static final String TAG = "PrinterFactory";
     private static PrinterBase printer = null;
 
     public static PrinterBase getPrinter(Context context){
-        if(printer==null) {
-            printer = new PrinterGP58(context);
+        String strModel = Build.MODEL.toUpperCase();
+        Log.d(TAG,"MODEL:"+strModel);
+
+        if(printer!=null) return printer;
+
+        if(strModel.contains("SWIFT 1")){
+            printer = new iminPrinter(context);
+        }else{
+            printer = new NaPrinter(context);
         }
+
         return printer;
     }
 

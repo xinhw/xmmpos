@@ -213,6 +213,11 @@ public class PrinterSPI extends PrinterBase {
         return writeSpi(bytes);
     }
 
+    @Override
+    public void partialCut() {
+
+    }
+
     //----------------------------------------------------打印机上电
     private void OpenPrint(){
         Log.d(TAG, "OpenPrint: ");

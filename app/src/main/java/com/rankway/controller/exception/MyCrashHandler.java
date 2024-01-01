@@ -4,8 +4,6 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.rankway.controller.app.BaseApplication;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -47,8 +45,8 @@ public class MyCrashHandler implements Thread.UncaughtExceptionHandler {
         return writer.toString();
     }
 
-    private String logFilePath = Environment.getExternalStorageDirectory() + File.separator + "Android" +
-            File.separator + "data" + File.separator + BaseApplication.getAppContext().getPackageName() + File.separator + "crashLog";
+    private String logFilePath = Environment.getExternalStorageDirectory() + File.separator + "Log" +
+            File.separator + "crashLog";
 
     private void saveThrowableMessage(String errorMessage) {
         if (TextUtils.isEmpty(errorMessage)) {
@@ -78,7 +76,7 @@ public class MyCrashHandler implements Thread.UncaughtExceptionHandler {
             private void writeCrashLog(String errorMessage){
                 try {
                     FileWriter writer = null;
-                    String fileName = logFilePath+File.separator+"WXSemiconCrash.log";
+                    String fileName = logFilePath+File.separator+"WXSemiconCrash.txt";
                     // 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
                     writer = new FileWriter(fileName, true);
 

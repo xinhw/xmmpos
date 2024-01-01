@@ -34,6 +34,7 @@ public class decodeQRCode {
             return null;
         }
 
+        Log.d(TAG,"DATA:"+DataConverter.bytes2HexString(data));
         if(data[0]!=0x35){
             Log.d(TAG,"TAG1错误："+data[0]);
             return null;

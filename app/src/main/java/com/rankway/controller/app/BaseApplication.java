@@ -40,10 +40,8 @@ public class BaseApplication extends Application {
 
         appContext = this;
 
-        if (!BuildConfig.DEBUG) {
-            MyCrashHandler handler = new MyCrashHandler();
-            Thread.setDefaultUncaughtExceptionHandler(handler);
-        }
+        MyCrashHandler handler = new MyCrashHandler();
+        Thread.setDefaultUncaughtExceptionHandler(handler);
 
         initXlog();
     }

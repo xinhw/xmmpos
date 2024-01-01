@@ -173,6 +173,11 @@ public class PrinterGP58 extends PrinterBase{
         return 0;
     }
 
+    @Override
+    public void partialCut() {
+
+    }
+
 
     /**
      * Create a broadcast receiver.

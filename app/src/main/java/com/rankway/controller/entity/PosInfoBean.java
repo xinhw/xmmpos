@@ -1,4 +1,4 @@
-package com.rankway.controller.dto;
+package com.rankway.controller.entity;
 
 import java.util.Date;
 

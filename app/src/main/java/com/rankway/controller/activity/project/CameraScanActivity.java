@@ -1,11 +1,13 @@
 package com.rankway.controller.activity.project;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -41,12 +43,14 @@ public class CameraScanActivity extends Activity implements SurfaceHolder.Callba
         setContentView(R.layout.activity_camera_scan);
         getWindow().setFormat(PixelFormat.TRANSLUCENT);
         scan = findViewById(R.id.scan);
-        scan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                scan.setVisibility(View.GONE);
-            }
-        });
+        scan.setVisibility(View.GONE);
+
+//        scan.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                scan.setVisibility(View.GONE);
+//            }
+//        });
         init();
     }
 
@@ -65,6 +69,7 @@ public class CameraScanActivity extends Activity implements SurfaceHolder.Callba
     private void init() {
         surface_view = (SurfaceView) findViewById(R.id.surface_view);
         textview = (TextView) findViewById(R.id.textview);
+        textview.setText("将报业二维码放入方框内识别");
         mHolder = surface_view.getHolder();
         mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         mHolder.addCallback(this);
@@ -100,7 +105,7 @@ public class CameraScanActivity extends Activity implements SurfaceHolder.Callba
             mCamera.setPreviewCallback(previewCallback);
             mCamera.startPreview();
         } catch (Exception e) {
-            Log.d("DBG", "Error starting camera preview: " + e.getMessage());
+            Log.d(TAG, "Error starting camera preview: " + e.getMessage());
         }
     }
 
@@ -119,9 +124,24 @@ public class CameraScanActivity extends Activity implements SurfaceHolder.Callba
                 sb.append(resources.getString(R.string.capacity) + rawResult.getBarcodeFormat().name()+ "\n");
                 sb.append(resources.getString(R.string.content) + rawResult.toString());
             }
-            Log.i("XGH",":"+sb.toString());
-            textview.setText(sb.toString());
-            sb.delete(0,sb.length());
+            if((rawResult!=null)&&(rawResult.toString().length()>0)) {
+                Log.d(TAG, ":" + rawResult.toString());
+
+                mCamera.setPreviewCallback(null);
+                mCamera.release();
+                mCamera = null;
+
+                Intent intent = new Intent();
+                intent.setAction(MobilePosPayMainActivity.RES_ACTION);
+                intent.putExtra("value", rawResult.toString());
+                Log.d(TAG,"LocalBroadcastManager sendBroadcast");
+                LocalBroadcastManager.getInstance(CameraScanActivity.this).sendBroadcast(intent);
+
+//                textview.setText(sb.toString());
+                textview.setText(rawResult.toString());
+                sb.delete(0, sb.length());
+                finish();
+            }
         }
     };
 

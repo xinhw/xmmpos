@@ -1,6 +1,6 @@
 package com.rankway.controller.persistence.entity;
 
-import com.rankway.controller.dto.PosInfoBean;
+import com.rankway.controller.entity.PosInfoBean;
 import com.rankway.controller.webapi.cardInfo;
 
 import org.greenrobot.greendao.annotation.Entity;

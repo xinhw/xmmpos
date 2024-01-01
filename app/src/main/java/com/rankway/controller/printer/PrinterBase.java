@@ -23,6 +23,7 @@ public abstract  class PrinterBase {
     public abstract void closePrinter();
     public abstract int printString(String s);
     public abstract int printBytes(byte[] bytes);
+    public abstract void partialCut();      //  切纸
 
     public String getErrMessage(){
         return errMessage;

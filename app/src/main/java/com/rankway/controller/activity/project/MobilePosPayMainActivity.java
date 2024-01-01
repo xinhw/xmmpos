@@ -1,11 +1,13 @@
 package com.rankway.controller.activity.project;
 
+import android.Manifest;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
@@ -15,7 +17,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,7 +34,7 @@ import android.widget.Toast;
 import com.rankway.controller.R;
 import com.rankway.controller.activity.BaseActivity;
 import com.rankway.controller.adapter.MobilePosPayRecordDetailAdapter;
-import com.rankway.controller.dto.PosInfoBean;
+import com.rankway.controller.entity.PosInfoBean;
 import com.rankway.controller.hardware.util.DataConverter;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
@@ -59,8 +64,8 @@ public class MobilePosPayMainActivity
     NfcAdapter nfcAdapter;
     private PendingIntent pendingIntent;
 
-    private ScannerBase scanner;
-    private static final String RES_ACTION = "android.intent.action.SCANRESULT";
+    private ScannerBase scanner = null;
+    public static final String RES_ACTION = "android.intent.action.SCANRESULT";
     private ScannerResultReceiver scanReceiver;
 
     TextView tvLocalTime;
@@ -140,6 +145,14 @@ public class MobilePosPayMainActivity
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        TextView textView = findViewById(R.id.btnScan);
+        if(handsetHasScanner()){
+            textView.setVisibility(View.GONE);
+        }else{
+            textView.setVisibility(View.VISIBLE);
+            textView.setOnClickListener(this);
+        }
     }
 
     private void setOnClickListener(int[] ids) {
@@ -280,6 +293,8 @@ public class MobilePosPayMainActivity
     ////////////////////////////////////////////////////////////////////////////////////////////////
     private void initScanner() {
         Log.d(TAG, "initScanner");
+        if(!handsetHasScanner()) return;
+
         enableScanner();
 
         IntentFilter intentFilter = new IntentFilter();
@@ -353,7 +368,12 @@ public class MobilePosPayMainActivity
             if (null == scanResult) return;
             if (scanResult.length() == 0) return;
 
-            cardPaymentObj = decodeQRCode.decode(scanResult);
+            try {
+                cardPaymentObj = decodeQRCode.decode(scanResult);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
             if (null == cardPaymentObj) {
                 playSound(false);
                 showLongToast("无效的二维码");
@@ -446,6 +466,12 @@ public class MobilePosPayMainActivity
             case R.id.btnPay:
                 if (!isPaying) {
                     startPayment();
+                }
+                break;
+
+            case R.id.btnScan:
+                if (!isPaying) {
+                    startCameraScan();
                 }
                 break;
         }
@@ -857,5 +883,25 @@ public class MobilePosPayMainActivity
         DetLog.writeLog(TAG,"onConfigurationChanged "+newConfig.toString());
         //USB 拔插动作, 这个方法都会被调用.
         super.onConfigurationChanged(newConfig);
+    }
+
+    private void startCameraScan(){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
+        } else {
+            startActivity(new Intent(this,CameraScanActivity.class));
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Log.d(TAG,"onRequestPermissionsResult="+grantResults[0]);
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            startActivity(new Intent(this,CameraScanActivity.class));
+        }
     }
 }

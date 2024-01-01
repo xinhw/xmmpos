@@ -41,19 +41,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.maning.mndialoglibrary.MProgressDialog;
 import com.rankway.controller.R;
-import com.rankway.controller.activity.project.comment.AppSpSaveConstant;
-import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.activity.service.DownloadUtil;
 import com.rankway.controller.common.ActivityCollector;
 import com.rankway.controller.common.AppIntentString;
-import com.rankway.controller.dto.PosInfoBean;
 import com.rankway.controller.entity.AppUpdateBean;
+import com.rankway.controller.entity.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.hardware.util.SoundPoolHelp;
-import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecord;
-import com.rankway.controller.persistence.entity.SemiEventEntity;
-import com.rankway.controller.persistence.gen.SemiEventEntityDao;
 import com.rankway.controller.utils.AppUtils;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.DateStringUtils;
@@ -1103,32 +1098,6 @@ public class BaseActivity extends AppCompatActivity {
     protected int zapDatabase() {
         final int cleanMonths = -3;
 
-        Log.d(TAG, "开始清除事件：");
-        int level = SpManager.getIntance().getSpInt(AppSpSaveConstant.UPLOAD_EVENT_LEVEL);
-        Log.d(TAG, "事件级别：" + level);
-        List<SemiEventEntity> events = DBManager.getInstance().getSemiEventEntityDao().queryBuilder()
-                .where(SemiEventEntityDao.Properties.Status.notEq(0))
-                .list();
-        if (null != events) {
-            if (events.size() > 0) {
-                DetLog.writeLog(TAG, "清除已经上传事件：" + events.size());
-                DBManager.getInstance().getSemiEventEntityDao().deleteInTx(events);
-            } else {
-                Log.d(TAG, "无已经上传事件要清除");
-            }
-        }
-
-        events = DBManager.getInstance().getSemiEventEntityDao().queryBuilder()
-                .where(SemiEventEntityDao.Properties.EventLevel.lt(level))
-                .list();
-        if (null != events) {
-            if (events.size() > 0) {
-                DetLog.writeLog(TAG, "清除低级别事件：" + events.size());
-                DBManager.getInstance().getSemiEventEntityDao().deleteInTx(events);
-            } else {
-                Log.d(TAG, "无低级别事件要清除");
-            }
-        }
         return 0;
     }
 
@@ -1301,5 +1270,19 @@ public class BaseActivity extends AppCompatActivity {
         }
 
         return;
+    }
+
+    protected boolean handsetHasScanner(){
+        String strModel = Build.MODEL.toUpperCase();
+        Log.d(TAG,"MODEL:"+strModel);
+
+        if(strModel.contains("SWIFT 1")){
+            return false;
+        }
+
+        if(strModel.contains("X1")){
+            return true;
+        }
+        return false;
     }
 }
