@@ -10,6 +10,7 @@ import com.rankway.controller.persistence.gen.MessageDetailDao;
 import com.rankway.controller.persistence.gen.PaymentRecordDao;
 import com.rankway.controller.persistence.gen.PaymentShiftEntityDao;
 import com.rankway.controller.persistence.gen.SemiEventEntityDao;
+import com.rankway.controller.persistence.gen.UserInfoEntityDao;
 
 import java.util.List;
 
@@ -73,5 +74,9 @@ public class DBManager {
 
     public PaymentShiftEntityDao getPaymentShiftEntityDao(){
         return mDaoSession.getPaymentShiftEntityDao();
+    }
+
+    public UserInfoEntityDao getUserInfoEntityDao(){
+        return mDaoSession.getUserInfoEntityDao();
     }
 }

@@ -32,9 +32,22 @@ public class DateStringUtils {
         return new SimpleDateFormat(formatType).format(data);
     }
 
-    public static   String getDateDStr (long lms){
-        SimpleDateFormat   sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        return sdf.format(lms);
+    public static String dateToString(long times) {
+        String formatType="yyyy/MM/dd HH:mm:ss";
+        Date date = new Date(times);
+        return new SimpleDateFormat(formatType).format(date);
+    }
+    public static String getYYMMDDHHMMss(long times){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyMMddHHmmss");
+        Date date = new Date(times);
+        String format = simpleDateFormat.format(date);
+        return format;
+    }
+
+    public static String getDateDStr(long ltm){
+        String formatType="yyyy/MM/dd HH:mm:ss";
+        Date date = new Date(ltm);
+        return new SimpleDateFormat(formatType).format(date);
     }
 
 }

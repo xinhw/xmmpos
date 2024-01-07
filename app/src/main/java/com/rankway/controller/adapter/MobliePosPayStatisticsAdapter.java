@@ -1,5 +1,6 @@
 package com.rankway.controller.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -52,7 +53,7 @@ public class MobliePosPayStatisticsAdapter
     }
 
     @Override
-    public void onBindViewHolder(@NonNull @androidx.annotation.NonNull PaymentRecordStatisticsViewHolder holder, int i) {
+    public void onBindViewHolder(@NonNull @androidx.annotation.NonNull PaymentRecordStatisticsViewHolder holder, @SuppressLint("RecyclerView") int i) {
         holder.itemView.setSelected(i==selectedItem);
         PaymentStatisticsRecordEntity item = data.get(i);
         holder.seqNo.setText(item.getSeqNo()+"");

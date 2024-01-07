@@ -53,6 +53,7 @@ import com.rankway.controller.persistence.entity.PaymentRecord;
 import com.rankway.controller.persistence.entity.PaymentShiftEntity;
 import com.rankway.controller.persistence.gen.PaymentShiftEntityDao;
 import com.rankway.controller.printer.PrinterBase;
+import com.rankway.controller.printer.PrinterFormatUtils;
 import com.rankway.controller.utils.AppUtils;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.DateStringUtils;
@@ -1290,112 +1291,7 @@ public class BaseActivity extends AppCompatActivity {
         return false;
     }
 
-    private String combinePrintLine(int str1len,String str1,
-                                    String str2){
-        String s1 = str1;
-        try {
-            s1 = new String(str1.getBytes("GB2312"), "ISO-8859-1");
-        }catch (Exception e){
-            e.printStackTrace();
-        }
 
-        int n = s1.length();
-        if(n>=str1len){
-            return str1 + str2;
-        }
-        StringBuilder sb = new StringBuilder();
-        while(sb.length()<(str1len-n)){
-            sb.append(' ');
-        }
-        return str1+sb.toString()+str2;
-    }
-
-    private String padLeftSpace(String s,int length){
-        if(s.length()>=length) return s;
-        StringBuilder sb = new StringBuilder();
-        while(sb.length()<(length-s.length())){
-            sb.append(' ');
-        }
-        sb.append(s);
-        return sb.toString();
-    }
-
-
-    private String padRightSpace(String s,int length){
-        if(s.length()>=length) return s;
-        StringBuilder sb = new StringBuilder();
-        while(sb.length()<(length-s.length())){
-            sb.append(' ');
-        }
-        return s+sb.toString();
-    }
-
-    protected void printPayment(PrinterBase printer,
-                                PosInfoBean pos,
-                                PaymentRecord record){
-        Log.d(TAG,"printPayment");
-
-        if(null==printer) return;
-        if(null==record) return;
-        if(null==pos) return;
-
-        printer.openPrinter();
-
-        String s = "";
-
-        //  走纸5行
-        // printBytes(PrinterFormatUtils.getFeedCommand(2));
-
-        s = "--------------------------------";
-        printer.printString(s);
-
-        s = "上海报业大厦餐厅";
-        printer.printString(s);
-
-        s = "--------------------------------";
-        printer.printString(s);
-
-        //  POS机号
-        s =combinePrintLine(12,"POS号：",pos.getCposno());
-        printer.printString(s);
-
-        //  流水号
-        s =combinePrintLine(12,"流水号：",pos.getAuditNo()+"");
-        printer.printString(s);
-
-        //  工号
-        s =combinePrintLine(12,"工号：",record.getWorkNo());
-        printer.printString(s);
-
-        //  支付方式
-        if(record.getQrType()==0){
-            s = "IC卡";
-        }else{
-            s = "二维码";
-        }
-        s = combinePrintLine(12,"方式：",s);
-        printer.printString(s);
-
-        //  时间
-        s = combinePrintLine(12,"时间：",DateStringUtils.dateToString(record.getTransTime()));
-        printer.printString(s);
-
-        String samount = padLeftSpace(String.format("%.2f",record.getAmount()),11);
-        s = padRightSpace("消费金额：",10);
-        printer.printString(s+samount);
-
-        float f = record.getRemain() - record.getAmount();
-        samount = padLeftSpace(String.format("%.2f", f), 11);
-        s = padRightSpace("剩余金额：", 10);
-        printer.printString(s + samount);
-
-
-//        //  走纸3行
-//        printer.printBytes(PrinterFormatUtils.getFeedCommand(3));
-
-        //  切纸并且走纸
-        printer.partialCut();
-    }
 
     /***
      * 获取班次对象

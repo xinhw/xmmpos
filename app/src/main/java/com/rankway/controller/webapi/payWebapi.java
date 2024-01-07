@@ -5,17 +5,29 @@ import android.util.Log;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
+import com.rankway.controller.common.Result;
+import com.rankway.controller.hardware.util.DetLog;
+import com.rankway.controller.persistence.DBManager;
+import com.rankway.controller.persistence.entity.PaymentShiftEntity;
+import com.rankway.controller.persistence.entity.UserInfoEntity;
+import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.Base64Util;
+import com.rankway.controller.utils.DateStringUtils;
 import com.rankway.controller.utils.HttpUtil;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 /**
  * <pre>
@@ -44,6 +56,9 @@ public class payWebapi {
     private int errCode;
     private String errMsg;
 
+    private String menuServerIP = "10.100.31.2";
+    private int menuPortNo = 6068;
+
     private String sessionAccessToken = "9e9a3635b1caff8d0ae6512e8d5e303d";
     private final int MAX_TRY_TIMES = 3;
 
@@ -61,6 +76,22 @@ public class payWebapi {
 
     public void setErrMsg(String errMsg) {
         this.errMsg = errMsg;
+    }
+
+    public String getMenuServerIP() {
+        return menuServerIP;
+    }
+
+    public void setMenuServerIP(String menuServerIP) {
+        this.menuServerIP = menuServerIP;
+    }
+
+    public int getMenuPortNo() {
+        return menuPortNo;
+    }
+
+    public void setMenuPortNo(int menuPortNo) {
+        this.menuPortNo = menuPortNo;
     }
 
     public static payWebapi getInstance(){
@@ -1152,6 +1183,236 @@ public class payWebapi {
         }
     }
 
+    public static class WebapiResult{
+        PayRecord Result;
+        int errcode;
+        String errmsg;
+
+        public PayRecord getResult() {
+            return Result;
+        }
+
+        public void setResult(PayRecord result) {
+            Result = result;
+        }
+
+        public int getErrcode() {
+            return errcode;
+        }
+
+        public void setErrcode(int errcode) {
+            this.errcode = errcode;
+        }
+
+        public String getErrmsg() {
+            return errmsg;
+        }
+
+        public void setErrmsg(String errmsg) {
+            this.errmsg = errmsg;
+        }
+
+        @Override
+        public String toString() {
+            return "WebapiResult{" +
+                    "Result=" + Result +
+                    ", errcode=" + errcode +
+                    ", errmsg='" + errmsg + '\'' +
+                    '}';
+        }
+    }
+
+    public static class PayRecord{
+        String cno;
+        String cposno;
+        int cpostype;
+        int cpayway;
+        String cusercode;
+        int cardno;
+        String cdate;
+        float cmoney;
+        String cnote;
+        int typeid;
+        String localtime;
+
+        int systemid;
+        int qrtype;
+        String userid;
+
+        public String getCno() {
+            return cno;
+        }
+
+        public void setCno(String cno) {
+            this.cno = cno;
+        }
+
+        public String getCposno() {
+            return cposno;
+        }
+
+        public void setCposno(String cposno) {
+            this.cposno = cposno;
+        }
+
+        public int getCpostype() {
+            return cpostype;
+        }
+
+        public void setCpostype(int cpostype) {
+            this.cpostype = cpostype;
+        }
+
+        public int getCpayway() {
+            return cpayway;
+        }
+
+        public void setCpayway(int cpayway) {
+            this.cpayway = cpayway;
+        }
+
+        public String getCusercode() {
+            return cusercode;
+        }
+
+        public void setCusercode(String cusercode) {
+            this.cusercode = cusercode;
+        }
+
+        public int getCardno() {
+            return cardno;
+        }
+
+        public void setCardno(int cardno) {
+            this.cardno = cardno;
+        }
+
+        public String getCdate() {
+            return cdate;
+        }
+
+        public void setCdate(String cdate) {
+            this.cdate = cdate;
+        }
+
+        public float getCmoney() {
+            return cmoney;
+        }
+
+        public void setCmoney(float cmoney) {
+            this.cmoney = cmoney;
+        }
+
+        public String getCnote() {
+            return cnote;
+        }
+
+        public void setCnote(String cnote) {
+            this.cnote = cnote;
+        }
+
+        public int getTypeid() {
+            return typeid;
+        }
+
+        public void setTypeid(int typeid) {
+            this.typeid = typeid;
+        }
+
+        public String getLocaltime() {
+            return localtime;
+        }
+
+        public void setLocaltime(String localtime) {
+            this.localtime = localtime;
+        }
+
+        public int getSystemid() {
+            return systemid;
+        }
+
+        public void setSystemid(int systemid) {
+            this.systemid = systemid;
+        }
+
+        public int getQrtype() {
+            return qrtype;
+        }
+
+        public void setQrtype(int qrtype) {
+            this.qrtype = qrtype;
+        }
+
+        public String getUserid() {
+            return userid;
+        }
+
+        public void setUserid(String userid) {
+            this.userid = userid;
+        }
+
+        @Override
+        public String toString() {
+            return "PayRecord{" +
+                    "cno='" + cno + '\'' +
+                    ", cposno='" + cposno + '\'' +
+                    ", cpostype=" + cpostype +
+                    ", cpayway=" + cpayway +
+                    ", cusercode='" + cusercode + '\'' +
+                    ", cardno=" + cardno +
+                    ", cdate='" + cdate + '\'' +
+                    ", cmoney=" + cmoney +
+                    ", cnote='" + cnote + '\'' +
+                    ", typeid=" + typeid +
+                    ", localtime='" + localtime + '\'' +
+                    ", systemid=" + systemid +
+                    ", qrtype=" + qrtype +
+                    ", userid=" + userid +
+                    '}';
+        }
+    }
+
+
+    /***
+     * 获取操作员
+     * @return
+     */
+    public List<UserInfoEntity> getUserInfoList(){
+        Log.d(TAG,"getUserInfoList");
+
+        String accessToken = accessToken();
+        if(null==accessToken){
+            errMsg = "网络不通，请检查网络连接！";
+            return null;
+        }
+
+        String serverPort = String.format("http://%s:%d",serverIP,portNo);
+        String url = serverPort + String.format("/api/userinfo?accessToken=%s",accessToken);
+        Log.d(TAG,"URL:"+url);
+
+        try {
+            HttpUtil httpUtil = new HttpUtil();
+            String ret = httpUtil.httpGet(url);
+            Log.d(TAG,"ret:"+ret);
+
+            errCode = httpUtil.getResponseCode();
+            if(null==ret){
+                errMsg = "平台返回信息为空";
+                return null;
+            }
+
+            Log.d(TAG,"返回："+ret);
+            List<UserInfoEntity> list = JSON.parseArray(ret, UserInfoEntity.class);
+            return list;
+
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+        }
+
+        return null;
+    }
+
+
 
     private void sleep(int ms){
         try{
@@ -1159,5 +1420,98 @@ public class payWebapi {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    /***
+     * 开班报文
+     * @param shiftEntity
+     * @return
+     */
+    public int uploadShiftOn(PaymentShiftEntity shiftEntity){
+
+        String serverPort = String.format("http://%s:%d",menuServerIP,menuPortNo);
+        String url = serverPort + "/posshift/shifton?posno="+getCposno();
+        Log.d(TAG,"URL:"+url);
+
+        String jsondata = JSON.toJSONString(shiftEntity);
+        DetLog.writeLog(TAG,"开班JSON:"+jsondata);
+
+        AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
+        asyncHttpCilentUtil.httpPostJson(url, jsondata, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                DetLog.writeLog(TAG,"上传开班记录失败："+e.getMessage());
+                return;
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String strjson = response.body().string();
+                Log.d(TAG, "onSuccess:" + strjson);
+                try {
+                    Result result = JSON.parseObject(strjson, Result.class);
+                    Log.d(TAG,"Result:"+result.toString());
+                    if(result.getCode()>=0){
+                        DetLog.writeLog(TAG,"上传开班记录成功："+strjson);
+                    }else{
+                        DetLog.writeLog(TAG,"上传开班记录失败："+strjson);
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+        return 0;
+    }
+
+
+    /***
+     * 上传结班记录
+     * @param shiftEntity
+     * @return
+     */
+    public int uploadShiftOff(PaymentShiftEntity shiftEntity){
+        Log.d(TAG,"uploadShiftOff");
+
+        String serverPort = String.format("http://%s:%d",menuServerIP,menuPortNo);
+        String url = serverPort + "/posshift/shiftoff?posno="+getCposno();
+        Log.d(TAG,"URL:"+url);
+
+        shiftEntity.setShiftNo(DateStringUtils.getYYMMDDHHMMss(shiftEntity.getShiftOnTime())+shiftEntity.getShiftOnAuditNo());
+
+        String jsondata = JSON.toJSONString(shiftEntity);
+        DetLog.writeLog(TAG,"结班JSON:"+jsondata);
+
+        AsyncHttpCilentUtil asyncHttpCilentUtil = new AsyncHttpCilentUtil();
+        asyncHttpCilentUtil.httpPostJson(url, jsondata, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                DetLog.writeLog(TAG,"上传结班记录失败："+e.getMessage());
+                shiftEntity.setStatus(PaymentShiftEntity.SHIFT_STATUS_OFF);
+                DBManager.getInstance().getPaymentShiftEntityDao().save(shiftEntity);
+                return;
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String strjson = response.body().string();
+                Log.d(TAG, "onSuccess:" + strjson);
+                try {
+                    Result result = JSON.parseObject(strjson, Result.class);
+                    Log.d(TAG,"Result:"+result.toString());
+                    if(result.getCode()>=0){
+                        DetLog.writeLog(TAG,"上传结班记录成功："+strjson);
+                        shiftEntity.setStatus(PaymentShiftEntity.SHIFT_STATUS_OFF_UPLOADED);
+                    }else{
+                        DetLog.writeLog(TAG,"上传结班记录失败："+strjson);
+                        shiftEntity.setStatus(PaymentShiftEntity.SHIFT_STATUS_OFF);
+                    }
+                    DBManager.getInstance().getPaymentShiftEntityDao().save(shiftEntity);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+        return 0;
     }
 }

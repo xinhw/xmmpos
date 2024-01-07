@@ -3,12 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.rankway.controller">
 
-<!--    <queries>-->
-<!--        <package android:name="com.neo.printer.sdk" />-->
-<!--        <intent>-->
-<!--            <action android:name="com.neo.printer.sdk.core.ApiAdapterManager.NeoPrinterService" />-->
-<!--        </intent>-->
-<!--    </queries>-->
+    <!-- <queries> -->
+    <!-- <package android:name="com.neo.printer.sdk" /> -->
+    <!-- <intent> -->
+    <!-- <action android:name="com.neo.printer.sdk.core.ApiAdapterManager.NeoPrinterService" /> -->
+    <!-- </intent> -->
+    <!-- </queries> -->
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
@@ -58,39 +58,49 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:allowBackup">
         <activity
+            android:name=".activity.project.MobilePosLoginActivity"
+            android:configChanges="orientation|uiMode|keyboard|keyboardHidden|fontScale|touchscreen|navigation|screenLayout|colorMode"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".activity.project.CameraScanActivity"
             android:configChanges="orientation|uiMode|keyboard|keyboardHidden|fontScale|touchscreen|navigation|screenLayout|colorMode"
             android:exported="true" />
         <activity
             android:name=".activity.project.MobilePosPayStatisticsActivity"
-            android:exported="true"
             android:configChanges="orientation|uiMode|keyboard|keyboardHidden|fontScale|touchscreen|navigation|screenLayout|colorMode"
+            android:exported="true"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.project.MobilePosPaySettingMenuActivity"
-            android:exported="true"
             android:configChanges="orientation|uiMode|keyboard|keyboardHidden|fontScale|touchscreen|navigation|screenLayout|colorMode"
+            android:exported="true"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.project.MobilePosPayRecordListActivity"
-            android:exported="true"
             android:configChanges="orientation|uiMode|keyboard|keyboardHidden|fontScale|touchscreen|navigation|screenLayout|colorMode"
+            android:exported="true"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.project.MobilePosPayMainActivity"
-            android:exported="true"
-            android:launchMode="singleTask"
             android:configChanges="orientation|uiMode|keyboard|keyboardHidden|fontScale|touchscreen|navigation|screenLayout|colorMode"
+            android:exported="true"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.nfc.action.TECH_DISCOVERED" />
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.project.AboutActivity"
+        <activity
+            android:name=".activity.project.AboutActivity"
             android:configChanges="orientation|uiMode|keyboard|keyboardHidden|fontScale|touchscreen|navigation|screenLayout|colorMode" /> <!-- <activity -->
-        <activity android:name=".activity.project.MobilePosSettingsActivity"
+        <activity
+            android:name=".activity.project.MobilePosSettingsActivity"
             android:configChanges="orientation|uiMode|keyboard|keyboardHidden|fontScale|touchscreen|navigation|screenLayout|colorMode" />
 
         <meta-data

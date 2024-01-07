@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -41,6 +40,7 @@ import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecord;
 import com.rankway.controller.persistence.gen.PaymentRecordDao;
 import com.rankway.controller.printer.PrinterFactory;
+import com.rankway.controller.printer.PrinterUtils;
 import com.rankway.controller.scan.ScannerBase;
 import com.rankway.controller.scan.ScannerFactory;
 import com.rankway.controller.utils.DateStringUtils;
@@ -423,16 +423,17 @@ public class MobilePosPayMainActivity
     protected void onDestroy() {
         super.onDestroy();
 
-        disableScanner();
-
-        System.exit(0);
+        if(null!=scanReceiver) {
+            unregisterReceiver(scanReceiver);
+            scanReceiver = null;
+        }
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.back_img:
-                finishPrompt();
+                if(!isPaying) finish();
                 break;
 
             case R.id.imgSetting:
@@ -461,7 +462,7 @@ public class MobilePosPayMainActivity
 
         //  右下角返回键
         if (KeyEvent.KEYCODE_BACK == keyCode) {
-            finishPrompt();
+            if(!isPaying) finish();
             return true;
         }
         if (KeyEvent.KEYCODE_HOME == keyCode) {
@@ -515,7 +516,6 @@ public class MobilePosPayMainActivity
         AsynTaskQuery task = new AsynTaskQuery(payType);
         task.execute();
     }
-
 
     /***
      * 查询任务
@@ -749,34 +749,11 @@ public class MobilePosPayMainActivity
             refreshStatistics(totalCount, totalAmount);
 
             //  打印
-            printPayment(PrinterFactory.getPrinter(mContext),posInfoBean,record);
+            PrinterUtils printerUtils = new PrinterUtils();
+            printerUtils.printPayment(PrinterFactory.getPrinter(mContext),posInfoBean,record);
 
             return;
         }
-    }
-
-    /***
-     * 询问是否退出APP
-     */
-    private void finishPrompt() {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        builder.setCancelable(false);
-        builder.setMessage("是否要退出APP？");
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                finish();
-            }
-        });
-        builder.create().show();
-
-        return;
     }
 
 
@@ -815,6 +792,7 @@ public class MobilePosPayMainActivity
         DetLog.writeLog(TAG,"支付成功："+record.toString());
 
         record.setUploadFlag(uploadFlag);
+        record.setShiftId(MobilePosLoginActivity.getShiftEntry().getId());
         DBManager.getInstance().getPaymentRecordDao().save(record);
 
         listRecords.add(0, record);

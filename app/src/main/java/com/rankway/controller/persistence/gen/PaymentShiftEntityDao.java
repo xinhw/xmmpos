@@ -40,6 +40,8 @@ public class PaymentShiftEntityDao extends AbstractDao<PaymentShiftEntity, Long>
         public final static Property ShiftNo = new Property(13, String.class, "shiftNo", false, "SHIFT_NO");
     }
 
+    private DaoSession daoSession;
+
 
     public PaymentShiftEntityDao(DaoConfig config) {
         super(config);
@@ -47,6 +49,7 @@ public class PaymentShiftEntityDao extends AbstractDao<PaymentShiftEntity, Long>
     
     public PaymentShiftEntityDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
+        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
@@ -143,6 +146,12 @@ public class PaymentShiftEntityDao extends AbstractDao<PaymentShiftEntity, Long>
         if (shiftNo != null) {
             stmt.bindString(14, shiftNo);
         }
+    }
+
+    @Override
+    protected final void attachEntity(PaymentShiftEntity entity) {
+        super.attachEntity(entity);
+        entity.__setDaoSession(daoSession);
     }
 
     @Override

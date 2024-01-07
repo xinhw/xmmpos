@@ -47,12 +47,14 @@ public class PaymentRecord implements Comparable<PaymentRecord>{
     int uploadFlag;     //  上传标志
     Date uploadTime;    //  上传时间
 
+    long shiftId;       //  班次ID
 
-    @Generated(hash = 1812159161)
+    @Generated(hash = 1731246785)
     public PaymentRecord(Long id, int auditNo, String posNo, int postype, int payway,
             String userCode, int cardno, float remain, float amount, float balance,
             int typeid, Date transTime, String cardSNO, String workNo, String workName,
-            String userId, int qrType, int systemId, int uploadFlag, Date uploadTime) {
+            String userId, int qrType, int systemId, int uploadFlag, Date uploadTime,
+            long shiftId) {
         this.id = id;
         this.auditNo = auditNo;
         this.posNo = posNo;
@@ -73,6 +75,7 @@ public class PaymentRecord implements Comparable<PaymentRecord>{
         this.systemId = systemId;
         this.uploadFlag = uploadFlag;
         this.uploadTime = uploadTime;
+        this.shiftId = shiftId;
     }
 
     @Keep
@@ -295,5 +298,13 @@ public class PaymentRecord implements Comparable<PaymentRecord>{
     @Override
     public int compareTo(PaymentRecord o) {
         return (int)(this.id-o.getId());
+    }
+
+    public long getShiftId() {
+        return shiftId;
+    }
+
+    public void setShiftId(long shiftId) {
+        this.shiftId = shiftId;
     }
 }

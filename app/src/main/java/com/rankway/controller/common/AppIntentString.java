@@ -25,4 +25,9 @@ public class AppIntentString {
 
     public static final String POS_INFO_BEAN = "posInfoBean";            //  POS相关信息
     public static final String HTTP_OVER_TIME = "httpOverTime";          //  HTTP通信超时
+
+    public static final String LAST_LOGIN_USER = "lastLoginUser";
+    public static final String LAST_LOGIN_PASSWORD = "lastLoginPassword";
+    public static final String REMEMBER_LOGIN_PIN = "rememberLoginPin";
+    public static final String PAYMENT_SHIFT_ID = "paymentShiftID";
 }

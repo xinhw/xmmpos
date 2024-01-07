@@ -1,5 +1,6 @@
 package com.rankway.controller.persistence.gen;
 
+import java.util.List;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
@@ -8,6 +9,8 @@ import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
+import org.greenrobot.greendao.query.Query;
+import org.greenrobot.greendao.query.QueryBuilder;
 
 import com.rankway.controller.persistence.entity.PaymentRecord;
 
@@ -44,8 +47,10 @@ public class PaymentRecordDao extends AbstractDao<PaymentRecord, Long> {
         public final static Property SystemId = new Property(17, int.class, "systemId", false, "SYSTEM_ID");
         public final static Property UploadFlag = new Property(18, int.class, "uploadFlag", false, "UPLOAD_FLAG");
         public final static Property UploadTime = new Property(19, java.util.Date.class, "uploadTime", false, "UPLOAD_TIME");
+        public final static Property ShiftId = new Property(20, long.class, "shiftId", false, "SHIFT_ID");
     }
 
+    private Query<PaymentRecord> paymentShiftEntity_RecordListQuery;
 
     public PaymentRecordDao(DaoConfig config) {
         super(config);
@@ -78,7 +83,8 @@ public class PaymentRecordDao extends AbstractDao<PaymentRecord, Long> {
                 "\"QR_TYPE\" INTEGER NOT NULL ," + // 16: qrType
                 "\"SYSTEM_ID\" INTEGER NOT NULL ," + // 17: systemId
                 "\"UPLOAD_FLAG\" INTEGER NOT NULL ," + // 18: uploadFlag
-                "\"UPLOAD_TIME\" INTEGER);"); // 19: uploadTime
+                "\"UPLOAD_TIME\" INTEGER," + // 19: uploadTime
+                "\"SHIFT_ID\" INTEGER NOT NULL );"); // 20: shiftId
     }
 
     /** Drops the underlying database table. */
@@ -146,6 +152,7 @@ public class PaymentRecordDao extends AbstractDao<PaymentRecord, Long> {
         if (uploadTime != null) {
             stmt.bindLong(20, uploadTime.getTime());
         }
+        stmt.bindLong(21, entity.getShiftId());
     }
 
     @Override
@@ -207,6 +214,7 @@ public class PaymentRecordDao extends AbstractDao<PaymentRecord, Long> {
         if (uploadTime != null) {
             stmt.bindLong(20, uploadTime.getTime());
         }
+        stmt.bindLong(21, entity.getShiftId());
     }
 
     @Override
@@ -236,7 +244,8 @@ public class PaymentRecordDao extends AbstractDao<PaymentRecord, Long> {
             cursor.getInt(offset + 16), // qrType
             cursor.getInt(offset + 17), // systemId
             cursor.getInt(offset + 18), // uploadFlag
-            cursor.isNull(offset + 19) ? null : new java.util.Date(cursor.getLong(offset + 19)) // uploadTime
+            cursor.isNull(offset + 19) ? null : new java.util.Date(cursor.getLong(offset + 19)), // uploadTime
+            cursor.getLong(offset + 20) // shiftId
         );
         return entity;
     }
@@ -263,6 +272,7 @@ public class PaymentRecordDao extends AbstractDao<PaymentRecord, Long> {
         entity.setSystemId(cursor.getInt(offset + 17));
         entity.setUploadFlag(cursor.getInt(offset + 18));
         entity.setUploadTime(cursor.isNull(offset + 19) ? null : new java.util.Date(cursor.getLong(offset + 19)));
+        entity.setShiftId(cursor.getLong(offset + 20));
      }
     
     @Override
@@ -290,4 +300,18 @@ public class PaymentRecordDao extends AbstractDao<PaymentRecord, Long> {
         return true;
     }
     
+    /** Internal query to resolve the "recordList" to-many relationship of PaymentShiftEntity. */
+    public List<PaymentRecord> _queryPaymentShiftEntity_RecordList(long shiftId) {
+        synchronized (this) {
+            if (paymentShiftEntity_RecordListQuery == null) {
+                QueryBuilder<PaymentRecord> queryBuilder = queryBuilder();
+                queryBuilder.where(Properties.ShiftId.eq(null));
+                paymentShiftEntity_RecordListQuery = queryBuilder.build();
+            }
+        }
+        Query<PaymentRecord> query = paymentShiftEntity_RecordListQuery.forCurrentThread();
+        query.setParameter(0, shiftId);
+        return query.list();
+    }
+
 }
