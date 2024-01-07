@@ -30,7 +30,7 @@ public class iminPrinter extends PrinterBase{
         Log.d(TAG,"openPrinter");
 
         printerHelper = PrinterHelper.getInstance();
-        if(null!=printerHelper){
+        if(null==printerHelper){
             Log.d(TAG,"PrinterHelper.getInstance()为空");
             return -1;
         }
@@ -40,6 +40,7 @@ public class iminPrinter extends PrinterBase{
         printerHelper.initPrinter(mContext.getPackageName(), new INeoPrinterCallback() {
             @Override
             public void onRunResult(boolean isSuccess) throws RemoteException {
+                Log.d(TAG,"onRunResult");
                 if(isSuccess){
                     Log.d(TAG,"初始化成功");
                 }else{
@@ -49,17 +50,17 @@ public class iminPrinter extends PrinterBase{
 
             @Override
             public void onReturnString(String result) throws RemoteException {
-
+                Log.d(TAG,"onReturnString " + result);
             }
 
             @Override
             public void onRaiseException(int code, String msg) throws RemoteException {
-
+                Log.d(TAG,"onRaiseException " + msg);
             }
 
             @Override
             public void onPrintResult(int code, String msg) throws RemoteException {
-
+                Log.d(TAG,"onPrintResult "+ msg);
             }
         });
         return 0;
@@ -72,14 +73,15 @@ public class iminPrinter extends PrinterBase{
         if(null!=printerHelper) {
             printerHelper.deInitPrinterService(mContext);
         }
+
         printerHelper = null;
     }
 
     @Override
     public int printString(String s) {
-        Log.d(TAG,"printString");
+        Log.d(TAG,"printString "+s);
 
-        if(null!=printerHelper){
+        if(null==printerHelper){
             Log.d(TAG,"PrinterHelper.getInstance()为空");
             return -1;
         }
@@ -117,7 +119,7 @@ public class iminPrinter extends PrinterBase{
     public void partialCut() {
         Log.d(TAG,"partialCut");
 
-        if(null!=printerHelper){
+        if(null==printerHelper){
             Log.d(TAG,"PrinterHelper.getInstance()为空");
             return;
         }

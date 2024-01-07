@@ -23,6 +23,7 @@ public class DaoMaster extends AbstractDaoMaster {
     public static void createAllTables(Database db, boolean ifNotExists) {
         MessageDetailDao.createTable(db, ifNotExists);
         PaymentRecordDao.createTable(db, ifNotExists);
+        PaymentShiftEntityDao.createTable(db, ifNotExists);
         SemiEventEntityDao.createTable(db, ifNotExists);
     }
 
@@ -30,6 +31,7 @@ public class DaoMaster extends AbstractDaoMaster {
     public static void dropAllTables(Database db, boolean ifExists) {
         MessageDetailDao.dropTable(db, ifExists);
         PaymentRecordDao.dropTable(db, ifExists);
+        PaymentShiftEntityDao.dropTable(db, ifExists);
         SemiEventEntityDao.dropTable(db, ifExists);
     }
 
@@ -51,6 +53,7 @@ public class DaoMaster extends AbstractDaoMaster {
         super(db, SCHEMA_VERSION);
         registerDaoClass(MessageDetailDao.class);
         registerDaoClass(PaymentRecordDao.class);
+        registerDaoClass(PaymentShiftEntityDao.class);
         registerDaoClass(SemiEventEntityDao.class);
     }
 

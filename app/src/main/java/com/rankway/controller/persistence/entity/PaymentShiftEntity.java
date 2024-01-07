@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Generated;
 
 /**
  * <pre>
@@ -45,6 +46,32 @@ public class PaymentShiftEntity
     public static final int SHIFT_STATUS_ON = 1;                //  开班未结班
     public static final int SHIFT_STATUS_OFF = 2;                //  结班未上传
     public static final int SHIFT_STATUS_OFF_UPLOADED = 0;       //  结班已上传
+
+    @Generated(hash = 1106537593)
+    public PaymentShiftEntity(Long id, String posNo, String operatorNo,
+            long shiftOnAuditNo, long shiftOnTime, long shiftOffAuditNo,
+            long shiftOffTime, long reportTime, int subCardCount,
+            long subCardAmount, int subQrCount, long subQrAmount, int status,
+            String shiftNo) {
+        this.id = id;
+        this.posNo = posNo;
+        this.operatorNo = operatorNo;
+        this.shiftOnAuditNo = shiftOnAuditNo;
+        this.shiftOnTime = shiftOnTime;
+        this.shiftOffAuditNo = shiftOffAuditNo;
+        this.shiftOffTime = shiftOffTime;
+        this.reportTime = reportTime;
+        this.subCardCount = subCardCount;
+        this.subCardAmount = subCardAmount;
+        this.subQrCount = subQrCount;
+        this.subQrAmount = subQrAmount;
+        this.status = status;
+        this.shiftNo = shiftNo;
+    }
+
+    @Generated(hash = 161782890)
+    public PaymentShiftEntity() {
+    }
 
     public Long getId() {
         return id;

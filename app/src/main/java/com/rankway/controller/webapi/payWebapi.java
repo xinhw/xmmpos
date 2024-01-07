@@ -760,6 +760,12 @@ public class payWebapi {
     public int cardPayment(int auditNo,int cardno,Date cdate,int cmoney){
         Log.d(TAG,"cardPayment");
 
+        String accessToken = accessToken();
+        if(null==accessToken){
+            errMsg = "网络不通，请检查网络连接！";
+            return -1;
+        }
+
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
         String url = serverPort + "/api/Payinfoes?accessToken=" + sessionAccessToken;
         Log.d(TAG,"url:"+url);
@@ -825,6 +831,12 @@ public class payWebapi {
      */
     public int qrPayment(int auditNo,int systemId,int qrType,String userId,Date cdate,int cmoney){
         Log.d(TAG,"qrPayment");
+
+        String accessToken = accessToken();
+        if(null==accessToken){
+            errMsg = "网络不通，请检查网络连接！";
+            return -1;
+        }
 
         String serverPort = String.format("http://%s:%d",serverIP,portNo);
         String url = serverPort + "/api/qr/payinfoes?accessToken=" + sessionAccessToken;

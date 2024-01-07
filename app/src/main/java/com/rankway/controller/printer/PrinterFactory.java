@@ -24,8 +24,10 @@ public class PrinterFactory {
         if(printer!=null) return printer;
 
         if(strModel.contains("SWIFT 1")){
+            Log.d(TAG,"一敏打印机");
             printer = new iminPrinter(context);
         }else{
+            Log.d(TAG,"无打印机");
             printer = new NaPrinter(context);
         }
 

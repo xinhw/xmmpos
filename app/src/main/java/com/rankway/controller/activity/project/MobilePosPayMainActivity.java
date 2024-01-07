@@ -40,6 +40,7 @@ import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecord;
 import com.rankway.controller.persistence.gen.PaymentRecordDao;
+import com.rankway.controller.printer.PrinterFactory;
 import com.rankway.controller.scan.ScannerBase;
 import com.rankway.controller.scan.ScannerFactory;
 import com.rankway.controller.utils.DateStringUtils;
@@ -269,9 +270,6 @@ public class MobilePosPayMainActivity
     ////////////////////////////////////////////////////////////////////////////////////////////////
     private void initScanner() {
         Log.d(TAG, "initScanner");
-        if(!handsetHasScanner()) return;
-
-        enableScanner();
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(RES_ACTION);
@@ -281,6 +279,10 @@ public class MobilePosPayMainActivity
         registerReceiver(scanReceiver, intentFilter);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(scanReceiver, intentFilter);
+
+        if(!handsetHasScanner()) return;
+
+        enableScanner();
     }
 
     //  启用扫描
@@ -739,13 +741,15 @@ public class MobilePosPayMainActivity
             playSound(true);
 
             //  在线交易，所以会成功
-            savePaymentRecord(famount, 1);
+            PaymentRecord record = savePaymentRecord(famount, 1);
 
             totalCount++;
             totalAmount = totalAmount + famount;
 
             refreshStatistics(totalCount, totalAmount);
 
+            //  打印
+            printPayment(PrinterFactory.getPrinter(mContext),posInfoBean,record);
 
             return;
         }
@@ -806,7 +810,7 @@ public class MobilePosPayMainActivity
      * @param amount
      * @param uploadFlag
      */
-    private void savePaymentRecord(double amount, int uploadFlag) {
+    private PaymentRecord savePaymentRecord(double amount, int uploadFlag) {
         PaymentRecord record = new PaymentRecord(cardPaymentObj, amount, posInfoBean);
         DetLog.writeLog(TAG,"支付成功："+record.toString());
 
@@ -816,7 +820,7 @@ public class MobilePosPayMainActivity
         listRecords.add(0, record);
         adapter.notifyDataSetChanged();
 
-        return;
+        return record;
     }
 
 

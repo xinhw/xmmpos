@@ -8,6 +8,7 @@ import com.rankway.controller.persistence.gen.DaoMaster;
 import com.rankway.controller.persistence.gen.DaoSession;
 import com.rankway.controller.persistence.gen.MessageDetailDao;
 import com.rankway.controller.persistence.gen.PaymentRecordDao;
+import com.rankway.controller.persistence.gen.PaymentShiftEntityDao;
 import com.rankway.controller.persistence.gen.SemiEventEntityDao;
 
 import java.util.List;
@@ -68,5 +69,9 @@ public class DBManager {
 
     public int getDatabaseVerion(){
         return mDaoMaster.SCHEMA_VERSION;
+    }
+
+    public PaymentShiftEntityDao getPaymentShiftEntityDao(){
+        return mDaoSession.getPaymentShiftEntityDao();
     }
 }

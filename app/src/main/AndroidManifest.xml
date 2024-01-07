@@ -3,6 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.rankway.controller">
 
+<!--    <queries>-->
+<!--        <package android:name="com.neo.printer.sdk" />-->
+<!--        <intent>-->
+<!--            <action android:name="com.neo.printer.sdk.core.ApiAdapterManager.NeoPrinterService" />-->
+<!--        </intent>-->
+<!--    </queries>-->
+
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
