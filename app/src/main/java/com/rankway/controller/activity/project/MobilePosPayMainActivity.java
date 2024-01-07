@@ -253,34 +253,10 @@ public class MobilePosPayMainActivity
                     + mfc.getBlockCount() + "个块\n存储空间: " + mfc.getSize() + "B\n";
             Log.d(TAG, metaInfo);
 
-//            for (int j = 0; j < sectorCount; j++) {
-//                //Authenticate a sector with key A.
-//                auth = mfc.authenticateSectorWithKeyA(j,
-//                        MifareClassic.KEY_DEFAULT);
-//                int bCount;
-//                int bIndex;
-//                if (auth) {
-//                    metaInfo += "Sector " + j + ":验证成功\n";
-//                    // 读取扇区中的块
-//                    bCount = mfc.getBlockCountInSector(j);
-//                    bIndex = mfc.sectorToBlock(j);
-//                    for (int i = 0; i < bCount; i++) {
-//                        byte[] data = mfc.readBlock(bIndex);
-//                        metaInfo += "Block " + bIndex + " : "
-//                                + DataConverter.bytes2HexString(data) + "\n";
-//                        bIndex++;
-//                    }
-//                } else {
-//                    metaInfo += "Sector " + j + ":验证失败\n";
-//                }
-//            }
-
             cardPaymentObj = new cardInfo();
             cardPaymentObj.setGsno(CardId);
 
             startQuery(PAYMENT_TYPE_CARD);
-//            promt.setText(metaInfo);
-            //Toast.makeText(this, metaInfo, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -746,29 +722,30 @@ public class MobilePosPayMainActivity
             missProDialog();
             isPaying = false;
 
-            if (0 == integer) {
-                tvPayment.setVisibility(View.GONE);
-                playSound(true);
+            //  支付失败
+            if (0 != integer) {
+                playSound(false);
 
-                //  在线交易，所以会成功
-                savePaymentRecord(famount, 1);
+                showLongToast(errString);
+                playSound(false);
 
-                totalCount++;
-                totalAmount = totalAmount + famount;
+                DetLog.writeLog(TAG, "支付失败：" + errString);
 
-                refreshStatistics(totalCount, totalAmount);
-
-//                DetLog.writeLog(TAG, "支付成功：" + cardPaymentObj.toString());
                 return;
             }
 
-            //  支付失败
-            playSound(false);
+            //  支付成功
+            tvPayment.setVisibility(View.GONE);
+            playSound(true);
 
-            showLongToast(errString);
-            playSound(false);
+            //  在线交易，所以会成功
+            savePaymentRecord(famount, 1);
 
-            DetLog.writeLog(TAG, "支付失败：" + errString);
+            totalCount++;
+            totalAmount = totalAmount + famount;
+
+            refreshStatistics(totalCount, totalAmount);
+
 
             return;
         }

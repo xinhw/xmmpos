@@ -49,6 +49,7 @@ import com.rankway.controller.entity.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.hardware.util.SoundPoolHelp;
 import com.rankway.controller.persistence.entity.PaymentRecord;
+import com.rankway.controller.printer.PrinterBase;
 import com.rankway.controller.utils.AppUtils;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.DateStringUtils;
@@ -1284,5 +1285,24 @@ public class BaseActivity extends AppCompatActivity {
             return true;
         }
         return false;
+    }
+
+    protected void printPayment(PrinterBase printer,
+                                PosInfoBean pos,
+                                PaymentRecord record){
+
+        if(null==printer) return;
+        if(null==record) return;
+        if(null==pos) return;
+
+        printer.openPrinter();
+
+        printer.printString("上海报业POS机");
+
+        printer.printString("--------------------------------");
+
+
+
+
     }
 }
