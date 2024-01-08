@@ -52,8 +52,6 @@ import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecord;
 import com.rankway.controller.persistence.entity.PaymentShiftEntity;
 import com.rankway.controller.persistence.gen.PaymentShiftEntityDao;
-import com.rankway.controller.printer.PrinterBase;
-import com.rankway.controller.printer.PrinterFormatUtils;
 import com.rankway.controller.utils.AppUtils;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
 import com.rankway.controller.utils.DateStringUtils;
@@ -596,9 +594,8 @@ public class BaseActivity extends AppCompatActivity {
 
         //  http://ip2:serverPort2/api/appVersions/{appType}?sn=10003
         //  sn为pos机编号，appType暂定两种(Desktop-POS/Handset-POS)
-        String url = String.format("http://%s:%d/api/appVersions/Handset-POS?sn=%s",
-                posInfoBean.getMenuServerIP(),
-                posInfoBean.getMenuPortNo(),
+        String url = String.format("http://%s/api/appVersions/Handset-POS?sn=%s",
+                posInfoBean.getUpgradeUrl(),
                 posInfoBean.getCposno());
         return url;
     }

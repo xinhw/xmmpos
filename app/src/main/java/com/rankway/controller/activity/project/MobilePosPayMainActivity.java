@@ -38,7 +38,7 @@ import com.rankway.controller.hardware.util.DataConverter;
 import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecord;
-import com.rankway.controller.persistence.gen.PaymentRecordDao;
+import com.rankway.controller.persistence.entity.PaymentShiftEntity;
 import com.rankway.controller.printer.PrinterFactory;
 import com.rankway.controller.printer.PrinterUtils;
 import com.rankway.controller.scan.ScannerBase;
@@ -52,7 +52,6 @@ import com.rankway.controller.webapi.posAudit;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -94,9 +93,6 @@ public class MobilePosPayMainActivity
     List<PaymentRecord> listRecords = new ArrayList<>();    //  今日所有消费记录
     MobilePosPayRecordDetailAdapter adapter;
     RecyclerView recyclerView;
-
-    private int totalCount = 0;
-    private double totalAmount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,6 +167,13 @@ public class MobilePosPayMainActivity
         adapter = new MobilePosPayRecordDetailAdapter(mContext, listRecords);
         recyclerView.setAdapter(adapter);
         adapter.setOnItemClickListener(this);
+
+        getTodayRecords();
+        adapter.notifyDataSetChanged();
+
+        refreshStatistics();
+
+        refreshLocalTime();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -399,11 +402,10 @@ public class MobilePosPayMainActivity
             nfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
         }
 
-        getTodayRecords();
 
-        refreshStatistics(totalCount, totalAmount);
+        refreshStatistics();
 
-        adapter.notifyDataSetChanged();
+//        adapter.notifyDataSetChanged();
     }
 
     //页面失去焦点
@@ -474,19 +476,18 @@ public class MobilePosPayMainActivity
 
     /***
      * 刷新统计信息
-     * @param nCount
-     * @param famount
      */
-    private void refreshStatistics(int nCount, double famount) {
+    private void refreshStatistics() {
+        PaymentShiftEntity shiftEntity = MobilePosLoginActivity.getShiftEntry();
+        if(shiftEntity==null) return;
+
         String format = getString(R.string.formatTotalCount);
-        String str = String.format(format, nCount);
+        String str = String.format(format, shiftEntity.getTotalCount());
         tvTotalCount.setText(str);
 
         format = getString(R.string.formatTotalAmount);
-        str = String.format(format, famount);
+        str = String.format(format, shiftEntity.getTotalAmount()*0.01);
         tvTotalAmount.setText(str);
-
-        refreshLocalTime();
     }
 
     /***
@@ -633,7 +634,7 @@ public class MobilePosPayMainActivity
             return;
         }
 
-        double amount = 0;
+        int amount = 0;
         /***
          * 有效性判断
          */
@@ -643,24 +644,26 @@ public class MobilePosPayMainActivity
             return;
         }
         try {
-            amount = Double.parseDouble(etAmount.getText().toString());
+            amount = Integer.parseInt(etAmount.getText().toString());
         } catch (Exception e) {
             e.printStackTrace();
             playSound(false);
             showToast("请输入有效的金额!");
             return;
         }
-        etAmount.setText(String.format("%.2f", amount));
+        etAmount.setText(String.format("%d", amount));
 
         //  隐藏输入法
         hideInputKeyboard(etAmount);
 
-        if (amount > cardPaymentObj.getGremain()) {
+        //  比较余额
+        if ((amount*0.01) > cardPaymentObj.getGremain()) {
             showToast("余额不足支付!");
             playSound(false);
             return;
         }
 
+        //  开始支付
         AsynTaskPayment taskPayment = new AsynTaskPayment(amount);
         taskPayment.execute();
     }
@@ -669,11 +672,11 @@ public class MobilePosPayMainActivity
      * 异步支付任务
      */
     private class AsynTaskPayment extends AsyncTask<String, Integer, Integer> {
-        double famount = 0;
+        int namount = 0;
         String errString = "";
 
-        public AsynTaskPayment(double amount) {
-            this.famount = amount;
+        public AsynTaskPayment(int amount) {
+            this.namount = amount;
         }
 
         @Override
@@ -701,17 +704,17 @@ public class MobilePosPayMainActivity
             posInfoBean.setAuditNo(audit.getPosCno());
             savePosInfoBean(posInfoBean);
 
-            cardPaymentObj.setAmount((int) (famount * 100));
+            cardPaymentObj.setAmount(namount);
 
             Log.d(TAG, "cardPaymentObj:" + cardPaymentObj.toString());
 
             if (cardPaymentObj.getQrType() == 1) {
                 // public int qrPayment(int auditNo,int systemId,int qrType,String userId,Date cdate,int cmoney){
-                ret = obj.qrPayment(posInfoBean.getAuditNo(), cardPaymentObj.getSystemId(), cardPaymentObj.getQrType(), cardPaymentObj.getUserId(), new Date(), (int) (famount * 100));
+                ret = obj.qrPayment(posInfoBean.getAuditNo(), cardPaymentObj.getSystemId(), cardPaymentObj.getQrType(), cardPaymentObj.getUserId(), new Date(), namount);
                 DetLog.writeLog(TAG, "qrPayment:" + ret);
             } else {
                 // public int cardPayment(int auditNo,int cardno,Date cdate,int cmoney){
-                ret = obj.cardPayment(posInfoBean.getAuditNo(), cardPaymentObj.getCardno(), new Date(), (int) (famount * 100));
+                ret = obj.cardPayment(posInfoBean.getAuditNo(), cardPaymentObj.getCardno(), new Date(), namount);
                 DetLog.writeLog(TAG, "cardPayment:" + ret);
             }
 
@@ -723,6 +726,8 @@ public class MobilePosPayMainActivity
             super.onPostExecute(integer);
             missProDialog();
             isPaying = false;
+
+            etAmount.setText("");
 
             //  支付失败
             if (0 != integer) {
@@ -741,12 +746,22 @@ public class MobilePosPayMainActivity
             playSound(true);
 
             //  在线交易，所以会成功
-            PaymentRecord record = savePaymentRecord(famount, 1);
+            PaymentRecord record = savePaymentRecord(namount, 1);
 
-            totalCount++;
-            totalAmount = totalAmount + famount;
+            PaymentShiftEntity shiftEntity = MobilePosLoginActivity.getShiftEntry();
+            if(shiftEntity!=null){
+                if(record.getQrType()!=0){
+                    shiftEntity.setSubQrCount(shiftEntity.getSubQrCount()+1);
+                    shiftEntity.setSubQrAmount(shiftEntity.getSubQrAmount()+namount);
+                }else{
+                    shiftEntity.setSubCardCount(shiftEntity.getSubCardCount()+1);
+                    shiftEntity.setSubCardAmount(shiftEntity.getSubCardAmount()+namount);
+                }
+                savePaymentShiftEntity(shiftEntity);
+                Log.d(TAG,shiftEntity.toString());
+            }
 
-            refreshStatistics(totalCount, totalAmount);
+            refreshStatistics();
 
             //  打印
             PrinterUtils printerUtils = new PrinterUtils();
@@ -765,11 +780,13 @@ public class MobilePosPayMainActivity
                 case 100:       //  时间定时器
                     refreshLocalTime();
 
-                    //  查询到信息后，如果超过一定时间不支付，清除
-                    long t1 = SystemClock.elapsedRealtime();
-                    if ((t1 - lastQueryTime) >= MAX_IDLE_TIME_MS) {
-                        clearLastPayment();
-                        lastQueryTime = t1;
+                    if(!isPaying) {
+                        //  查询到信息后，如果超过一定时间不支付，清除
+                        long t1 = SystemClock.elapsedRealtime();
+                        if ((t1 - lastQueryTime) >= MAX_IDLE_TIME_MS) {
+                            clearLastPayment();
+                            lastQueryTime = t1;
+                        }
                     }
 
                     mHandler.sendEmptyMessageDelayed(100, 1000);
@@ -784,11 +801,11 @@ public class MobilePosPayMainActivity
 
     /***
      * 保存支付记录
-     * @param amount
+     * @param namount
      * @param uploadFlag
      */
-    private PaymentRecord savePaymentRecord(double amount, int uploadFlag) {
-        PaymentRecord record = new PaymentRecord(cardPaymentObj, amount, posInfoBean);
+    private PaymentRecord savePaymentRecord(int namount, int uploadFlag) {
+        PaymentRecord record = new PaymentRecord(cardPaymentObj, namount, posInfoBean);
         DetLog.writeLog(TAG,"支付成功："+record.toString());
 
         record.setUploadFlag(uploadFlag);
@@ -803,33 +820,15 @@ public class MobilePosPayMainActivity
 
 
     private void getTodayRecords() {
-        Calendar calnow = Calendar.getInstance();
-        calnow.set(Calendar.HOUR_OF_DAY, 0);
-        calnow.set(Calendar.MINUTE, 0);
-        calnow.set(Calendar.SECOND, 0);
-        calnow.set(Calendar.MILLISECOND, 0);
-
-        Date today = calnow.getTime();
-
-        calnow.add(Calendar.DAY_OF_YEAR, 1);
-        Date tommorw = calnow.getTime();
+        PaymentShiftEntity shiftEntity = MobilePosLoginActivity.getShiftEntry();
+        if(shiftEntity==null) return;
 
         listRecords.clear();
-        List<PaymentRecord> records = DBManager.getInstance().getPaymentRecordDao().queryBuilder()
-                .where(PaymentRecordDao.Properties.TransTime.ge(today))
-                .where(PaymentRecordDao.Properties.TransTime.lt(tommorw))
-                .list();
+        shiftEntity.resetRecordList();
+        List<PaymentRecord> records = shiftEntity.getRecordList();
         if (records.size() > 0) {
             Collections.reverse(records);
             listRecords.addAll(records);
-        }
-
-        totalCount = 0;
-        totalAmount = 0.0f;
-
-        for (PaymentRecord record : listRecords) {
-            totalCount++;
-            totalAmount = totalAmount + record.getAmount();
         }
 
         return;

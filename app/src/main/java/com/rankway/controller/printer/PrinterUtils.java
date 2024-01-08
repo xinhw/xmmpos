@@ -1,7 +1,10 @@
 package com.rankway.controller.printer;
 
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.rankway.controller.activity.project.manager.SpManager;
+import com.rankway.controller.common.AppIntentString;
 import com.rankway.controller.entity.PosInfoBean;
 import com.rankway.controller.persistence.entity.PaymentRecord;
 import com.rankway.controller.persistence.entity.PaymentShiftEntity;
@@ -20,6 +23,11 @@ public class PrinterUtils {
     private static final String TAG = "PrinterUtils";
 
     String title = "上海报业大厦";
+
+    public PrinterUtils(){
+        String title = SpManager.getIntance().getSpString(AppIntentString.PRINTER_HEADER);
+        if (TextUtils.isEmpty(title)) title = "上海报业大厦餐厅";
+    }
 
     private String combinePrintLine(int str1len,String str1,
                                     String str2){

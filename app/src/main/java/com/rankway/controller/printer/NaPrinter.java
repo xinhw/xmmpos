@@ -33,7 +33,7 @@ public class NaPrinter extends PrinterBase{
 
     @Override
     public int printString(String s) {
-        Log.d(TAG,"printString 无打印机");
+        Log.d(TAG,"打印："+s);
         return 0;
     }
 

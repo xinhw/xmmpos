@@ -288,4 +288,24 @@ public class PaymentShiftEntity
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getPaymentShiftEntityDao() : null;
     }
+
+    @Override
+    public String toString() {
+        return "PaymentShiftEntity{" +
+                "id=" + id +
+                ", posNo='" + posNo + '\'' +
+                ", operatorNo='" + operatorNo + '\'' +
+                ", shiftOnAuditNo=" + shiftOnAuditNo +
+                ", shiftOnTime=" + shiftOnTime +
+                ", shiftOffAuditNo=" + shiftOffAuditNo +
+                ", shiftOffTime=" + shiftOffTime +
+                ", reportTime=" + reportTime +
+                ", subCardCount=" + subCardCount +
+                ", subCardAmount=" + subCardAmount +
+                ", subQrCount=" + subQrCount +
+                ", subQrAmount=" + subQrAmount +
+                ", status=" + status +
+                ", shiftNo='" + shiftNo + '\'' +
+                '}';
+    }
 }

@@ -26,7 +26,7 @@ public class PaymentRecord implements Comparable<PaymentRecord>{
 
     int auditNo;        //  本地流水号
     String posNo;       //  POS号
-    int postype;        //  POS类型，0
+    int postype;        //  POS类型，0     借用为金额（分）
     int payway;         //  支付方式，2
     String userCode;    //  操作员
     int cardno;         //  卡号
@@ -86,17 +86,17 @@ public class PaymentRecord implements Comparable<PaymentRecord>{
         this.transTime = new Date();
     }
 
-    public PaymentRecord(cardInfo card, double amount,PosInfoBean pos){
+    public PaymentRecord(cardInfo card, int amount,PosInfoBean pos){
         this.auditNo = pos.getAuditNo();
         this.posNo = pos.getCposno();
-        this.postype = 0;
+        this.postype = amount;
         this.payway = 2;
         this.userCode = pos.getUsercode();
 
         this.cardno = card.getCardno();
         this.remain = card.getGremain();
-        this.amount = (float)amount;
-        this.balance =(float)(card.getGremain()-amount);
+        this.amount = (float)(amount*0.01);
+        this.balance =(float)(card.getGremain()-amount*0.01);
         this.typeid = 100;
         this.transTime = new Date();
         this.workNo = card.getGno();

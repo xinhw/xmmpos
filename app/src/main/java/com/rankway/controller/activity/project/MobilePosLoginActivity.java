@@ -2,7 +2,11 @@ package com.rankway.controller.activity.project;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.nfc.NfcAdapter;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -17,14 +21,20 @@ import com.rankway.controller.activity.project.manager.SpManager;
 import com.rankway.controller.common.AppIntentString;
 import com.rankway.controller.entity.PosInfoBean;
 import com.rankway.controller.hardware.util.DetLog;
+import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentShiftEntity;
+import com.rankway.controller.persistence.entity.UserInfoEntity;
+import com.rankway.controller.persistence.gen.UserInfoEntityDao;
 import com.rankway.controller.printer.PrinterBase;
 import com.rankway.controller.printer.PrinterFactory;
 import com.rankway.controller.printer.PrinterUtils;
 import com.rankway.controller.utils.DateStringUtils;
 import com.rankway.controller.webapi.payWebapi;
+import com.rankway.controller.webapi.posAudit;
 
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
 
 public class MobilePosLoginActivity
         extends BaseActivity
@@ -75,19 +85,8 @@ public class MobilePosLoginActivity
             checkBox.setChecked(true);
         }
 
-        //  刷新班次新信息
-        long shiftId = getLongInfo(AppIntentString.PAYMENT_SHIFT_ID);
-        if(shiftId<=0){
-            shiftEntity = new PaymentShiftEntity();
-            savePaymentShiftEntity(shiftEntity);
-            setLongInfo(AppIntentString.PAYMENT_SHIFT_ID,shiftEntity.getId());
-        }else{
-            shiftEntity = getPaymentShiftEntity(shiftId);
-        }
-        Log.d(TAG,"PaymentShiftEntity:"+shiftEntity.toString());
-
-        initPosConfig();
-
+        boolean b = initPosConfig();
+        if(b) beginSyncDataTask();
     }
 
     private void initView() {
@@ -121,6 +120,13 @@ public class MobilePosLoginActivity
             tvPosNo.setText(String.format("设备号：%s",posInfoBean.getCposno()));
         }
         refreshShiftStatus();
+
+        // 获取默认的NFC控制器
+        NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (nfcAdapter != null) {
+            Log.d(TAG, "disableForegroundDispatch");
+            nfcAdapter.disableForegroundDispatch(this);//关闭前台发布系统
+        }
     }
 
     @Override
@@ -138,7 +144,7 @@ public class MobilePosLoginActivity
      * 初始化POS配置信息
      * 必须要有PosNo和UserCode
      */
-    private void initPosConfig(){
+    private boolean initPosConfig(){
         //  查看配置信息
         posInfoBean = getPosInfoBean();
 
@@ -146,7 +152,7 @@ public class MobilePosLoginActivity
             //  信息没有被配置，直接进入到设置界面
             Intent intent = new Intent(mContext, MobilePosSettingsActivity.class);
             startActivityForResult(intent, 210);
-            return;
+            return false;
         }
 
         //  PosNo或UserCode不能是空
@@ -155,8 +161,9 @@ public class MobilePosLoginActivity
             //  信息没有被配置，直接进入到设置界面
             Intent intent = new Intent(mContext, MobilePosSettingsActivity.class);
             startActivityForResult(intent, 210);
+            return false;
         }
-
+        return true;
     }
 
     @Override
@@ -166,7 +173,8 @@ public class MobilePosLoginActivity
         Log.d(TAG, String.format("requestCode=%d,resultCode=%d", requestCode, resultCode));
         if (requestCode == 210) {
             //  信息同步
-            initPosConfig();
+            boolean b = initPosConfig();
+            if(b) beginSyncDataTask();
         }
     }
 
@@ -254,43 +262,31 @@ public class MobilePosLoginActivity
             return true;
         }
 
-        //  缓存登录用户名和密码
-        SpManager.getIntance().saveSpString(AppIntentString.LAST_LOGIN_USER,
-                etUserCode.getText().toString().trim());
-        SpManager.getIntance().saveSpString(AppIntentString.LAST_LOGIN_PASSWORD,
-                etPassword.getText().toString().trim());
-        if(checkBox.isChecked()){
-            setIntInfo(AppIntentString.REMEMBER_LOGIN_PIN,1);
-        }else{
-            setIntInfo(AppIntentString.REMEMBER_LOGIN_PIN,0);
+        //  普通用户
+        UserInfoEntity user = DBManager.getInstance().getUserInfoEntityDao()
+                .queryBuilder()
+                .where(UserInfoEntityDao.Properties.UserCode.eq(struserid))
+                .unique();
+        if (null == user) {
+            showToast("操作员代码或密码错误");
+            return false;
         }
 
-//        //  普通用户
-//        UserInfoEntity user = DBManager.getInstance().getUserInfoEntityDao()
-//                .queryBuilder()
-//                .where(UserInfoEntityDao.Properties.UserCode.eq(struserid))
-//                .unique();
-//        if (null == user) {
-//            showToast("操作员代码或密码错误");
-//            return false;
-//        }
-//
-//        if (user.getUserPassword().equalsIgnoreCase(strpassword)) {
-//            //  缓存登录用户名和密码
-//            SpManager.getIntance().saveSpString(AppIntentString.LAST_LOGIN_USER,
-//                    etUserCode.getText().toString().trim());
-//            SpManager.getIntance().saveSpString(AppIntentString.LAST_LOGIN_PASSWORD,
-//                    etPassword.getText().toString().trim());
-//
-//            if(checkBox.isChecked()){
-//                setIntInfo(AppIntentString.REMEMBER_LOGIN_PIN,1);
-//            }else{
-//                setIntInfo(AppIntentString.REMEMBER_LOGIN_PIN,0);
-//            }
-//
-//            return true;
-//        }
-//        showToast("操作员代码或密码错误");
+        if (user.getUserPassword().equalsIgnoreCase(strpassword)) {
+            //  缓存登录用户名和密码
+            SpManager.getIntance().saveSpString(AppIntentString.LAST_LOGIN_USER,
+                    etUserCode.getText().toString().trim());
+            SpManager.getIntance().saveSpString(AppIntentString.LAST_LOGIN_PASSWORD,
+                    etPassword.getText().toString().trim());
+            if(checkBox.isChecked()){
+                setIntInfo(AppIntentString.REMEMBER_LOGIN_PIN,1);
+            }else{
+                setIntInfo(AppIntentString.REMEMBER_LOGIN_PIN,0);
+            }
+
+            return true;
+        }
+        showToast("操作员代码或密码错误");
         return true;
     }
 
@@ -323,6 +319,8 @@ public class MobilePosLoginActivity
      */
     private void refreshShiftStatus(){
         Log.d(TAG,"refreshShiftStatus");
+        if(null==shiftEntity) return;
+
         if(shiftEntity.getStatus()==PaymentShiftEntity.SHIFT_STATUS_ON){
             tvShiftStatus.setText("当前状态：已开班");
         }else{
@@ -463,4 +461,127 @@ public class MobilePosLoginActivity
     public static PaymentShiftEntity getShiftEntry(){
         return shiftEntity;
     }
+
+
+    /***
+     * 开启数据同步任务
+     */
+    private void beginSyncDataTask() {
+        AsynSyncData task = new AsynSyncData();
+        task.execute();
+    }
+
+
+    /***
+     * 后台同步数据的异步任务
+     * 		1.操作员信息
+     * 		2.菜品种类和菜品明细（只下载上架的菜品）
+     * 		3.IC卡黑名单
+     * 		4.二维码黑名单
+     * 	    5.上传离线交易
+     */
+    private class AsynSyncData extends AsyncTask<String, Integer, Integer> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProDialog("同步信息,请稍等...");
+        }
+
+        @Override
+        protected Integer doInBackground(String... strings) {
+            int n = 0;
+
+            payWebapi obj = payWebapi.getInstance();
+            sendProccessMessage("同步 POS流水信息，请稍等...");
+            if (null != posInfoBean) {
+                obj.setServerIP(posInfoBean.getServerIP());
+                obj.setPortNo(posInfoBean.getPortNo());
+
+                obj.setMenuServerIP(posInfoBean.getMenuServerIP());
+                obj.setMenuPortNo(posInfoBean.getMenuPortNo());
+
+                //  获取POS机流水号
+                posAudit audit = obj.getPosAuditNo(posInfoBean.getCposno());
+                if (null != audit) {
+                    //  设置POS流水号
+                    posInfoBean.setAuditNo(audit.getPosCno());
+                    posInfoBean.setPosName(audit.getPosName());
+
+                    sendProccessMessage("同步 POS流水信息 成功");
+
+                    savePosInfoBean(posInfoBean);
+                }else{
+                    sendProccessMessage("同步 POS流水信息 失败");
+                }
+            }
+
+            //  1. 操作员信息
+            sendProccessMessage("同步 操作员信息，请稍等...");
+            List<UserInfoEntity> listUserInfo = obj.getUserInfoList();
+            if (listUserInfo == null) {
+                sendProccessMessage("同步 操作员信息 失败");
+            } else {
+                sendProccessMessage("同步 操作员信息 成功");
+                Log.d(TAG, "操作员个数：" + listUserInfo.size());
+                if(listUserInfo.size()>0) {
+                    DBManager.getInstance().getUserInfoEntityDao().deleteAll();
+                    DBManager.getInstance().getUserInfoEntityDao().saveInTx(listUserInfo);
+                }
+                n++;
+            }
+
+            //  清除日志文件
+            zapLogFile();
+
+            //  清除数据库
+            zapDatabase();
+
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            missProDialog();
+
+            //  刷新班次新信息
+            long shiftId = getLongInfo(AppIntentString.PAYMENT_SHIFT_ID);
+            if(shiftId<=0){
+                shiftEntity = new PaymentShiftEntity();
+                savePaymentShiftEntity(shiftEntity);
+                setLongInfo(AppIntentString.PAYMENT_SHIFT_ID,shiftEntity.getId());
+            }else{
+                shiftEntity = getPaymentShiftEntity(shiftId);
+            }
+            Log.d(TAG,"PaymentShiftEntity:"+shiftEntity.toString());
+
+            refreshShiftStatus();
+        }
+    }
+
+    private void sendProccessMessage(String msg) {
+        Message message = new Message();
+        message.what = 100;
+        message.obj = msg;
+        mHandler.sendMessage(message);
+    }
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (null == msg) return;
+            switch (msg.what) {
+                case 100:       //  显示对话框信息
+                    String str = (String) msg.obj;
+                    if (null != str) {
+                        setProDialogText(str);
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    };
 }

@@ -30,4 +30,5 @@ public class AppIntentString {
     public static final String LAST_LOGIN_PASSWORD = "lastLoginPassword";
     public static final String REMEMBER_LOGIN_PIN = "rememberLoginPin";
     public static final String PAYMENT_SHIFT_ID = "paymentShiftID";
+    public static final String PRINTER_HEADER = "printerHeader";
 }

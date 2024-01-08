@@ -68,6 +68,9 @@ public class MobilePosSettingsActivity
     private TextView menuServerIP;
     private TextView menuServerPort;
 
+    private TextView tvPrintHeader;
+    private TextView appUpgradeUrl;
+
     private  boolean passAdvancedPassword = false;
 
     @Override
@@ -87,7 +90,8 @@ public class MobilePosSettingsActivity
                 R.id.upload_log,R.id.about,
                 R.id.recover_data,
                 R.id.tvHttpTimeout,
-                R.id.menuServerIP,R.id.menuServerPort};
+                R.id.menuServerIP,R.id.menuServerPort,
+                R.id.appUpgradeUrl, R.id.tvPrintHeader};
         setOnClickListener(viewIds);
 
         tvPosName = findViewById(R.id.posname);
@@ -99,6 +103,9 @@ public class MobilePosSettingsActivity
         tvHttpTimeout = findViewById(R.id.tvHttpTimeout);
         menuServerIP = findViewById(R.id.menuServerIP);
         menuServerPort = findViewById(R.id.menuServerPort);
+
+        tvPrintHeader = findViewById(R.id.tvPrintHeader);
+        appUpgradeUrl = findViewById(R.id.appUpgradeUrl);
     }
 
     protected void setOnClickListener(int[] viewIds){
@@ -123,6 +130,7 @@ public class MobilePosSettingsActivity
             tvServerPort.setText(str);
             menuServerIP.setText("");
             menuServerPort.setText("");
+            appUpgradeUrl.setText("");
         }else{
             tvPosName.setText(infoBean.getCposno());
             tvPosNo.setText(infoBean.getCposno());
@@ -132,12 +140,18 @@ public class MobilePosSettingsActivity
             tvServerPort.setText(infoBean.getPortNo()+"");
             menuServerIP.setText(infoBean.getMenuServerIP());
             menuServerPort.setText(infoBean.getMenuPortNo()+"");
+            appUpgradeUrl.setText(infoBean.getUpgradeUrl());
         }
 
         //  通信超时
         int ret = SpManager.getIntance().getSpInt(AppIntentString.HTTP_OVER_TIME);
         if(ret<=0) ret = HttpUtil.DEFAULT_OVER_TIME;
         tvHttpTimeout.setText(ret+"");
+
+        //  打印头
+        String str = SpManager.getIntance().getSpString(AppIntentString.PRINTER_HEADER);
+        if (TextUtils.isEmpty(str)) str = "上海报业大厦餐厅";
+        tvPrintHeader.setText(str);
 
         return;
     }
@@ -170,6 +184,7 @@ public class MobilePosSettingsActivity
             case R.id.tvHttpTimeout:
             case R.id.menuServerIP:
             case R.id.menuServerPort:
+            case R.id.appUpgradeUrl:
                 showAdvanedSetting(v.getId());
                 break;
 
@@ -187,6 +202,10 @@ public class MobilePosSettingsActivity
 
             case R.id.recover_data:
                 showCleanDialog();
+                break;
+
+            case R.id.tvPrintHeader:
+                showPrintHeaderDialog();
                 break;
         }
     }
@@ -495,6 +514,16 @@ public class MobilePosSettingsActivity
                         new InputFilter.LengthFilter(5)
                 });
                 break;
+
+            case R.id.appUpgradeUrl:
+                builder.setTitle("APP升级地址：");
+                editMsg.setInputType(InputType.TYPE_CLASS_TEXT);
+//                String digits12 = "0123456789.:";
+//                editMsg.setKeyListener(DigitsKeyListener.getInstance(digits12));
+                editMsg.setFilters(new InputFilter[]{
+                        new InputFilter.LengthFilter(21)
+                });
+                break;
         }
 
         builder.setView(view);
@@ -552,6 +581,10 @@ public class MobilePosSettingsActivity
                             playSound(false);
                             return;
                         }
+                    case R.id.appUpgradeUrl:
+                        appUpgradeUrl.setText(msg);
+                        bean.setUpgradeUrl(msg);
+                        break;
                 }
                 savePosInfoBean(bean);
 
@@ -626,5 +659,38 @@ public class MobilePosSettingsActivity
         DetLog.writeLog(TAG,"onConfigurationChanged "+newConfig.toString());
         //USB 拔插动作, 这个方法都会被调用.
         super.onConfigurationChanged(newConfig);
+    }
+
+    /***
+     * 输入打印标题
+     */
+    private void showPrintHeaderDialog() {
+        // 展示提示框，进行数据清除
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_intput, null);
+        EditText editPassword = view.findViewById(R.id.edit_msg);
+        builder.setTitle("请输入打印标题:");
+        builder.setView(view);
+        editPassword.setInputType(InputType.TYPE_CLASS_TEXT);
+        editPassword.setFilters(new InputFilter[]{
+                new InputFilter.LengthFilter(8)
+        });
+
+        builder.setPositiveButton("确认", (dialog, which) -> {
+            String password = editPassword.getText().toString().trim();
+            if (TextUtils.isEmpty(password)) {
+                showToast("请输入打印标题！");
+                playSound(false);
+            } else {
+                tvPrintHeader.setText(password);
+
+                SpManager.getIntance().saveSpString(AppIntentString.PRINTER_HEADER, password);
+                playSound(true);
+
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("取消", (dialog, which) -> dialog.dismiss());
+        builder.create().show();
     }
 }

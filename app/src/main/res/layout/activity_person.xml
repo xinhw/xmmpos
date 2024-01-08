@@ -49,7 +49,7 @@
         <TextView
             android:id="@+id/posno"
             android:layout_width="0dp"
-            android:layout_weight="1.5"
+            android:layout_weight="3"
             android:layout_height="wrap_content"
             android:background="@drawable/seleted_status"
             android:padding="8dp"
@@ -80,7 +80,7 @@
         <TextView
             android:id="@+id/usercode"
             android:layout_width="0dp"
-            android:layout_weight="1.5"
+            android:layout_weight="3"
             android:layout_height="wrap_content"
             android:background="@drawable/seleted_status"
             android:padding="8dp"
@@ -110,7 +110,7 @@
         <TextView
             android:id="@+id/auditNo"
             android:layout_width="0dp"
-            android:layout_weight="1.5"
+            android:layout_weight="3"
             android:layout_height="wrap_content"
             android:background="@drawable/seleted_status"
             android:padding="8dp"
@@ -141,7 +141,7 @@
         <TextView
             android:id="@+id/serverIP"
             android:layout_width="0dp"
-            android:layout_weight="1.5"
+            android:layout_weight="3"
             android:layout_height="wrap_content"
             android:background="@drawable/seleted_status"
             android:padding="8dp"
@@ -172,7 +172,7 @@
         <TextView
             android:id="@+id/serverPort"
             android:layout_width="0dp"
-            android:layout_weight="1.5"
+            android:layout_weight="3"
             android:layout_height="wrap_content"
             android:background="@drawable/seleted_status"
             android:padding="8dp"
@@ -196,13 +196,13 @@
             android:layout_height="wrap_content"
             android:background="@drawable/seleted_status"
             android:padding="8dp"
-            android:text="升级服务器IP"
+            android:text="菜品服务器IP"
             android:textStyle="bold"
             android:textSize="16sp" />
         <TextView
             android:id="@+id/menuServerIP"
             android:layout_width="0dp"
-            android:layout_weight="1.5"
+            android:layout_weight="3"
             android:layout_height="wrap_content"
             android:background="@drawable/seleted_status"
             android:padding="8dp"
@@ -226,17 +226,47 @@
             android:layout_height="wrap_content"
             android:background="@drawable/seleted_status"
             android:padding="8dp"
-            android:text="升级服务器端口"
+            android:text="菜品服务器端口"
             android:textStyle="bold"
             android:textSize="16sp" />
         <TextView
             android:id="@+id/menuServerPort"
             android:layout_width="0dp"
-            android:layout_weight="1.5"
+            android:layout_weight="3"
             android:layout_height="wrap_content"
             android:background="@drawable/seleted_status"
             android:padding="8dp"
             android:text="6062"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/btn_gray_normal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:background="@drawable/seleted_status"
+            android:padding="8dp"
+            android:text="APP升级地址"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+        <TextView
+            android:id="@+id/appUpgradeUrl"
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_height="wrap_content"
+            android:background="@drawable/seleted_status"
+            android:padding="8dp"
+            android:text="121.36.16.185:2200"
             android:textStyle="bold"
             android:textSize="16sp" />
     </LinearLayout>
@@ -262,13 +292,43 @@
         <TextView
             android:id="@+id/tvHttpTimeout"
             android:layout_width="0dp"
-            android:layout_weight="1.5"
+            android:layout_weight="3"
             android:layout_height="wrap_content"
             android:background="@drawable/seleted_status"
             android:padding="8dp"
             android:text="15000"
             android:maxLength="5"
             android:inputType="number"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/btn_gray_normal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:background="@drawable/seleted_status"
+            android:padding="8dp"
+            android:text="打印标题"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+        <TextView
+            android:id="@+id/tvPrintHeader"
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_height="wrap_content"
+            android:background="@drawable/seleted_status"
+            android:padding="8dp"
+            android:text="30"
             android:textStyle="bold"
             android:textSize="16sp" />
     </LinearLayout>
