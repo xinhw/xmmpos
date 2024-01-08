@@ -1,11 +1,9 @@
 package com.rankway.controller.printer;
 
 import android.content.Context;
-import android.os.RemoteException;
 import android.util.Log;
 
-import com.imin.printer.INeoPrinterCallback;
-import com.imin.printer.PrinterHelper;
+import com.imin.printerlib.IminPrintUtils;
 
 /**
  * <pre>
@@ -13,68 +11,63 @@ import com.imin.printer.PrinterHelper;
  *   e-mail : xinhw@wxsemicon.com
  *   time  : 2024/01/01
  *   desc  :
+
+    SDK V1.0
+    https://yiminoss.neostra.com/docs/Printer.html#id6
+
+    // PrinterSDK
+    https://yiminoss.neostra.com/docs/PrinterSDK.html
+
  *   version: 1.0
  * </pre>
  */
 public class iminPrinter extends PrinterBase{
     private final String TAG = "iminPrinter";
 
-    private PrinterHelper printerHelper = null;
+    private IminPrintUtils printerHelper = null;
 
     public iminPrinter(Context context) {
         super(context);
     }
 
+    private static boolean bOpened = false;
+
     @Override
     public int openPrinter() {
         Log.d(TAG,"openPrinter");
 
-        printerHelper = PrinterHelper.getInstance();
+        printerHelper = IminPrintUtils.getInstance(mContext);
         if(null==printerHelper){
-            Log.d(TAG,"PrinterHelper.getInstance()为空");
+            Log.d(TAG,"IminPrintUtils.getInstance 返回为空");
             return -1;
         }
+        if(bOpened) return 0;
 
-        printerHelper.initPrinterService(mContext);
+        //  必须加这个，否则设备状态不对
+        printerHelper.resetDevice();
 
-        printerHelper.initPrinter(mContext.getPackageName(), new INeoPrinterCallback() {
-            @Override
-            public void onRunResult(boolean isSuccess) throws RemoteException {
-                Log.d(TAG,"onRunResult");
-                if(isSuccess){
-                    Log.d(TAG,"初始化成功");
-                }else{
-                    Log.d(TAG,"初始化失败");
-                }
-            }
+        printerHelper.initPrinter(IminPrintUtils.PrintConnectType.USB);
+        /*
+        * -1 --> The printer is not connected or powered on
+            0 --> The printer is normal
+            1 --> The printer is not connected or powered on
+            3 --> Print head open
+            7 --> No Paper Feed
+            8 --> Paper Running Out
+            99 --> Other errors
+        */
+        int i = printerHelper.getPrinterStatus(IminPrintUtils.PrintConnectType.USB);
+        if(i==0) bOpened = true;
 
-            @Override
-            public void onReturnString(String result) throws RemoteException {
-                Log.d(TAG,"onReturnString " + result);
-            }
+        Log.d(TAG,"Printer状态："+i);
 
-            @Override
-            public void onRaiseException(int code, String msg) throws RemoteException {
-                Log.d(TAG,"onRaiseException " + msg);
-            }
-
-            @Override
-            public void onPrintResult(int code, String msg) throws RemoteException {
-                Log.d(TAG,"onPrintResult "+ msg);
-            }
-        });
+        printerHelper.setTextSize(24);
         return 0;
     }
 
     @Override
     public void closePrinter() {
         Log.d(TAG,"closePrinter");
-
-        if(null!=printerHelper) {
-            printerHelper.deInitPrinterService(mContext);
-        }
-
-        printerHelper = null;
     }
 
     @Override
@@ -82,31 +75,11 @@ public class iminPrinter extends PrinterBase{
         Log.d(TAG,"printString "+s);
 
         if(null==printerHelper){
-            Log.d(TAG,"PrinterHelper.getInstance()为空");
+            Log.d(TAG,"IminPrintUtils.getInstance() 为空");
             return -1;
         }
 
-        printerHelper.printText(s, new INeoPrinterCallback() {
-            @Override
-            public void onRunResult(boolean isSuccess) throws RemoteException {
-
-            }
-
-            @Override
-            public void onReturnString(String result) throws RemoteException {
-
-            }
-
-            @Override
-            public void onRaiseException(int code, String msg) throws RemoteException {
-
-            }
-
-            @Override
-            public void onPrintResult(int code, String msg) throws RemoteException {
-
-            }
-        });
+        printerHelper.printText(s + "\n");
         return 0;
     }
 
@@ -120,22 +93,34 @@ public class iminPrinter extends PrinterBase{
         Log.d(TAG,"partialCut");
 
         if(null==printerHelper){
-            Log.d(TAG,"PrinterHelper.getInstance()为空");
+            Log.d(TAG,"IminPrintUtils.getInstance() 为空");
             return;
         }
+        printerHelper.printAndLineFeed();
+        printerHelper.printAndLineFeed();
+        printerHelper.printAndLineFeed();
+
         printerHelper.partialCut();
     }
 
+    @Override
+    public int getStatus() {
+        if(printerHelper==null) return -1;
+        int i = printerHelper.getPrinterStatus(IminPrintUtils.PrintConnectType.USB);
+        return i;
+    }
+
     /*
-    设置对齐方式
-        函数：setAlignment(alignment)
-        参数：
-            alignment –>
-                0 = 左
-                1 = 中
-                2 =右
-                默认= 0
-        示例：
-            IminPrintInstance.setAlignment(1);
+        6、Set text alignment
+        Function：void setAlignment(int alignment)
+        parameter：
+            alignment --> Set text alignment 0 = left / 1 = center / 2 = right / default = 0
+
+
+        7、Set text size
+        Function：void setTextSize(int size)
+        parameter：
+            size --> Set text size default 28
+
     */
 }

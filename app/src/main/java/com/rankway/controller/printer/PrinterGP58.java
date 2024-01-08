@@ -178,6 +178,11 @@ public class PrinterGP58 extends PrinterBase{
 
     }
 
+    @Override
+    public int getStatus() {
+        return 0;
+    }
+
 
     /**
      * Create a broadcast receiver.

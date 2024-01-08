@@ -48,4 +48,9 @@ public class NaPrinter extends PrinterBase{
         Log.d(TAG,"partialCut 无打印机");
         return;
     }
+
+    @Override
+    public int getStatus() {
+        return 0;
+    }
 }

@@ -87,6 +87,10 @@ public class MobilePosLoginActivity
 
         boolean b = initPosConfig();
         if(b) beginSyncDataTask();
+
+        //  初始化打印机
+        PrinterBase printer = PrinterFactory.getPrinter(mContext);
+        printer.openPrinter();
     }
 
     private void initView() {
@@ -101,7 +105,6 @@ public class MobilePosLoginActivity
         etPassword = findViewById(R.id.etPassword);
 
         checkBox = findViewById(R.id.chkboxRemeberPIN);
-
     }
 
     private void setOnClickListener(int[] ids) {
@@ -380,6 +383,15 @@ public class MobilePosLoginActivity
         //  判断是否已经结班
         if(shiftEntity==null) return;
 
+        PrinterBase printer = PrinterFactory.getPrinter(mContext);
+        if(printer!=null){
+            int ret = printer.getStatus();
+            if(ret!=0){
+                showPrinterStatus(ret);
+                return;
+            }
+        }
+
         if(shiftEntity.getStatus()!=PaymentShiftEntity.SHIFT_STATUS_ON) {
             playSound(false);
             //  已经结班，是否要重新打印
@@ -445,17 +457,12 @@ public class MobilePosLoginActivity
     private void printShiftOffEntity(PaymentShiftEntity shiftEntity){
         //  打印部分
         PrinterBase printer = PrinterFactory.getPrinter(mContext);
-        int ret = printer.openPrinter();
-        if (0 != ret) {
-            playSound(false);
-            showLongToast("打印机初始化失败，请检查连接");
-        } else {
+        if(printer==null) return;
 
-            PrinterUtils printerUtils = new PrinterUtils();
-            printerUtils.printShiftSettle(printer,shiftEntity);
+        PrinterUtils printerUtils = new PrinterUtils();
+        printerUtils.printShiftSettle(printer,shiftEntity);
 
-            printer.closePrinter();
-        }
+        printer.closePrinter();
     }
 
     public static PaymentShiftEntity getShiftEntry(){

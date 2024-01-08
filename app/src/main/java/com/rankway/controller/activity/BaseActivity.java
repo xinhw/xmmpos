@@ -1311,4 +1311,36 @@ public class BaseActivity extends AppCompatActivity {
         if(null==shiftEntity) return;
         DBManager.getInstance().getPaymentShiftEntityDao().save(shiftEntity);
     }
+
+    /*
+    * -1 --> The printer is not connected or powered on
+        0 --> The printer is normal
+        1 --> The printer is not connected or powered on
+        3 --> Print head open
+        7 --> No Paper Feed
+        8 --> Paper Running Out
+        99 --> Other errors
+    */
+    protected void showPrinterStatus(int ret) {
+        String s = "";
+        switch (ret){
+            case 1:
+                s = "未连接打印机或打印机未上电";
+                break;
+            case 3:
+                s = "请先关闭打印机盖";
+                break;
+            case 7:
+                s = "打印机缺纸";
+                break;
+            case 8:
+                s = "打印机用完";
+                break;
+            default:
+                s =String.format("打印机出错:%d",ret);
+                break;
+        }
+        showStatusDialog(s);
+        playSound(false);
+    }
 }

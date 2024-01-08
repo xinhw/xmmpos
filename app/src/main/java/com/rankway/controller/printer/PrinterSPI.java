@@ -218,6 +218,11 @@ public class PrinterSPI extends PrinterBase {
 
     }
 
+    @Override
+    public int getStatus() {
+        return 0;
+    }
+
     //----------------------------------------------------打印机上电
     private void OpenPrint(){
         Log.d(TAG, "OpenPrint: ");

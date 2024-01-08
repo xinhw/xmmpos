@@ -45,9 +45,18 @@ public class DateStringUtils {
     }
 
     public static String getDateDStr(long ltm){
-        String formatType="yyyy/MM/dd HH:mm:ss";
+        String formatType="yy/MM/dd HH:mm:ss";
         Date date = new Date(ltm);
         return new SimpleDateFormat(formatType).format(date);
     }
 
+    public static String getDateYYYYMMDD(Date date){
+        String formatType="yyyy/MM/dd";
+        return new SimpleDateFormat(formatType).format(date);
+    }
+
+    public static String getTimeHHMMSS(Date date){
+        String formatType="HH:mm:ss";
+        return new SimpleDateFormat(formatType).format(date);
+    }
 }

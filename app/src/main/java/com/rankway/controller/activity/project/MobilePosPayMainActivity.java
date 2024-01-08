@@ -39,6 +39,7 @@ import com.rankway.controller.hardware.util.DetLog;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecord;
 import com.rankway.controller.persistence.entity.PaymentShiftEntity;
+import com.rankway.controller.printer.PrinterBase;
 import com.rankway.controller.printer.PrinterFactory;
 import com.rankway.controller.printer.PrinterUtils;
 import com.rankway.controller.scan.ScannerBase;
@@ -663,10 +664,21 @@ public class MobilePosPayMainActivity
             return;
         }
 
+        PrinterBase printer = PrinterFactory.getPrinter(mContext);
+        if(printer!=null){
+            int ret = printer.getStatus();
+            if(ret!=0){
+                showPrinterStatus(ret);
+                return;
+            }
+        }
+
         //  开始支付
         AsynTaskPayment taskPayment = new AsynTaskPayment(amount);
         taskPayment.execute();
     }
+
+
 
     /****
      * 异步支付任务

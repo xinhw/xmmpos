@@ -10,6 +10,8 @@ import com.rankway.controller.persistence.entity.PaymentRecord;
 import com.rankway.controller.persistence.entity.PaymentShiftEntity;
 import com.rankway.controller.utils.DateStringUtils;
 
+import java.util.Date;
+
 /**
  * <pre>
  *   author : Xin Hongwei
@@ -78,31 +80,29 @@ public class PrinterUtils {
         if(null==record) return;
         if(null==pos) return;
 
-        printer.openPrinter();
-
         String s = "";
 
         //  走纸5行
         // printBytes(PrinterFormatUtils.getFeedCommand(2));
 
-        s = "--------------------------------";
+        s = "------------------------------------------------";
         printer.printString(s);
 
         printer.printString(title);
 
-        s = "--------------------------------";
+        s = "------------------------------------------------";
         printer.printString(s);
 
         //  POS机号
-        s =combinePrintLine(12,"POS号：",pos.getCposno());
+        s =combinePrintLine(10,"设备号：",pos.getCposno());
         printer.printString(s);
 
         //  流水号
-        s =combinePrintLine(12,"流水号：",pos.getAuditNo()+"");
+        s =combinePrintLine(10,"流水号：",pos.getAuditNo()+"");
         printer.printString(s);
 
         //  工号
-        s =combinePrintLine(12,"工号：",record.getWorkNo());
+        s =combinePrintLine(12,"工    号：",record.getWorkNo());
         printer.printString(s);
 
         //  支付方式
@@ -111,23 +111,28 @@ public class PrinterUtils {
         }else{
             s = "二维码";
         }
-        s = combinePrintLine(12,"方式：",s);
+        s = combinePrintLine(12,"方    式：",s);
+        printer.printString(s);
+
+        //  日期
+        s = combinePrintLine(12,"日    期：", DateStringUtils.getDateYYYYMMDD(new Date()));
         printer.printString(s);
 
         //  时间
-        s = combinePrintLine(12,"时间：", DateStringUtils.dateToString(record.getTransTime()));
+        s = combinePrintLine(12,"时    间：", DateStringUtils.getTimeHHMMSS(new Date()));
         printer.printString(s);
 
-        String samount = padLeftSpace(String.format("%.2f",record.getAmount()),11);
-        s = padRightSpace("消费金额：",10);
-        printer.printString(s+samount);
+        String samount = String.format("%.2f",record.getAmount());
+        s = combinePrintLine(12,"金    额：", samount);
+        printer.printString(s);
 
         float f = record.getRemain() - record.getAmount();
-        samount = padLeftSpace(String.format("%.2f", f), 11);
-        s = padRightSpace("剩余金额：", 10);
-        printer.printString(s + samount);
+        samount = String.format("%.2f", f);
+        s = combinePrintLine(12,"余    额：", samount);
+        printer.printString(s);
 
-
+        s = "------------------------------------------------";
+        printer.printString(s);
 //        //  走纸3行
 //        printer.printBytes(PrinterFormatUtils.getFeedCommand(3));
 
@@ -167,7 +172,7 @@ public class PrinterUtils {
         // printBytes(PrinterFormatUtils.getFeedCommand(2));
         shiftEntity.setShiftNo(DateStringUtils.getYYMMDDHHMMss(shiftEntity.getShiftOnTime())+shiftEntity.getShiftOnAuditNo());
 
-        s = "--------------------------------";
+        s = "------------------------------------------------";
         printer.printString(s);
 
         //  放大字体
@@ -177,19 +182,19 @@ public class PrinterUtils {
         //  字体正常
         printer.printBytes(PrinterFormatUtils.getFontSizeCommand(false));
 
-        s = "--------------------------------";
+        s = "------------------------------------------------";
         printer.printString(s);
 
         //  POS机号
-        s =combinePrintLine(12,"POS号：",shiftEntity.getPosNo());
+        s =combinePrintLine(10,"设备号：",shiftEntity.getPosNo());
         printer.printString(s);
 
         //  POS机号
-        s =combinePrintLine(12,"收银员：",shiftEntity.getOperatorNo());
+        s =combinePrintLine(10,"收银员：",shiftEntity.getOperatorNo());
         printer.printString(s);
 
         //  班次号：
-        s =combinePrintLine(12,"班次号：",shiftEntity.getShiftNo());
+        s =combinePrintLine(10,"班次号：",shiftEntity.getShiftNo());
         printer.printString(s);
 
         //  开班流水
@@ -225,5 +230,63 @@ public class PrinterUtils {
         printer.partialCut();
 
         return;
+    }
+
+
+    public void printTest(PrinterBase printer){
+        String s = "";
+
+        //  走纸5行
+        // printBytes(PrinterFormatUtils.getFeedCommand(2));
+
+        s = "------------------------------------------------";
+        printer.printString(s);
+
+        printer.printString(title);
+
+        s = "------------------------------------------------";
+        printer.printString(s);
+
+        //  POS机号
+        s =combinePrintLine(10,"设备号：","10003");
+        printer.printString(s);
+
+        //  流水号
+        s =combinePrintLine(10,"流水号：","20013");
+        printer.printString(s);
+
+        //  工号
+        s =combinePrintLine(12,"工    号：","00002203");
+        printer.printString(s);
+
+        //  支付方式
+        s = "IC卡";
+        s = combinePrintLine(12,"方    式：",s);
+        printer.printString(s);
+
+        //  日期
+        s = combinePrintLine(12,"日    期：", DateStringUtils.getDateYYYYMMDD(new Date()));
+        printer.printString(s);
+
+        //  时间
+        s = combinePrintLine(12,"时    间：", DateStringUtils.getTimeHHMMSS(new Date()));
+        printer.printString(s);
+
+        String samount = String.format("%.2f",10.23);
+        s = combinePrintLine(12,"金    额：", samount);
+        printer.printString(s);
+
+        samount = String.format("%.2f",1512.45);
+        s = combinePrintLine(12,"余    额：", samount);
+        printer.printString(s);
+
+        s = "------------------------------------------------";
+        printer.printString(s);
+
+//        //  走纸3行
+//        printer.printBytes(PrinterFormatUtils.getFeedCommand(3));
+
+        //  切纸并且走纸
+        printer.partialCut();
     }
 }
