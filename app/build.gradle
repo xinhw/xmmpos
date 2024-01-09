@@ -25,7 +25,7 @@ android {
     defaultConfig {
         applicationId "com.rankway.controller"
         minSdkVersion 28
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 10
         versionName "1.0.${defaultConfig.versionCode}"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
