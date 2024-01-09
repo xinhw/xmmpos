@@ -51,6 +51,7 @@ import com.rankway.controller.hardware.util.SoundPoolHelp;
 import com.rankway.controller.persistence.DBManager;
 import com.rankway.controller.persistence.entity.PaymentRecord;
 import com.rankway.controller.persistence.entity.PaymentShiftEntity;
+import com.rankway.controller.persistence.gen.PaymentRecordDao;
 import com.rankway.controller.persistence.gen.PaymentShiftEntityDao;
 import com.rankway.controller.utils.AppUtils;
 import com.rankway.controller.utils.AsyncHttpCilentUtil;
@@ -58,6 +59,7 @@ import com.rankway.controller.utils.DateStringUtils;
 import com.rankway.controller.utils.ToastUtils;
 import com.rankway.controller.utils.UpdateAppUtils;
 import com.rankway.controller.utils.VibrateUtil;
+import com.rankway.controller.webapi.payWebapi;
 import com.rankway.controller.widget.MyAlertDialog;
 
 import org.apache.commons.lang3.StringUtils;
@@ -1098,7 +1100,32 @@ public class BaseActivity extends AppCompatActivity {
      * @return
      */
     protected int zapDatabase() {
-        final int cleanMonths = -3;
+        final int cleanMonths = -12;
+
+        //  获取指定月份之前的文件
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.MONTH,cleanMonths);
+        Date cleanDate = calendar.getTime();
+        Log.d(TAG,"清除之前的数据："+DateStringUtils.getYYMMDDHHMMss(cleanDate.getTime()));
+
+        List<PaymentRecord> records = DBManager.getInstance().getPaymentRecordDao()
+                .queryBuilder()
+                .where(PaymentRecordDao.Properties.TransTime.lt(cleanDate))
+                .where(PaymentRecordDao.Properties.UploadFlag.eq(1))
+                .orderDesc(PaymentRecordDao.Properties.Id)
+                .list();
+
+        Log.d(TAG,"PaymentRecord "+records.size());
+        if(records.size()>0){
+            long id = records.get(0).getId();
+            DetLog.writeLog(TAG,String.format("PaymentRecordEntity 清除%d之前的数据",id));
+            DBManager.getInstance().getPaymentRecordDao()
+                    .queryBuilder()
+                    .where(PaymentRecordDao.Properties.Id.lt(id))
+                    .buildDelete()
+                    .executeDeleteWithoutDetachingEntities();
+        }
 
         return 0;
     }
@@ -1342,5 +1369,36 @@ public class BaseActivity extends AppCompatActivity {
         }
         showStatusDialog(s);
         playSound(false);
+    }
+
+    /***
+     * 上传未上传结班记录
+     */
+    protected void uploadShiftRecords(){
+        Log.d(TAG,"uploadShiftRecord");
+
+        PosInfoBean posInfoBean = getPosInfoBean();
+        payWebapi obj = payWebapi.getInstance();
+        if(null!=posInfoBean){
+            obj.setServerIP(posInfoBean.getServerIP());
+            obj.setPortNo(posInfoBean.getPortNo());
+
+            obj.setMenuServerIP(posInfoBean.getMenuServerIP());
+            obj.setMenuPortNo(posInfoBean.getMenuPortNo());
+        }
+
+        List<PaymentShiftEntity> list0 = DBManager.getInstance().getPaymentShiftEntityDao()
+                .queryBuilder()
+                .where(PaymentShiftEntityDao.Properties.Status.eq(PaymentShiftEntity.SHIFT_STATUS_OFF))
+                .list();
+
+        if(list0.size()==0) return;
+
+        for(PaymentShiftEntity entity:list0){
+            DetLog.writeLog(TAG,"上传结班记录："+entity.toString());
+            obj.uploadShiftOff(entity);
+            detSleep(100);
+        }
+        return;
     }
 }

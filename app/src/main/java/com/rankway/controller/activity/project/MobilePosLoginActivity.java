@@ -537,6 +537,9 @@ public class MobilePosLoginActivity
                 n++;
             }
 
+            //  未上传结班信息
+            uploadShiftRecords();
+
             //  清除日志文件
             zapLogFile();
 
