@@ -51,6 +51,7 @@ public class NaPrinter extends PrinterBase{
 
     @Override
     public int getStatus() {
+        Log.d(TAG,"getStatus");
         return 0;
     }
 }

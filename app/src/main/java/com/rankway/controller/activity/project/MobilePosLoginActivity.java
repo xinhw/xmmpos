@@ -105,6 +105,9 @@ public class MobilePosLoginActivity
         etPassword = findViewById(R.id.etPassword);
 
         checkBox = findViewById(R.id.chkboxRemeberPIN);
+
+        TextView textView = findViewById(R.id.tvExit);
+        textView.setOnClickListener(this);
     }
 
     private void setOnClickListener(int[] ids) {

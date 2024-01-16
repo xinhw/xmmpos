@@ -18,6 +18,8 @@ import com.imin.printerlib.IminPrintUtils;
     // PrinterSDK
     https://yiminoss.neostra.com/docs/PrinterSDK.html
 
+    特别注意：   一敏打印机调试需要使用TCP adb模式，不能使用USB调试（因为用了同一个端口）
+
  *   version: 1.0
  * </pre>
  */
@@ -41,7 +43,10 @@ public class iminPrinter extends PrinterBase{
             Log.d(TAG,"IminPrintUtils.getInstance 返回为空");
             return -1;
         }
-        if(bOpened) return 0;
+        if(bOpened){
+            Log.d(TAG,"打印机已经打开");
+            return 0;
+        }
 
         //  必须加这个，否则设备状态不对
         printerHelper.resetDevice();
@@ -61,6 +66,7 @@ public class iminPrinter extends PrinterBase{
 
         Log.d(TAG,"Printer状态："+i);
 
+        //  缺省字体是28
         printerHelper.setTextSize(24);
         return 0;
     }

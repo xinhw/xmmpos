@@ -350,6 +350,15 @@ public class MobilePosPayMainActivity
             if (null == scanResult) return;
             if (scanResult.length() == 0) return;
 
+            processScanResult(scanResult);
+
+            return;
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private void processScanResult(String scanResult){
+        Log.d(TAG,"processScanResult "+scanResult);
             try {
                 cardPaymentObj = decodeQRCode.decode(scanResult);
             }catch (Exception e){
@@ -363,11 +372,8 @@ public class MobilePosPayMainActivity
             }
 
             startQuery(PAYMENT_TYPE_QRCODE);
-
-            return;
         }
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -375,6 +381,16 @@ public class MobilePosPayMainActivity
 
         Log.d(TAG, String.format("requestCode=%d,resultCode=%d", requestCode, resultCode));
         if (requestCode == 210) {
+        }
+
+        if(requestCode == 220){
+            switch (resultCode){
+                case RESULT_OK:
+                    cameraScanResult = data.getExtras().getString("value");//得到CameraScanActivity 关闭后返回的数据
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -403,10 +419,12 @@ public class MobilePosPayMainActivity
             nfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
         }
 
-
         refreshStatistics();
 
-//        adapter.notifyDataSetChanged();
+        if(!StringUtils.isEmpty(cameraScanResult)){
+            processScanResult(cameraScanResult);
+            cameraScanResult = "";
+        }
     }
 
     //页面失去焦点
@@ -777,8 +795,11 @@ public class MobilePosPayMainActivity
 
             //  打印
             PrinterUtils printerUtils = new PrinterUtils();
-            printerUtils.printPayment(PrinterFactory.getPrinter(mContext),posInfoBean,record);
 
+            for(int i=0;i<2;i++) {
+                printerUtils.printPayment(PrinterFactory.getPrinter(mContext), posInfoBean, record);
+                detSleep(100);
+            }
             return;
         }
     }
@@ -855,6 +876,7 @@ public class MobilePosPayMainActivity
         super.onConfigurationChanged(newConfig);
     }
 
+    private String cameraScanResult = "";
     private void startCameraScan(){
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
@@ -862,7 +884,8 @@ public class MobilePosPayMainActivity
                     new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE,
                             Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
         } else {
-            startActivity(new Intent(this,CameraScanActivity.class));
+            cameraScanResult = "";
+            startActivityForResult(new Intent(this,CameraScanActivity.class),220);
         }
     }
 
@@ -871,7 +894,8 @@ public class MobilePosPayMainActivity
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         Log.d(TAG,"onRequestPermissionsResult="+grantResults[0]);
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            startActivity(new Intent(this,CameraScanActivity.class));
+            cameraScanResult = "";
+            startActivityForResult(new Intent(this,CameraScanActivity.class),220);
         }
     }
 }

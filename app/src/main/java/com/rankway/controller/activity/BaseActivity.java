@@ -1305,11 +1305,13 @@ public class BaseActivity extends AppCompatActivity {
         String strModel = Build.MODEL.toUpperCase();
         Log.d(TAG,"MODEL:"+strModel);
 
+        //  一敏Swift 1
         if(strModel.contains("SWIFT 1")){
             return false;
         }
 
-        if(strModel.contains("X1")){
+        //  iData T1
+        if(strModel.contains("T1")){
             return true;
         }
         return false;

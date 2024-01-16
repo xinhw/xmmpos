@@ -7,8 +7,8 @@ import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -131,11 +131,18 @@ public class CameraScanActivity extends Activity implements SurfaceHolder.Callba
                 mCamera.release();
                 mCamera = null;
 
+//                Intent intent = new Intent();
+//                intent.setAction(MobilePosPayMainActivity.RES_ACTION);
+//                intent.putExtra("value", rawResult.toString());
+//                Log.d(TAG,"LocalBroadcastManager sendBroadcast");
+//                LocalBroadcastManager.getInstance(CameraScanActivity.this).sendBroadcast(intent);
+
+                //数据是使用Intent返回
                 Intent intent = new Intent();
-                intent.setAction(MobilePosPayMainActivity.RES_ACTION);
+                //把返回数据存入Intent
                 intent.putExtra("value", rawResult.toString());
-                Log.d(TAG,"LocalBroadcastManager sendBroadcast");
-                LocalBroadcastManager.getInstance(CameraScanActivity.this).sendBroadcast(intent);
+                //设置返回数据
+                setResult(RESULT_OK, intent);//RESULT_OK为自定义常量
 
 //                textview.setText(sb.toString());
                 textview.setText(rawResult.toString());
@@ -185,5 +192,27 @@ public class CameraScanActivity extends Activity implements SurfaceHolder.Callba
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Log.d(TAG, "onKeyDown:" + keyCode);
+
+        //  右下角返回键
+        if (KeyEvent.KEYCODE_BACK == keyCode) {
+            //数据是使用Intent返回
+            Intent intent = new Intent();
+            //设置返回数据
+            setResult(RESULT_CANCELED, intent);
+            //关闭Activity
+            finish();
+
+            return false;
+        }
+        if (KeyEvent.KEYCODE_HOME == keyCode) {
+            return true;
+        }
+
+        return super.onKeyDown(keyCode, event);
     }
 }
